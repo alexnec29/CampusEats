@@ -1,0 +1,31 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+out/
+
+# .NET / Visual Studio
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.vscode/
+*.vs/
+*.local
+
+# Logs
+*.log
+
+# Temp / Editor
+*.tmp
+*.swp
+*.DS_Store
