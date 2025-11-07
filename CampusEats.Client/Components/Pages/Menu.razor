@@ -1,0 +1,27 @@
+﻿@page "/menu"
+@using CampusEats.Client.Components.Shared  // important
+
+<h3>Menu</h3>
+
+@if (MenuItems == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MenuList Items="@MenuItems" />
+}
+
+@code {
+    private List<MenuList.MenuItem>? MenuItems;
+
+    protected override void OnInitialized()
+    {
+        MenuItems = new List<MenuList.MenuItem>
+        {
+            new MenuList.MenuItem { Name = "Pizza", Price = 10 },
+            new MenuList.MenuItem { Name = "Salad", Price = 5 },
+            new MenuList.MenuItem { Name = "Soup", Price = 6 }
+        };
+    }
+}

@@ -1,0 +1,11 @@
+﻿<div class="order-card">
+    <p>Order #@OrderNumber</p>
+    <p>Item: @ItemName</p>
+    <p>Price: $@Price</p>
+</div>
+
+@code {
+    [Parameter] public int OrderNumber { get; set; }
+    [Parameter] public string ItemName { get; set; } = "";
+    [Parameter] public decimal Price { get; set; }
+}
