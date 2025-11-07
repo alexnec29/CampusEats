@@ -2,14 +2,15 @@ using CampusEats.Client.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// === Blazor setup ===
+var apiBaseUrl = builder.Configuration["ApiBaseUrl"] 
+                 ?? throw new InvalidOperationException("ApiBaseUrl not configured.");
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// === HTTP client către API ===
 builder.Services.AddHttpClient("CampusEatsApi", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:5078"); // pune aici portul real din API
+    client.BaseAddress = new Uri(apiBaseUrl);
 });
 
 var app = builder.Build();

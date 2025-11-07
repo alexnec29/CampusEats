@@ -1,8 +1,15 @@
+using CampusEats.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<CampusEatsDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 
 var app = builder.Build();
 
@@ -14,8 +21,21 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// === Test endpoint ===
-app.MapGet("/ping", () => "pong")
-   .WithName("Ping");
+app.MapGet("/ping", () => "pong").WithName("Ping");
+
+app.MapGet("/db-test", async (CampusEatsDbContext db) =>
+    {
+        try
+        {
+            await db.Database.OpenConnectionAsync();
+            await db.Database.CloseConnectionAsync();
+            return Results.Ok("✅ Connected to PostgreSQL successfully!");
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"❌ Connection failed: {ex.Message}");
+        }
+    })
+    .WithName("DbTest");
 
 app.Run();
