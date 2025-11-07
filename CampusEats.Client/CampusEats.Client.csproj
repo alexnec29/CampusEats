@@ -6,4 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Components\Pages\Menu\MenuPage.razor" />
+    </ItemGroup>
+
 </Project>

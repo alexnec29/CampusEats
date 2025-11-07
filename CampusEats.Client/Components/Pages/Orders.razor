@@ -1,0 +1,38 @@
+﻿@page "/orders"
+@using CampusEats.Client.Components.Shared
+
+<h3>Orders</h3>
+
+@if (OrdersList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    @foreach (var order in OrdersList)
+    {
+        <OrderCard OrderNumber="@order.OrderNumber" ItemName="@order.ItemName" Price="@order.Price" />
+    }
+}
+
+@code {
+    private List<OrderItem>? OrdersList;
+
+    protected override void OnInitialized()
+    {
+        // Mockup data
+        OrdersList = new List<OrderItem>
+        {
+            new OrderItem { OrderNumber = 1, ItemName = "Pizza", Price = 10 },
+            new OrderItem { OrderNumber = 2, ItemName = "Salad", Price = 5 },
+            new OrderItem { OrderNumber = 3, ItemName = "Soup", Price = 6 }
+        };
+    }
+
+    public class OrderItem
+    {
+        public int OrderNumber { get; set; }
+        public string ItemName { get; set; } = "";
+        public decimal Price { get; set; }
+    }
+}
