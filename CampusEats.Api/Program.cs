@@ -1,10 +1,16 @@
 using CampusEats.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using FluentValidation;
+using CampusEats.Api.Behaviors;
+using MediatR;
+using CampusEats.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 builder.Services.AddDbContext<CampusEatsDbContext>(options =>
 {
@@ -23,6 +29,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 
