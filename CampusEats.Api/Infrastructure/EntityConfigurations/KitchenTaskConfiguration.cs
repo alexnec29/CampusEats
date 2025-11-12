@@ -18,7 +18,7 @@ public class KitchenTaskConfiguration : IEntityTypeConfiguration<KitchenTask>
         builder.HasOne(k => k.AssignedStaff)
             .WithMany()
             .HasForeignKey(k => k.AssignedStaffId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.ToTable("KitchenTasks");
     }

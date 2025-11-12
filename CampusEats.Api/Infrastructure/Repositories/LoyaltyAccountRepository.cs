@@ -35,15 +35,15 @@ public class LoyaltyAccountRepository : ILoyaltyAccountRepository
         await _context.LoyaltyAccounts
             .Include(l => l.Transactions)
             .FirstOrDefaultAsync(l => l.Id == id);
+    
+    public async Task<LoyaltyAccount?> GetByUserIdAsync(Guid userId) =>
+        await _context.LoyaltyAccounts
+            .Include(l => l.Transactions)
+            .FirstOrDefaultAsync(l => l.UserId == userId);
 
     public async Task UpdateAsync(LoyaltyAccount entity)
     {
         _context.LoyaltyAccounts.Update(entity);
         await _context.SaveChangesAsync();
     }
-
-    public async Task<LoyaltyAccount?> GetByUserIdAsync(int userId) =>
-        await _context.LoyaltyAccounts
-            .Include(l => l.Transactions)
-            .FirstOrDefaultAsync(l => l.UserId == userId);
 }

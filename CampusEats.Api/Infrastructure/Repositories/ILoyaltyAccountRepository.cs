@@ -4,5 +4,5 @@ namespace CampusEats.Api.Infrastructure.Repositories;
 
 public interface ILoyaltyAccountRepository : IRepository<LoyaltyAccount, int>
 {
-    Task<LoyaltyAccount?> GetByUserIdAsync(int userId);
+    Task<LoyaltyAccount?> GetByUserIdAsync(Guid userId);
 }

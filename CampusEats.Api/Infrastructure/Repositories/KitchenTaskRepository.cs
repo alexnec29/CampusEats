@@ -1,5 +1,4 @@
-﻿// Infrastructure/Repositories/KitchenTaskRepository.cs
-using CampusEats.Api.Models;
+﻿using CampusEats.Api.Models;
 using CampusEats.Api.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -43,9 +42,11 @@ public class KitchenTaskRepository : IKitchenTaskRepository
     }
 
     public async Task<IList<KitchenTask>> GetByStatusAsync(OrderStatus status) =>
-        await _context.KitchenTasks.Where(t => t.Status == status).ToListAsync();
+        await _context.KitchenTasks
+            .Where(t => t.Status == status)
+            .ToListAsync();
 
-    public async Task<IList<KitchenTask>> GetByStaffIdAsync(int staffId) =>
+    public async Task<IList<KitchenTask>> GetByStaffIdAsync(Guid staffId) =>
         await _context.KitchenTasks
             .Where(t => t.AssignedStaffId == staffId)
             .ToListAsync();

@@ -5,6 +5,6 @@ namespace CampusEats.Api.Infrastructure.Repositories;
 
 public interface IOrderRepository : IRepository<Order, int>
 {
-    Task<IList<Order>> GetOrdersByUserAsync(int userId);
+    Task<IList<Order>> GetOrdersByUserAsync(Guid userId);
     Task<IList<Order>> GetOrdersByStatusAsync(OrderStatus status);
 }

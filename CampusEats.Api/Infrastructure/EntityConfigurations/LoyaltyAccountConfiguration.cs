@@ -17,7 +17,8 @@ public class LoyaltyAccountConfiguration : IEntityTypeConfiguration<LoyaltyAccou
 
         builder.HasMany(l => l.Transactions)
             .WithOne(t => t.LoyaltyAccount)
-            .HasForeignKey(t => t.LoyaltyAccountId);
+            .HasForeignKey(t => t.LoyaltyAccountId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.ToTable("LoyaltyAccounts");
     }
