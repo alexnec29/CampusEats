@@ -7,7 +7,7 @@ public class KitchenTask
     public int Id { get; set; }
     public int OrderId { get; set; }
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
-    public int? AssignedStaffId { get; set; }
+    public Guid? AssignedStaffId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? CompletedAt { get; set; }
 

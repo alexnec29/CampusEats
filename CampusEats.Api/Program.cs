@@ -8,6 +8,8 @@ using FluentValidation;
 using CampusEats.Api.Behaviors;
 using MediatR;
 using CampusEats.Api.Middleware;
+using CampusEats.Api.Extensions;
+
 using CampusEats.Api.Models;
 using CampusEats.Api.Models.Enums;
 
@@ -24,6 +26,12 @@ builder.Services.AddDbContext<CampusEatsDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
+builder.Services.AddScoped<IAllergenRepository, AllergenRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<ILoyaltyAccountRepository, LoyaltyAccountRepository>();
+builder.Services.AddScoped<ILoyaltyTransactionRepository, LoyaltyTransactionRepository>();
+builder.Services.AddScoped<IKitchenTaskRepository, KitchenTaskRepository>();
 
 // Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -56,6 +64,7 @@ app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 
+app.MapTestEndpoints();
 app.MapPost("/api/user/register", async (CreateUserRequest request, IMediator mediator) =>
     await mediator.Send(request));
 app.MapPost("/api/user/login", async (LoginUserRequest request, IMediator mediator) =>
@@ -63,50 +72,10 @@ app.MapPost("/api/user/login", async (LoginUserRequest request, IMediator mediat
 
 app.MapGet("/ping", () => "pong").WithName("Ping");
 
-app.MapGet("/db-test", async (CampusEatsDbContext db) =>
+using (var scope = app.Services.CreateScope())
 {
-    try
-    {
-        var allergensCount = await db.Allergens.CountAsync();
-        var menuCount = await db.MenuItems.CountAsync();
-
-        return Results.Ok(new
-        {
-            Message = "✅ DB and seed working",
-            Allergens = allergensCount,
-            MenuItems = menuCount
-        });
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem($"❌ Connection failed: {ex.Message}");
-    }
-});
-
-app.MapGet("/test-menu", async (IMenuItemRepository repo) =>
-{
-    var newItem = new MenuItem
-    {
-        Name = "Test Pizza",
-        Price = 11.5m,
-        Category = MenuCategory.Breakfast,
-        IsAvailable = true
-    };
-    
-    await repo.AddAsync(newItem);
-
-    newItem.Price = 12.0m;
-    await repo.UpdateAsync(newItem);
-
-    var allItems = await repo.GetAllAsync();
-
-    await repo.DeleteAsync(newItem.Id);
-
-    return Results.Ok(new
-    {
-        Message = "Menu repository test completed",
-        TotalMenuItems = allItems.Count
-    });
-});
+    var dbContext = scope.ServiceProvider.GetRequiredService<CampusEatsDbContext>();
+    await DbInitializer.InitializeAsync(dbContext);
+}
 
 app.Run();
