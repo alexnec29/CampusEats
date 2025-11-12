@@ -10,5 +10,5 @@ public interface IRepository<T, TK>
     Task<T?> GetByIdAsync(TK id);
     Task<IList<T>> GetAllAsync();
     Task UpdateAsync(T entity);
-    Task DeleteAsync(T id);
+    Task DeleteAsync(TK id);
 }

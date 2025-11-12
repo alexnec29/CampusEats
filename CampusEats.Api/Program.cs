@@ -16,11 +16,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-builder.Services.AddControllers()
-    .AddJsonOptions(opt =>
-    {
-        opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-    });
 
 builder.Services.AddDbContext<CampusEatsDbContext>(options =>
 {
@@ -58,10 +53,10 @@ app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 
-app.MapPost("/api/user/register", async (CreateUserRequest request, CreateUserHandler handler) =>
-    await handler.Handle(request));
-app.MapPost("/api/user/login", async (LoginUserRequest request, LoginUserHandler handler) =>
-    await handler.Handle(request));
+app.MapPost("/api/user/register", async (CreateUserRequest request, IMediator mediator) =>
+    await mediator.Send(request));
+app.MapPost("/api/user/login", async (LoginUserRequest request, IMediator mediator) =>
+    await mediator.Send(request));
 
 app.MapGet("/ping", () => "pong").WithName("Ping");
 
