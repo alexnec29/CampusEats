@@ -1,4 +1,6 @@
-﻿namespace CampusEats.Api.Models;
+﻿using CampusEats.Api.Features.User;
+
+namespace CampusEats.Api.Models;
 
 public class LoyaltyAccount
 {
