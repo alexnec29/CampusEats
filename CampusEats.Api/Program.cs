@@ -1,15 +1,13 @@
 using System.Text.Json.Serialization;
 using CampusEats.Api.Features.User;
 using CampusEats.Api.Infrastructure.Repositories;
-using CampusEats.API.Infrastructure;
+using CampusEats.Api.Infrastructure;
 using CampusEats.API.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using CampusEats.Api.Behaviors;
 using MediatR;
 using CampusEats.Api.Middleware;
-
-using CampusEats.Api.Infrastructure.Repositories;
 using CampusEats.Api.Models;
 using CampusEats.Api.Models.Enums;
 
