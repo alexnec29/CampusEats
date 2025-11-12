@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using CampusEats.API.Infrastructure;
 using CampusEats.Api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Infrastructure;
 
