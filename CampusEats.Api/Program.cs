@@ -9,6 +9,7 @@ using CampusEats.Api.Behaviors;
 using MediatR;
 using CampusEats.Api.Middleware;
 using CampusEats.Api.Extensions;
+using CampusEats.Api.Features.Allergen;
 
 using CampusEats.Api.Models;
 using CampusEats.Api.Models.Enums;
@@ -65,6 +66,7 @@ app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 app.UseHttpsRedirection();
 
 app.MapTestEndpoints();
+app.MapAllergenEndpoints();
 app.MapPost("/api/user/register", async (CreateUserRequest request, IMediator mediator) =>
     await mediator.Send(request));
 app.MapPost("/api/user/login", async (LoginUserRequest request, IMediator mediator) =>
