@@ -1,13 +1,16 @@
-﻿using CampusEats.API.Infrastructure.Repositories;
+﻿using CampusEats.Api.Common;
+using CampusEats.API.Infrastructure.Repositories;
+using CampusEats.Api.Utils.JwtUtil;
+using CampusEats.Api.Validators;
+using FluentValidation;
 using MediatR;
 
 namespace CampusEats.Api.Features.User;
 
-public class LoginUserHandler(IUserRepository userRepository) : IRequestHandler<LoginUserRequest, IResult>
+public class LoginUserHandler(IUserRepository userRepository, IJwtService<Models.User> jwtService) : IRequestHandler<LoginUserRequest, IResult>
 {
     public async Task<IResult> Handle(LoginUserRequest request, CancellationToken cancellationToken)
     {
-        // Validator
         Models.User? user = await userRepository.GetByUsernameAsync(request.Username);
         if (user == null)
         {
@@ -17,8 +20,9 @@ public class LoginUserHandler(IUserRepository userRepository) : IRequestHandler<
         {
             return Results.Unauthorized();
         }
-
-        // This will return the JWT Token 
-        return Results.Ok("JWT Token");
+        
+        string jwt = jwtService.GenerateToken(user);
+        
+        return new LoginUserResponse(jwt);
     }
 }
