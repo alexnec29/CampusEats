@@ -9,22 +9,22 @@ public class CreateUserHandler(IUserRepository userRepository, CreateUserValidat
 {
     public async Task<IResult> Handle(CreateUserRequest request, CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
-        if (!validationResult.IsValid)
-        {
-            return Results.BadRequest(validationResult.Errors);
-        }
+        await validator.ValidateAsync(request, cancellationToken);
         Models.User? user = await userRepository.GetByUsernameAsync(request.Username);
         if (user != null)
         {
             return Results.Conflict();
+        }
+        if (request.Password != request.ConfirmPassword)
+        {
+            return Results.BadRequest("Passwords do not match");
         }
         Models.User newUser = new Models.User
         {
             Id = new Guid(),
             Username = request.Username,
             HashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            Email = request.Username,
+            Email = request.Email,
             Role = Role.Buyer
         };
 
