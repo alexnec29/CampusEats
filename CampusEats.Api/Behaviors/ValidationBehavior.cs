@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using MediatR;
-using CampusEats.Api.Common;
 
 namespace CampusEats.Api.Behaviors;
 
