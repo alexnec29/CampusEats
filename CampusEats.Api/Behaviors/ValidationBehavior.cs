@@ -27,10 +27,6 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
 
             if (failures.Any())
             {
-                // If TResponse is Result type from CQRS setup
-                if (typeof(TResponse) == typeof(Result))
-                    return (TResponse)(object)Result.Failure(string.Join("; ", failures.Select(f => f.ErrorMessage)));
-
                 throw new ValidationException(failures);
             }
         }
