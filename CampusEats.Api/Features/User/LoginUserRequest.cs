@@ -2,4 +2,4 @@
 
 namespace CampusEats.Api.Features.User;
 
-public record LoginUserRequest(string Username, string Password) : IRequest<IResult>;
+public record LoginUserRequest(string Username, string Password, string ConfirmPassword) : IRequest<IResult>;
