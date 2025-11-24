@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using System.Text;
 using CampusEats.Api.Models;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace CampusEats.Api.Utils.JwtUtil;

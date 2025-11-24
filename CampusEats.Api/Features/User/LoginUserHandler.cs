@@ -1,5 +1,4 @@
-﻿using CampusEats.Api.Common;
-using CampusEats.API.Infrastructure.Repositories;
+﻿using CampusEats.API.Infrastructure.Repositories;
 using CampusEats.Api.Utils.JwtUtil;
 using CampusEats.Api.Validators;
 using FluentValidation;
@@ -11,11 +10,10 @@ public class LoginUserHandler(IUserRepository userRepository, IJwtService<Models
 {
     public async Task<IResult> Handle(LoginUserRequest request, CancellationToken cancellationToken)
     {
-        await validator.ValidateAsync(request, cancellationToken);
         Models.User? user = await userRepository.GetByUsernameAsync(request.Username);
         if (user == null)
         {
-            return Results.NotFound();
+            return Results.NotFound("Username not found");
         }
 
         if (request.Password != request.ConfirmPassword)

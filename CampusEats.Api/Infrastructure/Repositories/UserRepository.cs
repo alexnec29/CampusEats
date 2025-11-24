@@ -43,4 +43,9 @@ public class UserRepository(CampusEatsDbContext dbContext) : IUserRepository
     {
         return await dbContext.Users.FirstOrDefaultAsync(u => u.Username == username);
     }
+
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+    }
 }

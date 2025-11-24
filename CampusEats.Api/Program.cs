@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.Json.Serialization;
 using CampusEats.Api.Features.User;
 using CampusEats.Api.Infrastructure.Repositories;
 using CampusEats.Api.Infrastructure;
@@ -15,7 +14,6 @@ using CampusEats.Api.Features.Allergen;
 using CampusEats.Api.Models;
 using CampusEats.Api.Models.Enums;
 using CampusEats.Api.Utils.JwtUtil;
-using CampusEats.Api.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
