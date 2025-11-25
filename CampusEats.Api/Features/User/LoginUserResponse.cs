@@ -15,7 +15,10 @@ public class LoginUserResponse(string jwt) : IResult
             Path = "/"
         };
 
+        string csrfToken = Guid.NewGuid().ToString();
+
         response.Cookies.Append("JWT", jwt, cookieOptions);
+        response.Cookies.Append("CSRF-TOKEN", csrfToken, cookieOptions);
         response.StatusCode = StatusCodes.Status200OK;
         
         return response.WriteAsJsonAsync(new { success = true });

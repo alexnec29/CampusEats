@@ -26,7 +26,7 @@ public class CreateUserHandler(IUserRepository userRepository, CreateUserValidat
         
         Models.User newUser = new Models.User
         {
-            Id = new Guid(),
+            Id = Guid.NewGuid(),
             Username = request.Username,
             HashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Email = request.Email,

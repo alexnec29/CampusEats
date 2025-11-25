@@ -9,7 +9,7 @@ public class UserRepository(CampusEatsDbContext dbContext) : IUserRepository
 {
     public async Task AddAsync(User user)
     {
-        await dbContext.AddAsync(user);
+        await dbContext.Users.AddAsync(user);
         await dbContext.SaveChangesAsync();
     }
 
