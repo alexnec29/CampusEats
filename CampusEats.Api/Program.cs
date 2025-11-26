@@ -7,9 +7,9 @@ using CampusEats.API.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using CampusEats.Api.Behaviors;
+using CampusEats.Api.Endpoints;
 using MediatR;
 using CampusEats.Api.Middleware;
-using CampusEats.Api.Extensions;
 using CampusEats.Api.Features.Allergen;
 
 using CampusEats.Api.Models;
