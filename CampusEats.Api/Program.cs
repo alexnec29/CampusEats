@@ -1,5 +1,6 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
-using System.Text.Json.Serialization;
 using CampusEats.Api.Features.User;
 using CampusEats.Api.Infrastructure.Repositories;
 using CampusEats.Api.Infrastructure;
@@ -30,6 +31,8 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
+
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -57,9 +60,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("AllRoles", policy => policy.RequireRole(nameof(Role.Kitchen), nameof(Role.Buyer), nameof(Role.Admin)))
     .AddPolicy("Admin", policy => policy.RequireRole(nameof(Role.Admin)))
     .AddPolicy("Buyer", policy => policy.RequireRole(nameof(Role.Buyer), nameof(Role.Admin)))
     .AddPolicy("Kitchen", policy => policy.RequireRole(nameof(Role.Kitchen), nameof(Role.Admin)));
+    
 
 
 builder.Services.AddOpenApi();
@@ -75,6 +80,7 @@ builder.Services.AddDbContext<CampusEatsDbContext>(options =>
 
 // Jwt Service
 builder.Services.AddScoped<IJwtService<User>, JwtService>();
+builder.Services.AddSingleton<JwtSecurityTokenHandler>();
 
 // Repositories
 builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
@@ -86,10 +92,9 @@ builder.Services.AddScoped<ILoyaltyAccountRepository, LoyaltyAccountRepository>(
 builder.Services.AddScoped<ILoyaltyTransactionRepository, LoyaltyTransactionRepository>();
 builder.Services.AddScoped<IKitchenTaskRepository, KitchenTaskRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-// Handlers
-builder.Services.AddScoped<CreateUserHandler>();
-builder.Services.AddScoped<LoginUserHandler>();
+builder.Services.AddScoped<IBlackListTokenRepository, BlackListTokenRepository>();
+builder.Services.AddScoped<IBuyerProfileRepository, BuyerProfileRepository>();
+builder.Services.AddScoped<IKitchenProfileRepository, KitchenProfileRepository>();
 
 builder.Services.AddMediatR(cfg =>
 {
@@ -107,7 +112,9 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseCors();
-    app.UseAuthentication();
+    app.UseMiddleware<CsrfTokenFilterMiddleware>();
+    app.UseMiddleware<JwtFilterMiddleware>();
+    // app.UseAuthentication();
     app.UseAuthorization();
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -123,11 +130,28 @@ app.MapOrderEndpoints();
 app.MapAllergenEndpoints();
 app.MapPost("/api/user/register", async (CreateUserRequest request, IMediator mediator) =>
     await mediator.Send(request)).AllowAnonymous();
-app.MapPost("/api/user/login", async (LoginUserRequest request, IMediator mediator) =>
-    await mediator.Send(request)).AllowAnonymous();
+app.MapPost("/api/user/login", async (HttpContext httpContext, LoginUserRequest request, IMediator mediator) =>
+{
+    if (httpContext.User.Identity?.IsAuthenticated == true)
+    {
+        return Results.Ok("User already logged in");
+    }
+    return await mediator.Send(request);
+}).AllowAnonymous();
+app.MapPost("/api/user/logout", async (LogoutUserRequest request, IMediator mediator) =>
+    await mediator.Send(request)).RequireAuthorization("AllRoles");
+app.MapPut("/api/user/update-buyer-profile", async (UpdateBuyerProfileRequest request, IMediator mediator) =>
+    await mediator.Send(request)).RequireAuthorization("Buyer");
+app.MapPut("/api/user/update-kitchen-profile", async (UpdateKitchenProfileRequest request, IMediator mediator) =>
+    await mediator.Send(request)).RequireAuthorization("Kitchen");
 
-app.MapGet("/ping", () => "pong").WithName("Ping").RequireAuthorization("Buyer");
-app.MapGet("/ping-admin", () => "pong-admin").RequireAuthorization("Admin");
+app.MapGet("/ping", (HttpContext httpContext) => 
+    "pong" 
+    + httpContext.User.FindFirstValue(ClaimTypes.Role) 
+    + httpContext.User.FindFirstValue(ClaimTypes.Name)
+    ).RequireAuthorization("Buyer");
+app.MapGet("/ping-admin", () => 
+    "pong-admin").RequireAuthorization("Admin");
 
 using (var scope = app.Services.CreateScope())
 {

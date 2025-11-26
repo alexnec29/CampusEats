@@ -9,19 +9,24 @@ public class CreateUserHandler(IUserRepository userRepository, CreateUserValidat
 {
     public async Task<IResult> Handle(CreateUserRequest request, CancellationToken cancellationToken)
     {
-        await validator.ValidateAsync(request, cancellationToken);
         Models.User? user = await userRepository.GetByUsernameAsync(request.Username);
         if (user != null)
         {
-            return Results.Conflict();
+            return Results.Conflict("Username already exists");
+        }
+        user = await userRepository.GetByEmailAsync(request.Email);
+        if (user != null)
+        {
+            return Results.Conflict("Email already exists");
         }
         if (request.Password != request.ConfirmPassword)
         {
             return Results.BadRequest("Passwords do not match");
         }
+        
         Models.User newUser = new Models.User
         {
-            Id = new Guid(),
+            Id = Guid.NewGuid(),
             Username = request.Username,
             HashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Email = request.Email,

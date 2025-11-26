@@ -9,7 +9,7 @@ public class UserRepository(CampusEatsDbContext dbContext) : IUserRepository
 {
     public async Task AddAsync(User user)
     {
-        await dbContext.AddAsync(user);
+        await dbContext.Users.AddAsync(user);
         await dbContext.SaveChangesAsync();
     }
 
@@ -42,5 +42,10 @@ public class UserRepository(CampusEatsDbContext dbContext) : IUserRepository
     public async Task<User?> GetByUsernameAsync(string username)
     {
         return await dbContext.Users.FirstOrDefaultAsync(u => u.Username == username);
+    }
+
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
 }

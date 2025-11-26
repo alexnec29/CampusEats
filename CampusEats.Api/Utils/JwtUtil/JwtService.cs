@@ -1,20 +1,24 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using CampusEats.Api.Infrastructure.Repositories;
 using CampusEats.Api.Models;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace CampusEats.Api.Utils.JwtUtil;
 
-public class JwtService(IConfiguration config) : IJwtService<User>
+public class JwtService(
+    IConfiguration config,
+    JwtSecurityTokenHandler jwtSecurityTokenHandler,
+    IBlackListTokenRepository blackListTokenRepository
+    ) : IJwtService<User>
 {
     public string GenerateToken(User user)
     {
         var issuer = config["Jwt:Issuer"];
         var audience = config["Jwt:Audience"];
         var secret = config["Jwt:Secret"];
-        var expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(5));
+        var expires = DateTime.UtcNow.Add(TimeSpan.FromHours(1));
 
         var claims = new List<Claim>
         {
@@ -34,6 +38,19 @@ public class JwtService(IConfiguration config) : IJwtService<User>
             expires: expires,
             signingCredentials: credentials);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return jwtSecurityTokenHandler.WriteToken(token);
+    }
+
+    public async Task BlackListToken(string token)
+    {
+        DateTime expires = jwtSecurityTokenHandler.ReadJwtToken(token).ValidTo;
+        Jwt jwt = new Jwt(token, expires);
+        await blackListTokenRepository.AddAsync(jwt);
+    }
+
+    public async Task<bool> IsTokenBlacklisted(string token)
+    {
+        Jwt? jwt = await blackListTokenRepository.GetByTextAsync(token);
+        return jwt != null;
     }
 }
