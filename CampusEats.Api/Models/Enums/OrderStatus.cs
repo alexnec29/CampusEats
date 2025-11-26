@@ -2,6 +2,7 @@
 
 public enum OrderStatus
 {
+    Inactive,
     Pending,
     Preparing,
     Ready,
