@@ -8,9 +8,9 @@ var apiBaseUrl = builder.Configuration["ApiBaseUrl"]
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddHttpClient("CampusEatsApi", client =>
+builder.Services.AddScoped(sp => new HttpClient
 {
-    client.BaseAddress = new Uri(apiBaseUrl);
+    BaseAddress = new Uri("http://localhost:5078/")
 });
 
 var app = builder.Build();
