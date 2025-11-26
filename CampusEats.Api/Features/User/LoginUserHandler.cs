@@ -1,8 +1,6 @@
-﻿using CampusEats.Api.Common;
-using CampusEats.API.Infrastructure.Repositories;
+﻿using CampusEats.API.Infrastructure.Repositories;
 using CampusEats.Api.Utils.JwtUtil;
 using CampusEats.Api.Validators;
-using FluentValidation;
 using MediatR;
 
 namespace CampusEats.Api.Features.User;

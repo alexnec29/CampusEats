@@ -7,9 +7,9 @@ using CampusEats.API.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using CampusEats.Api.Behaviors;
+using CampusEats.Api.Endpoints;
 using MediatR;
 using CampusEats.Api.Middleware;
-using CampusEats.Api.Extensions;
 using CampusEats.Api.Features.Allergen;
 
 using CampusEats.Api.Models;
@@ -80,6 +80,7 @@ builder.Services.AddScoped<IJwtService<User>, JwtService>();
 builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
 builder.Services.AddScoped<IAllergenRepository, AllergenRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<ILoyaltyAccountRepository, LoyaltyAccountRepository>();
 builder.Services.AddScoped<ILoyaltyTransactionRepository, LoyaltyTransactionRepository>();
@@ -118,6 +119,7 @@ app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 app.UseHttpsRedirection();
 
 app.MapTestEndpoints();
+app.MapOrderEndpoints();
 app.MapAllergenEndpoints();
 app.MapPost("/api/user/register", async (CreateUserRequest request, IMediator mediator) =>
     await mediator.Send(request)).AllowAnonymous();

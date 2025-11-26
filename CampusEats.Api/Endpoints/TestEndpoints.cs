@@ -1,11 +1,11 @@
-﻿using CampusEats.Api.Infrastructure.Repositories;
-using CampusEats.Api.Infrastructure;
+﻿using CampusEats.Api.Infrastructure;
+using CampusEats.Api.Infrastructure.Repositories;
 using CampusEats.Api.Models;
 using CampusEats.Api.Models.Enums;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace CampusEats.Api.Extensions;
+namespace CampusEats.Api.Endpoints;
 
 public static class TestEndpoints
 {
