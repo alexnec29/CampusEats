@@ -1,4 +1,6 @@
 using CampusEats.Client.Components;
+using CampusEats.Client.Services;
+using Microsoft.JSInterop;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +10,8 @@ var apiBaseUrl = builder.Configuration["ApiBaseUrl"]
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddScoped<CsrfTokenHandler>();
+
 builder.Services.AddScoped(sp => 
 {
     var handler = new HttpClientHandler
@@ -15,7 +19,11 @@ builder.Services.AddScoped(sp =>
         CookieContainer = new System.Net.CookieContainer(),
         UseCookies = true
     };
-    return new HttpClient(handler)
+    
+    var csrfHandler = sp.GetRequiredService<CsrfTokenHandler>();
+    csrfHandler.InnerHandler = handler;
+
+    return new HttpClient(csrfHandler)
     {
         BaseAddress = new Uri("http://localhost:5078/")
     };
