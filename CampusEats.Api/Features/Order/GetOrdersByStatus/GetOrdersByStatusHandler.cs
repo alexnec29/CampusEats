@@ -1,5 +1,4 @@
 ﻿using CampusEats.Api.Infrastructure.Repositories;
-using CampusEats.Api.Features.OrderItem;
 using MediatR;
 
 namespace CampusEats.Api.Features.Order.GetOrdersByStatus;

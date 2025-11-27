@@ -1,23 +1,19 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text;
-using CampusEats.Api.Features.User;
-using CampusEats.Api.Infrastructure.Repositories;
-using CampusEats.Api.Infrastructure;
-using CampusEats.API.Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
-using FluentValidation;
 using CampusEats.Api.Behaviors;
 using CampusEats.Api.Endpoints;
-using MediatR;
-using CampusEats.Api.Middleware;
 using CampusEats.Api.Features.Allergen;
-
+using CampusEats.Api.Infrastructure;
+using CampusEats.Api.Infrastructure.Repositories;
+using CampusEats.API.Infrastructure.Repositories;
+using CampusEats.Api.Middleware;
 using CampusEats.Api.Models;
 using CampusEats.Api.Models.Enums;
 using CampusEats.Api.Utils.JwtUtil;
-using CampusEats.Api.Validators;
+using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,8 +26,6 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
             .AllowCredentials());
 });
-
-
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -50,10 +44,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             OnMessageReceived = context =>
             {
-                if (context.Request.Cookies.TryGetValue("JWT", out var cookieToken))
-                {
-                    context.Token = cookieToken;
-                }
+                if (context.Request.Cookies.TryGetValue("JWT", out var cookieToken)) context.Token = cookieToken;
                 return Task.CompletedTask;
             }
         };
@@ -64,7 +55,6 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Admin", policy => policy.RequireRole(nameof(Role.Admin)))
     .AddPolicy("Buyer", policy => policy.RequireRole(nameof(Role.Buyer), nameof(Role.Admin)))
     .AddPolicy("Kitchen", policy => policy.RequireRole(nameof(Role.Kitchen), nameof(Role.Admin)));
-    
 
 
 builder.Services.AddOpenApi();
@@ -96,10 +86,7 @@ builder.Services.AddScoped<IBlackListTokenRepository, BlackListTokenRepository>(
 builder.Services.AddScoped<IBuyerProfileRepository, BuyerProfileRepository>();
 builder.Services.AddScoped<IKitchenProfileRepository, KitchenProfileRepository>();
 
-builder.Services.AddMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
-});
+builder.Services.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(Program).Assembly); });
 
 var app = builder.Build();
 
@@ -126,32 +113,9 @@ app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 app.UseHttpsRedirection();
 
 app.MapTestEndpoints();
+app.MapUserEndpoints();
 app.MapOrderEndpoints();
 app.MapAllergenEndpoints();
-app.MapPost("/api/user/register", async (CreateUserRequest request, IMediator mediator) =>
-    await mediator.Send(request)).AllowAnonymous();
-app.MapPost("/api/user/login", async (HttpContext httpContext, LoginUserRequest request, IMediator mediator) =>
-{
-    if (httpContext.User.Identity?.IsAuthenticated == true)
-    {
-        return Results.Ok("User already logged in");
-    }
-    return await mediator.Send(request);
-}).AllowAnonymous();
-app.MapPost("/api/user/logout", async (LogoutUserRequest request, IMediator mediator) =>
-    await mediator.Send(request)).RequireAuthorization("AllRoles");
-app.MapPut("/api/user/update-buyer-profile", async (UpdateBuyerProfileRequest request, IMediator mediator) =>
-    await mediator.Send(request)).RequireAuthorization("Buyer");
-app.MapPut("/api/user/update-kitchen-profile", async (UpdateKitchenProfileRequest request, IMediator mediator) =>
-    await mediator.Send(request)).RequireAuthorization("Kitchen");
-
-app.MapGet("/ping", (HttpContext httpContext) => 
-    "pong" 
-    + httpContext.User.FindFirstValue(ClaimTypes.Role) 
-    + httpContext.User.FindFirstValue(ClaimTypes.Name)
-    ).RequireAuthorization("Buyer");
-app.MapGet("/ping-admin", () => 
-    "pong-admin").RequireAuthorization("Admin");
 
 using (var scope = app.Services.CreateScope())
 {

@@ -1,7 +1,6 @@
 ﻿using CampusEats.Api.Models.Enums;
 using CampusEats.Api.Features.Payment;
 using CampusEats.Api.Features.KitchenTask;
-using CampusEats.Api.Features.OrderItem;
 
 namespace CampusEats.Api.Features.Order;
 

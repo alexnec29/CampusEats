@@ -1,9 +1,10 @@
+using System.Net.Mime;
+using CampusEats.Api.Features.Allergen;
+using CampusEats.Api.Features.Allergen.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using CampusEats.Api.Features.Allergen.DTOs;
-using System.Net.Mime;
 
-namespace CampusEats.Api.Features.Allergen;
+namespace CampusEats.Api.Endpoints;
 
 public static class AllergenEndpoints
 {

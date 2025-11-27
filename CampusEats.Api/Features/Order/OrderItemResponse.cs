@@ -1,4 +1,4 @@
-﻿namespace CampusEats.Api.Features.OrderItem;
+﻿namespace CampusEats.Api.Features.Order;
 
 public class OrderItemResponse
 {

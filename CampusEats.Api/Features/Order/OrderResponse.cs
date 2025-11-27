@@ -1,5 +1,4 @@
-﻿using CampusEats.Api.Features.OrderItem;
-using CampusEats.Api.Models.Enums;
+﻿using CampusEats.Api.Models.Enums;
 
 namespace CampusEats.Api.Features.Order;
 
