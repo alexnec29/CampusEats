@@ -21,8 +21,12 @@ public static class UserEndpoints
                 return await mediator.Send(request);
             }).AllowAnonymous();
 
-        users.MapPost("/logout", async (LogoutUserRequest request, IMediator mediator) =>
-            await mediator.Send(request)).RequireAuthorization("AllRoles");
+        users.MapPost("/logout", async (HttpContext httpContext, IMediator mediator) =>
+        {
+            string jwt = httpContext.Request.Cookies["JWT"]!;
+            LogoutUserRequest request = new LogoutUserRequest(jwt);
+            return await mediator.Send(request);
+        }).RequireAuthorization("AllRoles");
 
         users.MapPut("/update-buyer-profile", async (UpdateBuyerProfileRequest request, IMediator mediator) =>
             await mediator.Send(request)).RequireAuthorization("Buyer");
