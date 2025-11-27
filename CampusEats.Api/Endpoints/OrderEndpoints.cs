@@ -1,12 +1,13 @@
 ﻿using CampusEats.Api.Features.Order.CreateOrder;
 using CampusEats.Api.Features.Order.AddOrderItem;
+using CampusEats.Api.Features.Order.RemoveOrderItem;
 using CampusEats.Api.Features.Order.UpdateOrderStatus;
 using CampusEats.Api.Features.Order.GetOrderById;
 using CampusEats.Api.Features.Order.GetAllOrders;
 using CampusEats.Api.Features.Order.GetOrdersByStatus;
 using CampusEats.Api.Features.Order.GetUserOrders;
 using CampusEats.Api.Features.Order.CancelOrder;
-
+using CampusEats.Api.Features.Order.UpdateOrderItemQuantity;
 using MediatR;
 
 namespace CampusEats.Api.Endpoints;
@@ -30,6 +31,20 @@ public static class OrderEndpoints
         orders.MapPost("/{orderId}/items", async (int orderId, AddOrderItemRequest request, IMediator mediator) =>
         {
             var command = request with { OrderId = orderId };
+            return await mediator.Send(command);
+        });
+        
+        // Update item (quantity)
+        orders.MapPut("/{orderId}/items/{itemId}", async (int orderId, int itemId, UpdateOrderItemQuantityRequest request, IMediator mediator) =>
+        {
+            var command = request with { OrderId = orderId, OrderItemId = itemId };
+            return await mediator.Send(command);
+        });
+
+        // Remove item
+        orders.MapDelete("/{orderId}/items/{itemId}", async (int orderId, int itemId, IMediator mediator) =>
+        {
+            var command = new RemoveOrderItemRequest(orderId, itemId);
             return await mediator.Send(command);
         });
 

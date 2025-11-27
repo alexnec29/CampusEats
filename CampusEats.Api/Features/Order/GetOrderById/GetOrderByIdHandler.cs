@@ -1,5 +1,4 @@
 ﻿using CampusEats.Api.Infrastructure.Repositories;
-using CampusEats.Api.Features.OrderItem;
 using CampusEats.Api.Features.Payment;
 using CampusEats.Api.Features.KitchenTask;
 using MediatR;
