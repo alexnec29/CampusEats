@@ -1,5 +1,4 @@
 ﻿using CampusEats.Api.Infrastructure.Repositories;
-using CampusEats.API.Infrastructure.Repositories;
 using CampusEats.Api.Models.Enums;
 using MediatR;
 

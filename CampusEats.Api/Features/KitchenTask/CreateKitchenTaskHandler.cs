@@ -1,39 +1,36 @@
-﻿using CampusEats.Api.Infrastructure.Repositories; 
-using CampusEats.Api.Domain.Entities; 
-using CampusEats.Api.Domain.Enums;
-using MediatR;
+﻿using MediatR;
+using CampusEats.Api.Infrastructure.Repositories;
+using CampusEats.Api.Models.Enums;
 
 namespace CampusEats.Api.Features.KitchenTask;
 
-public record CreateKitchenTaskCommand(Guid OrderId) : IRequest<Result>;
+public record CreateKitchenTaskCommand(int OrderId) : IRequest<IResult>;
 
-public class CreateKitchenTaskHandler : IRequestHandler<CreateKitchenTaskCommand, Result>
+public class CreateKitchenTaskHandler(
+    IKitchenTaskRepository kitchenTaskRepository,
+    IOrderRepository orderRepository
+) : IRequestHandler<CreateKitchenTaskCommand, IResult>
 {
-    private readonly CampusEatsDbContext _context; 
-    public CreateKitchenTaskHandler(CampusEatsDbContext context)
+    public async Task<IResult> Handle(CreateKitchenTaskCommand request, CancellationToken cancellationToken)
     {
-        _context = context;
-    }
+        var order = await orderRepository.GetByIdAsync(request.OrderId);
+        if (order == null)
+            return Results.NotFound("Order not found.");
 
-    public async Task<Result> Handle(CreateKitchenTaskCommand request, CancellationToken ct)
-    {
-        var orderExists = await _context.Orders.AnyAsync(o => o.Id == request.OrderId, ct);
-        if (!orderExists)
-        {
-            return Result.Failure("Order not found.");
-        }
+        // Prevent duplicate tasks
+        var existingTask = await kitchenTaskRepository.GetByOrderIdAsync(request.OrderId);
+        if (existingTask != null)
+            return Results.BadRequest("Kitchen task already exists for this order.");
 
-        var kitchenTask = new KitchenTask
+        var task = new Models.KitchenTask
         {
-            Id = Guid.NewGuid(),
             OrderId = request.OrderId,
-            Status = KitchenTaskStatus.Pending,
+            Status = OrderStatus.Pending,
             CreatedAt = DateTime.UtcNow
         };
 
-        _context.KitchenTasks.Add(kitchenTask);
-        await _context.SaveChangesAsync(ct);
-        
-        return Result.Success();
+        await kitchenTaskRepository.AddAsync(task);
+
+        return Results.Ok(task);
     }
 }

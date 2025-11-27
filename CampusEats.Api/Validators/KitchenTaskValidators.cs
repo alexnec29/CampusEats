@@ -1,5 +1,5 @@
-﻿using CampusEats.Api.Domain.Enums;
-using CampusEats.Api.Features.KitchenTask;
+﻿using CampusEats.Api.Features.KitchenTask;
+using CampusEats.Api.Models.Enums;
 using FluentValidation;
 
 namespace CampusEats.Api.Validators;
@@ -12,7 +12,7 @@ public class UpdateTaskStatusValidator : AbstractValidator<UpdateTaskStatusComma
         RuleFor(x => x.TaskId).NotEmpty();
         
         RuleFor(x => x.NewStatus).NotEmpty()
-            .Must(statusStr => Enum.TryParse<KitchenTaskStatus>(statusStr, true, out _))
+            .Must(statusStr => Enum.TryParse<OrderStatus>(statusStr, true, out _))
             .WithMessage("Invalid or unrecognized status value.");
     }
 }

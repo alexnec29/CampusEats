@@ -1,36 +1,38 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using CampusEats.Api.Features.KitchenTask.DTOs;
+﻿using CampusEats.Api.Features.KitchenTask.DTOs;
 using CampusEats.Api.Infrastructure.Repositories;
-using CampusEats.Api.Domain.Enums;
+using CampusEats.Api.Models.Enums;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.KitchenTask;
 
-public record GetPendingTasksQuery() : IRequest<Result<List<KitchenTaskResponse>>>;
+public record GetPendingTasksQuery() : IRequest<IResult>;
 
-public class GetPendingTasksHandler : IRequestHandler<GetPendingTasksQuery, Result<List<KitchenTaskResponse>>>
+public class GetPendingTasksHandler : IRequestHandler<GetPendingTasksQuery, IResult>
 {
-    private readonly CampusEatsDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly IKitchenTaskRepository _taskRepository;
 
-    public GetPendingTasksHandler(CampusEatsDbContext context, IMapper mapper)
+    public GetPendingTasksHandler(IKitchenTaskRepository taskRepository)
     {
-        _context = context;
-        _mapper = mapper;
+        _taskRepository = taskRepository;
     }
 
-    public async Task<Result<List<KitchenTaskResponse>>> Handle(GetPendingTasksQuery request, CancellationToken ct)
+    public async Task<IResult> Handle(GetPendingTasksQuery request, CancellationToken cancellationToken)
     {
-        var pendingStatuses = new[] { KitchenTaskStatus.Pending, KitchenTaskStatus.Preparing };
+        var pendingStatuses = new[] { OrderStatus.Pending, OrderStatus.Preparing };
 
-        var tasks = await _context.KitchenTasks
+        var tasks = (await _taskRepository.GetAllAsync())
             .Where(t => pendingStatuses.Contains(t.Status))
-            .OrderBy(t => t.CreatedAt) 
-            .ProjectTo<KitchenTaskResponse>(_mapper.ConfigurationProvider)
-            .ToListAsync(ct);
+            .OrderBy(t => t.CreatedAt)
+            .Select(t => new KitchenTaskResponse
+            {
+                Id = t.Id,
+                Status = t.Status,
+                AssignedStaffId = t.AssignedStaffId,
+                CreatedAt = t.CreatedAt,
+                CompletedAt = t.CompletedAt
+            })
+            .ToList();
 
-        return Result.Success(tasks);
+        return Results.Ok(tasks);
     }
 }

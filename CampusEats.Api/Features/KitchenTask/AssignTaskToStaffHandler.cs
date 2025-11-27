@@ -1,39 +1,34 @@
-﻿using CampusEats.Api.Infrastructure.Repositories;
-using CampusEats.Api.Domain.Enums;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using CampusEats.Api.Infrastructure.Repositories;
 
 namespace CampusEats.Api.Features.KitchenTask;
 
-public record AssignTaskToStaffCommand(Guid TaskId, Guid StaffId) : IRequest<Result>;
+public record AssignTaskToStaffCommand(int TaskId, Guid StaffId) : IRequest<IResult>;
 
-public class AssignTaskToStaffHandler : IRequestHandler<AssignTaskToStaffCommand, Result>
+public class AssignTaskToStaffHandler(
+    IKitchenTaskRepository taskRepository,
+    IUserRepository userRepository
+) : IRequestHandler<AssignTaskToStaffCommand, IResult>
 {
-    private readonly CampusEatsDbContext _context;
-
-    public AssignTaskToStaffHandler(CampusEatsDbContext context)
+    public async Task<IResult> Handle(AssignTaskToStaffCommand request, CancellationToken cancellationToken)
     {
-        _context = context;
-    }
-
-    public async Task<Result> Handle(AssignTaskToStaffCommand request, CancellationToken ct)
-    {
-        var task = await _context.KitchenTasks.FindAsync(new object[] { request.TaskId }, ct);
+        var task = await taskRepository.GetByIdAsync(request.TaskId);
         if (task == null)
-            return Result.Failure("KitchenTask not found.");
-        
-        var staffExists = await _context.Users.AnyAsync(u => u.Id == request.StaffId, ct);
-        if (!staffExists)
-            return Result.Failure("Staff member not found.");
+            return Results.NotFound("Kitchen task not found.");
 
-        task.StaffId = request.StaffId;
-        
-        if (task.Status == KitchenTaskStatus.Pending)
+        var staff = await userRepository.GetByIdAsync(request.StaffId);
+        if (staff == null)
+            return Results.NotFound("Staff member not found.");
+
+        task.AssignedStaffId = request.StaffId;
+
+        if (task.Status == Models.Enums.OrderStatus.Pending)
         {
-            task.Status = KitchenTaskStatus.Preparing;
+            task.Status = Models.Enums.OrderStatus.Preparing;
         }
 
-        await _context.SaveChangesAsync(ct);
-        return Result.Success();
+        await taskRepository.UpdateAsync(task);
+
+        return Results.Ok(task);
     }
 }

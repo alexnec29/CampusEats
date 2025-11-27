@@ -1,44 +1,44 @@
-﻿using CampusEats.Api.Infrastructure.Repositories;
-using CampusEats.Api.Domain.Enums;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using CampusEats.Api.Infrastructure.Repositories;
+using CampusEats.Api.Models.Enums;
 
 namespace CampusEats.Api.Features.KitchenTask;
-public record UpdateTaskStatusCommand(Guid TaskId, string NewStatus) : IRequest<Result>;
 
-public class UpdateTaskStatusHandler : IRequestHandler<UpdateTaskStatusCommand, Result>
+public record UpdateTaskStatusCommand(int TaskId, string NewStatus) : IRequest<IResult>;
+
+public class UpdateTaskStatusHandler(
+    IKitchenTaskRepository taskRepository,
+    IOrderRepository orderRepository
+) : IRequestHandler<UpdateTaskStatusCommand, IResult>
 {
-    private readonly CampusEatsDbContext _context;
-
-    public UpdateTaskStatusHandler(CampusEatsDbContext context)
+    public async Task<IResult> Handle(UpdateTaskStatusCommand request, CancellationToken cancellationToken)
     {
-        _context = context;
-    }
-
-    public async Task<Result> Handle(UpdateTaskStatusCommand request, CancellationToken ct)
-    {
-        var task = await _context.KitchenTasks
-            .Include(t => t.Order) 
-            .FirstOrDefaultAsync(t => t.Id == request.TaskId, ct);
-
+        var task = await taskRepository.GetByIdAsync(request.TaskId);
         if (task == null)
-            return Result.Failure("KitchenTask not found.");
-        
-        if (!Enum.TryParse<KitchenTaskStatus>(request.NewStatus, true, out var newStatus))
-            return Result.Failure("Invalid status value.");
+            return Results.NotFound("Kitchen task not found.");
 
+        // Validate status string → enum
+        if (!Enum.TryParse<OrderStatus>(request.NewStatus, true, out var newStatus))
+            return Results.BadRequest("Invalid status value.");
+
+        // Update kitchen task status
         task.Status = newStatus;
-        
-        if (newStatus == KitchenTaskStatus.Completed)
+
+        // If completed, update completed date + update order status
+        if (newStatus == OrderStatus.Completed)
         {
             task.CompletedAt = DateTime.UtcNow;
-            if (task.Order != null)
+
+            var order = await orderRepository.GetByIdAsync(task.OrderId);
+            if (order != null)
             {
-                task.Order.Status = OrderStatus.ReadyForPickup; 
+                order.Status = OrderStatus.Ready;
+                await orderRepository.UpdateAsync(order);
             }
         }
 
-        await _context.SaveChangesAsync(ct);
-        return Result.Success();
+        await taskRepository.UpdateAsync(task);
+
+        return Results.Ok(task);
     }
 }

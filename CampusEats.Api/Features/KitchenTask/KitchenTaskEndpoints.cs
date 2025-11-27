@@ -13,38 +13,25 @@ public static class KitchenTaskEndpoints
 
         // GET /api/kitchen/tasks (pending)
         group.MapGet("/tasks", async (IMediator mediator) =>
-        {
-            var result = await mediator.Send(new GetPendingTasksQuery());
-            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-        })
-        .Produces<List<KitchenTaskResponse>>(StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status400BadRequest);
+            {
+                return await mediator.Send(new GetPendingTasksQuery());
+            })
+            .Produces<List<KitchenTaskResponse>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest);
 
-        // PUT /api/kitchen/tasks/{id}/status
         group.MapPut("/tasks/{id}/status", 
-            async (Guid id, UpdateTaskStatusRequest request, IMediator mediator) =>
-        {
-            var command = new UpdateTaskStatusCommand(id, request.NewStatus);
-            var result = await mediator.Send(command);
-            
-            return result.IsSuccess ? Results.NoContent() : Results.BadRequest(result.Error);
-        })
-        .Produces(StatusCodes.Status204NoContent)
-        .Produces(StatusCodes.Status400BadRequest)
-        .Produces(StatusCodes.Status404NotFound);
+            async (int id, UpdateTaskStatusRequest request, IMediator mediator) =>
+            {
+                var command = new UpdateTaskStatusCommand(id, request.NewStatus);
+                return await mediator.Send(command);
+            });
 
-        // PUT /api/kitchen/tasks/{id}/assign
         group.MapPut("/tasks/{id}/assign", 
-            async (Guid id, AssignTaskRequest request, IMediator mediator) =>
-        {
-            var command = new AssignTaskToStaffCommand(id, request.StaffId);
-            var result = await mediator.Send(command);
+            async (int id, AssignTaskRequest request, IMediator mediator) =>
+            {
+                var command = new AssignTaskToStaffCommand(id, request.StaffId);
+                return await mediator.Send(command);
+            });
 
-            return result.IsSuccess ? Results.NoContent() : Results.BadRequest(result.Error);
-        })
-        .Produces(StatusCodes.Status204NoContent)
-        .Produces(StatusCodes.Status400BadRequest)
-        .Produces(StatusCodes.Status404NotFound);
-        
     }
 }

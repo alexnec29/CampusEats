@@ -7,4 +7,5 @@ public interface IKitchenTaskRepository : IRepository<KitchenTask, int>
 {
     Task<IList<KitchenTask>> GetByStatusAsync(OrderStatus status);
     Task<IList<KitchenTask>> GetByStaffIdAsync(Guid staffId);
+    Task<KitchenTask?> GetByOrderIdAsync(int orderId);
 }
