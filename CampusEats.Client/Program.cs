@@ -8,9 +8,17 @@ var apiBaseUrl = builder.Configuration["ApiBaseUrl"]
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddScoped(sp => new HttpClient
+builder.Services.AddScoped(sp => 
 {
-    BaseAddress = new Uri("http://localhost:5078/")
+    var handler = new HttpClientHandler
+    {
+        CookieContainer = new System.Net.CookieContainer(),
+        UseCookies = true
+    };
+    return new HttpClient(handler)
+    {
+        BaseAddress = new Uri("http://localhost:5078/")
+    };
 });
 
 var app = builder.Build();
