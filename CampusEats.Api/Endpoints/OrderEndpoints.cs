@@ -17,7 +17,7 @@ public static class OrderEndpoints
     public static void MapOrderEndpoints(this WebApplication app)
     {
         // Group all order endpoints and tag for Swagger
-        var orders = app.MapGroup("/orders")
+        var orders = app.MapGroup("api/orders")
                         .WithTags("Orders")
                         .WithOpenApi();
 

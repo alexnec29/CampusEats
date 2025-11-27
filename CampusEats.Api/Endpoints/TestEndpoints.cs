@@ -12,7 +12,11 @@ public static class TestEndpoints
 {
     public static void MapTestEndpoints(this WebApplication app)
     {
-        app.MapGet("/db-test", async ([FromServices] CampusEatsDbContext db) =>
+        var api = app.MapGroup("api")
+            .WithTags("API")
+            .WithOpenApi();
+        
+        api.MapGet("/db-test", async ([FromServices] CampusEatsDbContext db) =>
         {
             try
             {
@@ -34,7 +38,7 @@ public static class TestEndpoints
             }
         });
 
-        app.MapGet("/test-menu", async ([FromServices] IMenuItemRepository repo) =>
+        api.MapGet("/test-menu", async ([FromServices] IMenuItemRepository repo) =>
         {
             var newItem = new MenuItem
             {
@@ -58,7 +62,7 @@ public static class TestEndpoints
             });
         });
 
-        app.MapGet("/test-loyalty", async (
+        api.MapGet("/test-loyalty", async (
             [FromServices] CampusEatsDbContext db,
             [FromServices] ILoyaltyAccountRepository accRepo,
             [FromServices] ILoyaltyTransactionRepository txRepo) =>
@@ -121,7 +125,7 @@ public static class TestEndpoints
             }
         });
 
-        app.MapGet("/test-kitchen", async ([FromServices] IKitchenTaskRepository repo,
+        api.MapGet("/test-kitchen", async ([FromServices] IKitchenTaskRepository repo,
             [FromServices] IOrderRepository orderRepo,
             [FromServices] CampusEatsDbContext db) =>
         {
@@ -175,7 +179,7 @@ public static class TestEndpoints
             }
         });
 
-        app.MapGet("/test-order", async ([FromServices] CampusEatsDbContext db) =>
+        api.MapGet("/test-order", async ([FromServices] CampusEatsDbContext db) =>
         {
             try
             {
@@ -257,13 +261,13 @@ public static class TestEndpoints
             }
         });
 
-        app.MapGet("/ping", (HttpContext httpContext) =>
+        api.MapGet("/ping", (HttpContext httpContext) =>
             "pong"
             + httpContext.User.FindFirstValue(ClaimTypes.Role)
             + httpContext.User.FindFirstValue(ClaimTypes.Name)
         ).RequireAuthorization("Buyer");
 
-        app.MapGet("/ping-admin", () =>
+        api.MapGet("/ping-admin", () =>
             "pong-admin").RequireAuthorization("Admin");
     }
 }
