@@ -1,4 +1,5 @@
-﻿using CampusEats.Api.Infrastructure;
+﻿using System.Security.Claims;
+using CampusEats.Api.Infrastructure;
 using CampusEats.Api.Infrastructure.Repositories;
 using CampusEats.Api.Models;
 using CampusEats.Api.Models.Enums;
@@ -32,7 +33,7 @@ public static class TestEndpoints
                 return Results.Problem($"❌ Connection failed: {ex.Message}");
             }
         });
-        
+
         app.MapGet("/test-menu", async ([FromServices] IMenuItemRepository repo) =>
         {
             var newItem = new MenuItem
@@ -56,7 +57,7 @@ public static class TestEndpoints
                 TotalMenuItems = allItems.Count
             });
         });
-        
+
         app.MapGet("/test-loyalty", async (
             [FromServices] CampusEatsDbContext db,
             [FromServices] ILoyaltyAccountRepository accRepo,
@@ -86,17 +87,17 @@ public static class TestEndpoints
                     Description = "Test Points"
                 };
                 await txRepo.AddAsync(transaction);
-                
+
                 account.PointsBalance = 100;
                 await accRepo.UpdateAsync(account);
 
                 transaction.Points = 75;
                 transaction.Description = "Updated Points";
                 await txRepo.UpdateAsync(transaction);
-                
+
                 var fetchedAccount = await accRepo.GetByIdAsync(account.Id);
                 var fetchedTransaction = await txRepo.GetByIdAsync(transaction.Id);
-                
+
                 await txRepo.DeleteAsync(transaction.Id);
                 await accRepo.DeleteAsync(account.Id);
                 db.Users.Remove(user);
@@ -119,7 +120,7 @@ public static class TestEndpoints
                 return Results.Problem($"Exception: {ex.Message}, Inner: {inner}");
             }
         });
-        
+
         app.MapGet("/test-kitchen", async ([FromServices] IKitchenTaskRepository repo,
             [FromServices] IOrderRepository orderRepo,
             [FromServices] CampusEatsDbContext db) =>
@@ -136,10 +137,10 @@ public static class TestEndpoints
                 };
                 db.Users.Add(user);
                 await db.SaveChangesAsync();
-                
+
                 var order = new Order { UserId = user.Id, TotalAmount = 20m };
                 await orderRepo.AddAsync(order);
-                
+
                 var task = new KitchenTask
                 {
                     OrderId = order.Id,
@@ -147,12 +148,12 @@ public static class TestEndpoints
                     AssignedStaffId = user.Id
                 };
                 await repo.AddAsync(task);
-                
+
                 task.Status = OrderStatus.Completed;
                 await repo.UpdateAsync(task);
-                
+
                 var tasks = await repo.GetAllAsync();
-                
+
                 await repo.DeleteAsync(task.Id);
                 await orderRepo.DeleteAsync(order.Id);
                 db.Users.Remove(user);
@@ -205,7 +206,7 @@ public static class TestEndpoints
                     TotalAmount = menuItem.Price,
                     OrderItems = new List<OrderItem>
                     {
-                        new OrderItem
+                        new()
                         {
                             MenuItemId = menuItem.Id,
                             Quantity = 1,
@@ -215,7 +216,7 @@ public static class TestEndpoints
                 };
                 db.Orders.Add(order);
                 await db.SaveChangesAsync();
-                
+
                 order.TotalAmount = 10m;
                 order.Notes = "Updated order note";
                 db.Orders.Update(order);
@@ -226,11 +227,11 @@ public static class TestEndpoints
                 orderItem.Price = 10m;
                 db.OrderItems.Update(orderItem);
                 await db.SaveChangesAsync();
-                
+
                 var fetchedOrder = await db.Orders
                     .Include(o => o.OrderItems)
                     .FirstOrDefaultAsync(o => o.Id == order.Id);
-                
+
                 db.OrderItems.Remove(orderItem);
                 db.Orders.Remove(order);
                 db.MenuItems.Remove(menuItem);
@@ -256,5 +257,13 @@ public static class TestEndpoints
             }
         });
 
+        app.MapGet("/ping", (HttpContext httpContext) =>
+            "pong"
+            + httpContext.User.FindFirstValue(ClaimTypes.Role)
+            + httpContext.User.FindFirstValue(ClaimTypes.Name)
+        ).RequireAuthorization("Buyer");
+
+        app.MapGet("/ping-admin", () =>
+            "pong-admin").RequireAuthorization("Admin");
     }
 }
