@@ -18,6 +18,10 @@ public class CampusEatsDbContext : DbContext
     public DbSet<LoyaltyAccount> LoyaltyAccounts { get; set; }
     public DbSet<LoyaltyTransaction> LoyaltyTransactions { get; set; }
     public DbSet<KitchenTask> KitchenTasks { get; set; }
+    public DbSet<Jwt> BlackListTokens { get; set; }
+    public DbSet<BuyerProfile> BuyerProfiles { get; set; }
+    public DbSet<KitchenProfile> KitchenProfiles { get; set; }
+    public DbSet<AdminProfile> AdminProfiles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

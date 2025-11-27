@@ -1,7 +1,104 @@
 ﻿@page "/"
+@using CampusEats.Client.Models
+@inject HttpClient Http
+@inject NavigationManager Navigation
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="login-container">
+    @if (isLoggedIn)
+    {
+        <div class="welcome-container">
+            <h1 class="welcome-title">Welcome to CampusEats</h1>
+            <p class="lead">Your favorite food, delivered right to you.</p>
+        </div>
+    }
+    else
+    {
+        <div class="col-md-6 col-lg-5">
+            <div class="card login-card">
+                <div class="card-header">
+                    <h3>Login</h3>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@loginModel" OnValidSubmit="HandleLogin" FormName="LoginForm">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
 
-Welcome to your new app.
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <InputText id="username" class="form-control" placeholder="Enter your username" @bind-Value="loginModel.Username" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <InputText id="password" type="password" class="form-control" placeholder="Enter your password" @bind-Value="loginModel.Password" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                            <InputText id="confirmPassword" type="password" class="form-control" placeholder="Confirm your password" @bind-Value="loginModel.ConfirmPassword" />
+                            <small class="text-muted">Required by server policy.</small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                            <a href="register" class="btn btn-secondary">Create Account</a>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger mt-3">@errorMessage</div>
+                        }
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private LoginRequest loginModel { get; set; } = new();
+    
+    private string? errorMessage;
+    private bool isLoggedIn = false;
+
+    private async Task HandleLogin()
+    {
+        errorMessage = null;
+        try
+        {
+            var response = await Http.PostAsJsonAsync("api/user/login", loginModel);
+
+            if (response.IsSuccessStatusCode)
+            {
+                isLoggedIn = true;
+            }
+            else
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    errorMessage = "Invalid username or password.";
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                {
+                     var errorContent = await response.Content.ReadAsStringAsync();
+                     errorMessage = $"Bad Request: {errorContent}";
+                }
+                else
+                {
+                    errorMessage = "Login failed. Please try again.";
+                }
+            }
+        }
+        catch (Microsoft.AspNetCore.Components.NavigationException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+    }
+}
