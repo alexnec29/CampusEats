@@ -1,4 +1,3 @@
-using CampusEats.API.Infrastructure;
 using CampusEats.Api.Models;
 using CampusEats.Api.Models.Enums;
 using Microsoft.EntityFrameworkCore;
