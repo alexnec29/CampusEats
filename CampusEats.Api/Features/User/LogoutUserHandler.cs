@@ -10,6 +10,6 @@ public class LogoutUserHandler(IJwtService<Models.User> jwtService) : IRequestHa
     public async Task<IResult> Handle(LogoutUserRequest request, CancellationToken cancellationToken)
     {
         await jwtService.BlackListToken(request.Jwt);
-        return Results.Ok();
+        return new LogoutUserResponse();
     }
 }
