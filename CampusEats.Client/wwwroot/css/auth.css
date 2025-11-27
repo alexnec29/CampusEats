@@ -1,0 +1,170 @@
+/* Login & Register Styles */
+.login-container, .register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 2rem 0;
+}
+
+.login-card, .register-card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    overflow: hidden;
+    background-color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-card:hover, .register-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+.login-card .card-header, .register-card .card-header {
+    background: linear-gradient(135deg, rgb(5, 39, 103) 0%, #3a0647 100%) !important;
+    color: white !important;
+    text-align: center;
+    padding: 2.5rem 2rem;
+    border-bottom: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-card .card-header::after, .register-card .card-header::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    transform: rotate(30deg);
+    pointer-events: none;
+}
+
+.login-card .card-header h3, .register-card .card-header h3 {
+    font-weight: 800;
+    margin-bottom: 0;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 1.8rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.login-card .card-body, .register-card .card-body {
+    padding: 3rem;
+    background-color: #fff;
+}
+
+.login-card .form-label, .register-card .form-label {
+    font-weight: 600;
+    color: #4a4a4a;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.login-card .form-control, .register-card .form-control {
+    border-radius: 10px;
+    padding: 0.8rem 1.2rem;
+    border: 2px solid #eef2f7;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.login-card .form-control:focus, .register-card .form-control:focus {
+    background-color: #fff;
+    border-color: #3a0647;
+    box-shadow: 0 0 0 4px rgba(58, 6, 71, 0.1);
+}
+
+.login-card .form-control::placeholder, .register-card .form-control::placeholder {
+    color: #adb5bd;
+    font-size: 0.95rem;
+}
+
+.login-card .btn-primary, .register-card .btn-primary {
+    background: linear-gradient(to right, rgb(5, 39, 103), #3a0647);
+    border: none;
+    border-radius: 10px;
+    padding: 1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(5, 39, 103, 0.2);
+}
+
+.login-card .btn-primary:hover, .register-card .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(58, 6, 71, 0.3);
+    background: linear-gradient(to right, rgb(10, 50, 120), #4a085c);
+}
+
+.login-card .btn-secondary, .register-card .btn-secondary {
+    background-color: #fff;
+    color: #3a0647;
+    border: 2px solid #3a0647;
+    border-radius: 10px;
+    padding: 1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.login-card .btn-secondary:hover, .register-card .btn-secondary:hover {
+    background-color: #3a0647;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(58, 6, 71, 0.2);
+}
+
+.welcome-container {
+    text-align: center;
+    padding: 4rem;
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    margin-top: 2rem;
+}
+
+.welcome-title {
+    background: linear-gradient(135deg, rgb(5, 39, 103) 0%, #3a0647 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eef2f7;
+    font-size: 0.95rem;
+    color: #6c757d;
+}
+
+.login-link a {
+    color: #3a0647;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.2s;
+    margin-left: 0.3rem;
+}
+
+.login-link a:hover {
+    color: rgb(5, 39, 103);
+    text-decoration: underline;
+}
+
+.validation-message {
+    font-size: 0.85rem;
+    margin-top: 0.4rem;
+    color: #dc3545;
+}
