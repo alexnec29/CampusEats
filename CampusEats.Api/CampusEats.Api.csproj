@@ -31,7 +31,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Features\OrderItem\" />
+      <Folder Include="Features" />
+      <Folder Include="Middleware\" />
     </ItemGroup>
 
 </Project>

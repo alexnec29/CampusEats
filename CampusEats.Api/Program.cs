@@ -2,10 +2,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using CampusEats.Api.Behaviors;
 using CampusEats.Api.Endpoints;
-using CampusEats.Api.Features.Allergen;
+using CampusEats.Api.Features.KitchenTask;
 using CampusEats.Api.Infrastructure;
 using CampusEats.Api.Infrastructure.Repositories;
-using CampusEats.API.Infrastructure.Repositories;
 using CampusEats.Api.Middleware;
 using CampusEats.Api.Models;
 using CampusEats.Api.Models.Enums;
@@ -116,6 +115,7 @@ app.MapTestEndpoints();
 app.MapUserEndpoints();
 app.MapOrderEndpoints();
 app.MapAllergenEndpoints();
+app.MapKitchenEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {

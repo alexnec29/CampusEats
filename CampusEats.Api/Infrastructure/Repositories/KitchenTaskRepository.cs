@@ -50,4 +50,8 @@ public class KitchenTaskRepository : IKitchenTaskRepository
         await _context.KitchenTasks
             .Where(t => t.AssignedStaffId == staffId)
             .ToListAsync();
+    
+    public async Task<KitchenTask?> GetByOrderIdAsync(int orderId) =>
+        await _context.KitchenTasks
+            .FirstOrDefaultAsync(t => t.OrderId == orderId);
 }

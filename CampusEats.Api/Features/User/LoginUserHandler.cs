@@ -1,4 +1,4 @@
-﻿using CampusEats.API.Infrastructure.Repositories;
+﻿using CampusEats.Api.Infrastructure.Repositories;
 using CampusEats.Api.Utils.JwtUtil;
 using CampusEats.Api.Validators;
 using MediatR;
