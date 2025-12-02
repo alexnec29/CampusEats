@@ -100,7 +100,7 @@ if (app.Environment.IsDevelopment())
     app.UseCors();
     app.UseMiddleware<CsrfTokenFilterMiddleware>();
     app.UseMiddleware<JwtFilterMiddleware>();
-    // app.UseAuthentication();
+    app.UseAuthentication();
     app.UseAuthorization();
     app.UseSwagger();
     app.UseSwaggerUI();
