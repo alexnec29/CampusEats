@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getCsrfToken } from '../utils/csrf';
+import { apiClient } from '../utils/apiClient';
 
 const Sidebar: React.FC = () => {
   const { isAuthenticated, checkAuthStatus } = useAuth();
@@ -9,16 +9,8 @@ const Sidebar: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      const csrfToken = getCsrfToken();
-      const headers: HeadersInit = {};
-      if (csrfToken) {
-        headers['X-CSRF-TOKEN'] = csrfToken;
-      }
-
-      await fetch('/api/user/logout', { 
-        method: 'POST',
-        headers: headers,
-        credentials: 'include'
+      await apiClient('/api/user/logout', { 
+        method: 'POST'
       });
       await checkAuthStatus();
       navigate('/login');
