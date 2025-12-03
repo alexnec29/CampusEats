@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getCsrfToken } from '../utils/csrf';
+import { apiClient } from '../utils/apiClient';
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -31,24 +31,14 @@ const Login: React.FC = () => {
     setError('');
 
     try {
-      const csrfToken = getCsrfToken();
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json'
-      };
-      if (csrfToken) {
-        headers['X-CSRF-TOKEN'] = csrfToken;
-      }
-
-      const response = await fetch('/api/user/login', {
+      const response = await apiClient('/api/user/login', {
         method: 'POST',
-        headers: headers,
-        body: JSON.stringify(formData),
-        credentials: 'include'
+        body: JSON.stringify(formData)
       });
 
       if (response.ok) {
         console.log('Login successful');
-        await checkAuthStatus(); // Update auth state
+        await checkAuthStatus(); 
         navigate('/');
       } else {
         const data = await response.text();

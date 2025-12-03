@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { getCsrfToken } from '../utils/csrf';
+import { apiClient } from '../utils/apiClient';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -15,16 +15,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const checkAuthStatus = async () => {
     try {
-      const csrfToken = getCsrfToken();
-      const headers: HeadersInit = {};
-      if (csrfToken) {
-        headers['X-CSRF-TOKEN'] = csrfToken;
-      }
-
-      const response = await fetch('/api/user/check-auth', {
-        headers: headers,
-        credentials: 'include'
-      });
+      const response = await apiClient('/api/user/check-auth');
       if (response.ok) {
         const data = await response.json();
         setIsAuthenticated(data.isAuthenticated);
