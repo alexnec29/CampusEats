@@ -50,7 +50,8 @@ public class JwtFilterMiddleware
 
             try
             {
-                context.User = _jwtSecurityTokenHandler.ValidateToken(jwt, validationParameters, out _);
+                // context.User = _jwtSecurityTokenHandler.ValidateToken(jwt, validationParameters, out _);
+                _jwtSecurityTokenHandler.ValidateToken(jwt, validationParameters, out _);
             }
             catch (Exception)
             {

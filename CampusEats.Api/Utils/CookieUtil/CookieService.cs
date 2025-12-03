@@ -48,7 +48,7 @@ public class CookieService
         return new CookieOptions()
         {
             Secure = false, // set false only for non-HTTPS dev environments
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.Lax,
             Path = "/"
         };
     }

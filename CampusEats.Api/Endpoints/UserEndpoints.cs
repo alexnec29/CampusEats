@@ -34,5 +34,14 @@ public static class UserEndpoints
         users.MapPut("/update-kitchen-profile",
             async (UpdateKitchenProfileRequest request, IMediator mediator) =>
                 await mediator.Send(request)).RequireAuthorization("Kitchen");
+
+        users.MapGet("/check-auth", (HttpContext httpContext) =>
+        {
+            if (httpContext.User.Identity?.IsAuthenticated == true)
+            {
+                return Results.Ok(new { isAuthenticated = true, username = httpContext.User.Identity?.Name });
+            }
+            return Results.Ok(new { isAuthenticated = false });
+        }).AllowAnonymous();
     }
 }

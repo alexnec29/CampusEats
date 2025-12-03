@@ -1,0 +1,108 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { getCsrfToken } from '../utils/csrf';
+
+const Login: React.FC = () => {
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { isAuthenticated, checkAuthStatus } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const csrfToken = getCsrfToken();
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json'
+      };
+      if (csrfToken) {
+        headers['X-CSRF-TOKEN'] = csrfToken;
+      }
+
+      const response = await fetch('/api/user/login', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(formData),
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        console.log('Login successful');
+        await checkAuthStatus(); // Update auth state
+        navigate('/');
+      } else {
+        const data = await response.text();
+        setError(data || 'Login failed');
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+    }
+  };
+
+  return (
+    <div className="max-w-md mx-auto mt-10">
+      <h2 className="text-2xl font-bold mb-5">Login</h2>
+      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-gray-700">Username</label>
+          <input
+            type="text"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+            className="w-full border border-gray-300 p-2 rounded"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-gray-700">Password</label>
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full border border-gray-300 p-2 rounded"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-gray-700">Confirm Password</label>
+          <input
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            className="w-full border border-gray-300 p-2 rounded"
+            required
+          />
+        </div>
+        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+          Login
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default Login;
