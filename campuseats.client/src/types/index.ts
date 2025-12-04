@@ -35,3 +35,12 @@ export enum OrderStatus {
     Completed = 4,
     Cancelled = 5
 }
+
+export enum MenuCategory {
+    Breakfast = 0,
+    Lunch = 1,
+    Dinner = 2,
+    Snacks = 3,
+    Drinks = 4,
+    Desserts = 5
+}

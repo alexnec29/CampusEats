@@ -44,6 +44,9 @@ const Sidebar: React.FC = () => {
                 <Link to="/orders" className="block hover:text-gray-300">My Orders</Link>
               </li>
               <li>
+                <Link to="/add-menu-item" className="block hover:text-gray-300">Add Menu Item</Link>
+              </li>
+              <li>
                 <button onClick={handleLogout} className="block hover:text-gray-300 text-left w-full">
                   Logout
                 </button>

@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Menu from './pages/Menu';
 import Orders from './pages/Orders';
+import AddMenuItem from './pages/AddMenuItem';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/menu" element={<Menu />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/add-menu-item" element={<AddMenuItem />} />
           </Routes>
         </Layout>
       </Router>
