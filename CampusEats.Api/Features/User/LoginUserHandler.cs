@@ -5,7 +5,7 @@ using MediatR;
 
 namespace CampusEats.Api.Features.User;
 
-public class LoginUserHandler(IUserRepository userRepository, IJwtService<Models.User> jwtService, LoginUserValidator validator) : IRequestHandler<LoginUserRequest, IResult>
+public class LoginUserHandler(IUserRepository userRepository, IJwtService<Models.User> jwtService) : IRequestHandler<LoginUserRequest, IResult>
 {
     public async Task<IResult> Handle(LoginUserRequest request, CancellationToken cancellationToken)
     {
