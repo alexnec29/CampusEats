@@ -61,6 +61,33 @@ const Orders: React.FC = () => {
       }
   };
 
+  const removeItem = async (orderId: number, itemId: number) => {
+    if (!window.confirm('Are you sure you want to remove this item?')) return;
+
+    try {
+      const response = await apiClient(`/api/orders/${orderId}/items/${itemId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        // Refresh orders
+        const ordersRes = await apiClient('/api/orders/my-orders');
+        if (ordersRes.ok) {
+          const data = await ordersRes.json();
+          const sorted = data.sort((a: Order, b: Order) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          setOrders(sorted);
+        }
+      } else {
+        alert('Failed to remove item');
+      }
+    } catch (error) {
+      console.error('Error removing item:', error);
+      alert('Error removing item');
+    }
+  };
+
   if (loading) return <div className="p-4">Loading orders...</div>;
 
   return (
@@ -86,9 +113,19 @@ const Orders: React.FC = () => {
                 <h4 className="font-semibold mb-2">Items:</h4>
                 <ul className="space-y-2">
                   {order.orderItems?.map(item => (
-                    <li key={item.id} className="flex justify-between text-sm">
+                    <li key={item.id} className="flex justify-between text-sm items-center">
                       <span>{item.quantity}x {item.menuItem?.name || 'Unknown Item'}</span>
-                      <span>${(item.price * item.quantity).toFixed(2)}</span>
+                      <div className="flex items-center gap-4">
+                        <span>${(item.price * item.quantity).toFixed(2)}</span>
+                        {order.status === OrderStatus.Pending && (
+                            <button 
+                                onClick={() => removeItem(order.id, item.id)}
+                                className="text-red-600 hover:text-red-800 text-xs font-semibold"
+                            >
+                                Remove
+                            </button>
+                        )}
+                      </div>
                     </li>
                   ))}
                 </ul>
