@@ -1,4 +1,5 @@
-﻿using CampusEats.Api.Features.User;
+﻿using System.Security.Claims;
+using CampusEats.Api.Features.User;
 using MediatR;
 
 namespace CampusEats.Api.Endpoints;
@@ -28,12 +29,20 @@ public static class UserEndpoints
             return await mediator.Send(request);
         }).RequireAuthorization("AllRoles");
 
-        users.MapPut("/update-buyer-profile", async (UpdateBuyerProfileRequest request, IMediator mediator) =>
-            await mediator.Send(request)).RequireAuthorization("Buyer");
+        users.MapPut("/update-buyer-profile", async (HttpContext httpContext, UpdateBuyerProfileRequest request, IMediator mediator) =>
+        {
+            Guid userId = new Guid(httpContext.User.FindFirstValue("/id")!);
+            request = request with { UserId = userId };
+            return await mediator.Send(request);
+        }).RequireAuthorization("Buyer");
 
         users.MapPut("/update-kitchen-profile",
-            async (UpdateKitchenProfileRequest request, IMediator mediator) =>
-                await mediator.Send(request)).RequireAuthorization("Kitchen");
+            async (HttpContext httpContext, UpdateKitchenProfileRequest request, IMediator mediator) =>
+            {
+                Guid userId = new Guid(httpContext.User.FindFirstValue("/id")!);
+                request = request with { UserId = userId };
+                return await mediator.Send(request);
+            }).RequireAuthorization("Kitchen");
 
         users.MapGet("/check-auth", (HttpContext httpContext) =>
         {
@@ -43,5 +52,26 @@ public static class UserEndpoints
             }
             return Results.Ok(new { isAuthenticated = false });
         }).AllowAnonymous();
+
+        users.MapGet("/buyer-profile", async (HttpContext httpContext, IMediator mediator) =>
+        {
+            Guid userId = new Guid(httpContext.User.FindFirstValue("/id")!);
+            GetBuyerProfileByUserIdRequest request = new GetBuyerProfileByUserIdRequest(userId);
+            return await mediator.Send(request);
+        }).RequireAuthorization("Buyer");
+        
+        users.MapGet("/kitchen-profile", async (HttpContext httpContext, IMediator mediator) =>
+        {
+            Guid userId = new Guid(httpContext.User.FindFirstValue("/id")!);
+            GetKitchenProfileByUserIdRequest request = new GetKitchenProfileByUserIdRequest(userId);
+            return await mediator.Send(request);
+        }).RequireAuthorization("Kitchen");
+        
+        users.MapGet("", async (HttpContext httpContext, IMediator mediator) =>
+        {
+            Guid userId = new Guid(httpContext.User.FindFirstValue("/id")!);
+            GetUserByIdRequest request = new GetUserByIdRequest(userId);
+            return await mediator.Send(request);
+        }).RequireAuthorization("AllRoles");
     }
 }

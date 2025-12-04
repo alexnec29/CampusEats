@@ -7,9 +7,6 @@ public class UpdateBuyerProfileValidator : AbstractValidator<UpdateBuyerProfileR
 {
     public UpdateBuyerProfileValidator(AddressValidator addressValidator)
     {
-        RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("UserId is required");
-        
         RuleFor(x => x.LastName)
             .NotEmpty().WithMessage("Last name is required");
         
