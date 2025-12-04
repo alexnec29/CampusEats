@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const Menu: React.FC = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, userRole } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -114,6 +114,25 @@ const Menu: React.FC = () => {
     }
   };
 
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this item?')) return;
+
+    try {
+      const response = await apiClient(`/api/menu-items/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        setMenuItems(prev => prev.filter(item => item.id !== id));
+      } else {
+        alert('Failed to delete item');
+      }
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      alert('Error deleting item');
+    }
+  };
+
   if (loading) return <div className="p-4">Loading menu...</div>;
 
   return (
@@ -129,13 +148,27 @@ const Menu: React.FC = () => {
             <p className="text-gray-600 mb-2">{item.description}</p>
             <div className="flex justify-between items-center mt-4">
               <span className="text-lg font-bold">${item.price.toFixed(2)}</span>
-              <button
-                onClick={() => addToOrder(item)}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-                disabled={!item.isAvailable}
-              >
-                {item.isAvailable ? 'Add to Order' : 'Unavailable'}
-              </button>
+              
+              <div className="flex space-x-2">
+                {(userRole === 'Buyer' || userRole === 'Admin') && (
+                  <button
+                    onClick={() => addToOrder(item)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+                    disabled={!item.isAvailable}
+                  >
+                    {item.isAvailable ? 'Add to Order' : 'Unavailable'}
+                  </button>
+                )}
+
+                {(userRole === 'Kitchen' || userRole === 'Admin') && (
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ))}

@@ -19,5 +19,11 @@ public static class MenuItemEndpoints
         {
             return await mediator.Send(request);
         }).RequireAuthorization("Kitchen");
+
+        group.MapDelete("/{id}", async (int id, IMediator mediator) =>
+        {
+            await mediator.Send(new DeleteMenuItemRequest(id));
+            return Results.NoContent();
+        }).RequireAuthorization("Kitchen");
     }
 }
