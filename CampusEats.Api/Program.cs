@@ -19,10 +19,12 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
-        policy.WithOrigins("http://localhost:5267")
+        policy.WithOrigins("http://localhost:3000")
             .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .AllowAnyHeader()
             .AllowCredentials());
@@ -63,7 +65,7 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Kitchen", policy => policy.RequireRole(nameof(Role.Kitchen), nameof(Role.Admin)));
 
 
-builder.Services.AddOpenApi();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
@@ -111,7 +113,6 @@ if (app.Environment.IsDevelopment())
     app.UseAuthorization();
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.MapOpenApi();
 }
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
@@ -125,10 +126,10 @@ app.MapAllergenEndpoints();
 app.MapKitchenEndpoints();
 app.MapMenuItemEndpoints();
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<CampusEatsDbContext>();
-    await DbInitializer.InitializeAsync(dbContext);
-}
+//using (var scope = app.Services.CreateScope())
+//{
+    //var dbContext = scope.ServiceProvider.GetRequiredService<CampusEatsDbContext>();
+    //await DbInitializer.InitializeAsync(dbContext);
+//}
 
 app.Run();

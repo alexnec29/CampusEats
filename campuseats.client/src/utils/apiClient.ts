@@ -1,10 +1,12 @@
 import { getCsrfToken } from './csrf';
 
+const BASE_URL = "http://localhost:5267"; 
+
 interface RequestOptions extends RequestInit {
   headers?: Record<string, string>;
 }
 
-export const apiClient = async (url: string, options: RequestOptions = {}) => {
+export const apiClient = async (endpoint: string, options: RequestOptions = {}) => {
   const csrfToken = getCsrfToken();
   
   const headers: Record<string, string> = {
@@ -25,6 +27,8 @@ export const apiClient = async (url: string, options: RequestOptions = {}) => {
     headers,
     credentials: 'include', 
   };
+
+  const url = `${BASE_URL}${endpoint}`;
 
   const response = await fetch(url, config);
   
