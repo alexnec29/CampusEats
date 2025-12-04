@@ -21,8 +21,9 @@ public class CreateOrderHandler(
         }
         
         var existingOrders = await orderRepository.GetOrdersByUserAsync(request.UserId);
-        if (existingOrders.Any(o => o.Status == OrderStatus.Pending))
-            return Results.Conflict("User already has a pending order");
+        var pendingOrder = existingOrders.FirstOrDefault(o => o.Status == OrderStatus.Pending);
+        if (pendingOrder != null)
+            return Results.Conflict(new { Message = "User already has a pending order", OrderId = pendingOrder.Id });
 
         var order = new Models.Order
         {
