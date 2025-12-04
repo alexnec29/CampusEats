@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../utils/apiClient';
 
 const Sidebar: React.FC = () => {
-  const { isAuthenticated, checkAuthStatus } = useAuth();
+  const { isAuthenticated, userRole, checkAuthStatus } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -35,16 +35,20 @@ const Sidebar: React.FC = () => {
                   Menu
                 </Link>
               </li>
+              {(userRole === 'Buyer' || userRole === 'Admin') && (
               <li>
                 <Link to="/orders" className="block px-4 py-2 rounded hover:bg-gray-700 transition">
                   Comenzi
                 </Link>
               </li>
+              )}
             </ul>
           </div>
 
           <hr className="border-gray-600 my-4" />
 
+          {(userRole === 'Kitchen' || userRole === 'Admin') && (
+          <>
           <div className="flex flex-col">
             <h3 className="text-white text-lg font-bold mb-4 uppercase">Administrare</h3>
             <ul className="flex flex-col space-y-2">
@@ -57,6 +61,8 @@ const Sidebar: React.FC = () => {
           </div>
 
           <hr className="border-gray-600 my-4" />
+          </>
+          )}
 
           <div className="flex flex-col">
             <h3 className="text-white text-lg font-bold mb-4 uppercase">Contul meu</h3>
