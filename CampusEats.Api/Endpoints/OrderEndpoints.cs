@@ -31,56 +31,56 @@ public static class OrderEndpoints
             }
             var command = request with { UserId = userId };
             return await mediator.Send(command);
-        });
+        }).RequireAuthorization("Buyer");
 
         // Add item to order
         orders.MapPost("/{orderId}/items", async (int orderId, AddOrderItemRequest request, IMediator mediator) =>
         {
             var command = request with { OrderId = orderId };
             return await mediator.Send(command);
-        });
+        }).RequireAuthorization("Buyer");
         
         // Update item (quantity)
         orders.MapPut("/{orderId}/items/{itemId}", async (int orderId, int itemId, UpdateOrderItemQuantityRequest request, IMediator mediator) =>
         {
             var command = request with { OrderId = orderId, OrderItemId = itemId };
             return await mediator.Send(command);
-        });
+        }).RequireAuthorization("Buyer");
 
         // Remove item
         orders.MapDelete("/{orderId}/items/{itemId}", async (int orderId, int itemId, IMediator mediator) =>
         {
             var command = new RemoveOrderItemRequest(orderId, itemId);
             return await mediator.Send(command);
-        });
+        }).RequireAuthorization("Buyer");
 
         // Update order status
         orders.MapPut("/{orderId}/status", async (int orderId, UpdateOrderStatusRequest request, IMediator mediator) =>
         {
             var command = request with { OrderId = orderId };
             return await mediator.Send(command);
-        });
+        }).RequireAuthorization("Admin");
 
         // Cancel order
         orders.MapPost("/{orderId}/cancel", async (int orderId, IMediator mediator) =>
         {
             var command = new CancelOrderRequest(orderId);
             return await mediator.Send(command);
-        });
+        }).RequireAuthorization("Buyer");
 
         // Get order by ID
         orders.MapGet("/{orderId}", async (int orderId, IMediator mediator) =>
         {
             var query = new GetOrderByIdRequest(orderId);
             return await mediator.Send(query);
-        });
+        }).RequireAuthorization("Buyer");
 
         // Get all orders
         orders.MapGet("/", async (IMediator mediator) =>
         {
             var query = new GetAllOrdersRequest();
             return await mediator.Send(query);
-        });
+        }).RequireAuthorization("Admin");
 
         // Get orders by status
         orders.MapGet("/status", async (string status, IMediator mediator) =>
@@ -90,14 +90,14 @@ public static class OrderEndpoints
 
             var query = new GetOrdersByStatusRequest(parsedStatus);
             return await mediator.Send(query);
-        });
+        }).RequireAuthorization("Admin");
 
         // Get orders by user
         orders.MapGet("/user/{userId:guid}", async (Guid userId, IMediator mediator) =>
         {
             var query = new GetUserOrdersRequest(userId);
             return await mediator.Send(query);
-        });
+        }).RequireAuthorization("Buyer");
 
         // Get my orders
         orders.MapGet("/my-orders", async (HttpContext httpContext, IMediator mediator) =>

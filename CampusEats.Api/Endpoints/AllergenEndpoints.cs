@@ -17,13 +17,15 @@ public static class AllergenEndpoints
         group.MapGet("/{id:int}", (int id, IMediator mediator) => 
         {
             return Results.Ok($"Allergen {id} fetched (GetById logic pending)"); 
-        }).WithName("GetByIdAllergen"); 
+        }).WithName("GetByIdAllergen")
+          .RequireAuthorization("AllRoles");
 
         group.MapGet("/", async (IMediator mediator) =>
         {
             var result = await mediator.Send(new GetAllAllergens.GetAllAllergensQuery());
             return Results.Ok(result); 
-        }).WithName("GetAllAllergens");
+        }).WithName("GetAllAllergens")
+          .RequireAuthorization("AllRoles");
 
         group.MapPost("/", async ([FromBody] CreateAllergenRequest request, IMediator mediator) =>
         {
@@ -41,8 +43,8 @@ public static class AllergenEndpoints
             }
         })
         .Accepts<CreateAllergenRequest>(MediaTypeNames.Application.Json)
-        .WithName("CreateAllergen");
-
+        .WithName("CreateAllergen")
+        .RequireAuthorization("Kitchen");
         group.MapDelete("/{id:int}", async (int id, IMediator mediator) =>
         {
             try
@@ -54,6 +56,7 @@ public static class AllergenEndpoints
             {
                 return Results.NotFound(); 
             }
-        }).WithName("DeleteAllergen");
+        }).WithName("DeleteAllergen")
+          .RequireAuthorization("Kitchen");
     }
 }

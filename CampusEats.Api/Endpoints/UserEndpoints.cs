@@ -48,7 +48,8 @@ public static class UserEndpoints
         {
             if (httpContext.User.Identity?.IsAuthenticated == true)
             {
-                return Results.Ok(new { isAuthenticated = true, username = httpContext.User.Identity?.Name });
+                var role = httpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+                return Results.Ok(new { isAuthenticated = true, username = httpContext.User.Identity?.Name, role = role });
             }
             return Results.Ok(new { isAuthenticated = false });
         }).AllowAnonymous();

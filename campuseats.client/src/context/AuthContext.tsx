@@ -3,6 +3,7 @@ import { apiClient } from '../utils/apiClient';
 
 interface AuthContextType {
   isAuthenticated: boolean;
+  userRole: string | null;
   isLoading: boolean;
   checkAuthStatus: () => Promise<void>;
 }
@@ -11,6 +12,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const checkAuthStatus = async () => {
@@ -19,11 +21,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (response.ok) {
         const data = await response.json();
         setIsAuthenticated(data.isAuthenticated);
+        setUserRole(data.role || null);
       } else {
         setIsAuthenticated(false);
+        setUserRole(null);
       }
     } catch (error) {
       setIsAuthenticated(false);
+      setUserRole(null);
     } finally {
       setIsLoading(false);
     }
@@ -34,7 +39,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, checkAuthStatus }}>
+    <AuthContext.Provider value={{ isAuthenticated, userRole, isLoading, checkAuthStatus }}>
       {children}
     </AuthContext.Provider>
   );
