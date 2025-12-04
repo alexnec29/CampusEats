@@ -16,7 +16,8 @@ public class GetUserByIdHandler(IUserRepository userRepository) : IRequestHandle
         GetUserByIdResponse response = new GetUserByIdResponse
         {
             Username = user.Username,
-            Email = user.Email
+            Email = user.Email,
+            Role = user.Role.ToString(),
         };
         
         return Results.Ok(response);
