@@ -1,5 +1,6 @@
 ﻿@page "/orders"
-@using CampusEats.Client.Components.Shared
+@inject HttpClient Http
+@using CampusEats.Client.Models
 
 <h3>Orders</h3>
 
@@ -7,32 +8,38 @@
 {
     <p><em>Loading...</em></p>
 }
+else if (!OrdersList.Any())
+{
+    <p>No orders found.</p>
+}
 else
 {
-    @foreach (var order in OrdersList)
-    {
-        <OrderCard OrderNumber="@order.OrderNumber" ItemName="@order.ItemName" Price="@order.Price" />
-    }
+    <ul>
+        @foreach (var order in OrdersList)
+        {
+            <li>
+                <strong>Order #@order.Id</strong> - Status: @order.Status - Total: $@order.TotalAmount
+                <ul>
+                    @foreach (var item in order.Items)
+                    {
+                        <li>@item.MenuItemId: @item.Quantity x $@item.MenuItemPrice</li>
+                    }
+                </ul>
+            </li>
+        }
+    </ul>
 }
 
 @code {
-    private List<OrderItem>? OrdersList;
+    private List<OrderResponse>? OrdersList;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        // Mockup data
-        OrdersList = new List<OrderItem>
-        {
-            new OrderItem { OrderNumber = 1, ItemName = "Pizza", Price = 10 },
-            new OrderItem { OrderNumber = 2, ItemName = "Salad", Price = 5 },
-            new OrderItem { OrderNumber = 3, ItemName = "Soup", Price = 6 }
-        };
+        await LoadOrders();
     }
 
-    public class OrderItem
+    private async Task LoadOrders()
     {
-        public int OrderNumber { get; set; }
-        public string ItemName { get; set; } = "";
-        public decimal Price { get; set; }
+        OrdersList = await Http.GetFromJsonAsync<List<OrderResponse>>("orders/");
     }
 }

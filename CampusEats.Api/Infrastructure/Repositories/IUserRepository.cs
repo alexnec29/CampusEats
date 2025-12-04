@@ -7,4 +7,5 @@ namespace CampusEats.API.Infrastructure.Repositories;
 public interface IUserRepository : IRepository<User, Guid>
 {
     Task<User?> GetByUsernameAsync(string username);
+    Task<User?> GetByEmailAsync(string email);
 }

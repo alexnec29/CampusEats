@@ -1,4 +1,6 @@
 using CampusEats.Client.Components;
+using CampusEats.Client.Services;
+using Microsoft.JSInterop;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,9 +10,23 @@ var apiBaseUrl = builder.Configuration["ApiBaseUrl"]
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddHttpClient("CampusEatsApi", client =>
+builder.Services.AddScoped<CsrfTokenHandler>();
+
+builder.Services.AddScoped(sp => 
 {
-    client.BaseAddress = new Uri(apiBaseUrl);
+    var handler = new HttpClientHandler
+    {
+        CookieContainer = new System.Net.CookieContainer(),
+        UseCookies = true
+    };
+    
+    var csrfHandler = sp.GetRequiredService<CsrfTokenHandler>();
+    csrfHandler.InnerHandler = handler;
+
+    return new HttpClient(csrfHandler)
+    {
+        BaseAddress = new Uri("http://localhost:5078/")
+    };
 });
 
 var app = builder.Build();

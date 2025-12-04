@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
+using FluentValidation;
 
 namespace CampusEats.Api.Middleware;
 
@@ -27,9 +28,15 @@ public class GlobalExceptionHandlerMiddleware
             _logger.LogError(ex, "Unhandled exception occurred");
 
             context.Response.ContentType = "application/json";
-
+            
             int statusCode = (int)HttpStatusCode.InternalServerError;
             string message = "An unexpected error occurred.";
+            
+            if (ex is ValidationException)
+            {
+                statusCode = (int)HttpStatusCode.BadRequest;
+                message = ex.Message;
+            }
 
             if (_env.IsDevelopment())
             {

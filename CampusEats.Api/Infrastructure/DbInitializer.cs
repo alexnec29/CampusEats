@@ -1,6 +1,7 @@
 ﻿
 using CampusEats.API.Infrastructure;
 using CampusEats.Api.Models;
+using CampusEats.Api.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Infrastructure;
@@ -34,7 +35,16 @@ public static class DbInitializer
             );
             await context.SaveChangesAsync();
         }
-        
-        //TODO: implement when User class and UserRole exist
+
+        if (!context.Users.Any())
+        {
+            context.Users.AddRange(
+                new User { Username = "buyer1", HashedPassword = BCrypt.Net.BCrypt.HashPassword("Buyer1$4"), Email = "buyer1@gmail.com", Role = Role.Buyer },
+                new User { Username = "buyer2", HashedPassword = BCrypt.Net.BCrypt.HashPassword("Buyer2$4"), Email = "buyer2@gmail.com", Role = Role.Buyer },
+                new User { Username = "kitchen", HashedPassword = BCrypt.Net.BCrypt.HashPassword("kitcheN$4"), Email = "kitchen@gmail.com", Role = Role.Kitchen },
+                new User { Username = "admin", HashedPassword = BCrypt.Net.BCrypt.HashPassword("admiN$$4"), Email = "admin@gmail.com", Role = Role.Admin }
+            );
+            await context.SaveChangesAsync();
+        }
     }
 }
