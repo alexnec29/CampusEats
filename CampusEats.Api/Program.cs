@@ -1,8 +1,10 @@
+using System.Text.Json.Serialization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using CampusEats.Api.Behaviors;
 using CampusEats.Api.Endpoints;
 using CampusEats.Api.Features.KitchenTask;
+using CampusEats.Api.Features.MenuItem;
 using CampusEats.Api.Infrastructure;
 using CampusEats.Api.Infrastructure.Repositories;
 using CampusEats.Api.Middleware;
@@ -24,6 +26,11 @@ builder.Services.AddCors(options =>
             .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .AllowAnyHeader()
             .AllowCredentials());
+});
+
+builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+{
+    options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -116,6 +123,7 @@ app.MapUserEndpoints();
 app.MapOrderEndpoints();
 app.MapAllergenEndpoints();
 app.MapKitchenEndpoints();
+app.MapMenuItemEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {

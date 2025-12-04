@@ -10,9 +10,6 @@ public class GetUserOrdersHandler(
     public async Task<IResult> Handle(GetUserOrdersRequest request, CancellationToken cancellationToken)
     {
         var orders = await orderRepository.GetOrdersByUserAsync(request.UserId);
-        if (!orders.Any())
-            return Results.NotFound();
-
         return Results.Ok(orders);
     }
 }

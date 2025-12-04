@@ -22,9 +22,15 @@ public static class OrderEndpoints
                         .WithOpenApi();
 
         // Create order
-        orders.MapPost("/", async (CreateOrderRequest request, IMediator mediator) =>
+        orders.MapPost("/", async (CreateOrderRequest request, HttpContext httpContext, IMediator mediator) =>
         {
-            return await mediator.Send(request);
+            var userIdString = httpContext.User.FindFirst("/id")?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            {
+                return Results.Unauthorized();
+            }
+            var command = request with { UserId = userId };
+            return await mediator.Send(command);
         });
 
         // Add item to order
@@ -89,6 +95,18 @@ public static class OrderEndpoints
         // Get orders by user
         orders.MapGet("/user/{userId:guid}", async (Guid userId, IMediator mediator) =>
         {
+            var query = new GetUserOrdersRequest(userId);
+            return await mediator.Send(query);
+        });
+
+        // Get my orders
+        orders.MapGet("/my-orders", async (HttpContext httpContext, IMediator mediator) =>
+        {
+            var userIdString = httpContext.User.FindFirst("/id")?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            {
+                return Results.Unauthorized();
+            }
             var query = new GetUserOrdersRequest(userId);
             return await mediator.Send(query);
         });
