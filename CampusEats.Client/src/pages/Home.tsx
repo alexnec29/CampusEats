@@ -74,56 +74,6 @@ const Home: React.FC = () => {
             {/* Welcome banner */}
             <div className="bg-blue-500 text-white p-6 rounded-lg shadow-md">
                 <h1 className="text-3xl font-bold">Bine ai venit, {user.username}!</h1>
-                <p className="mt-2">Rolul tău: <span className="font-semibold">{user.role}</span></p>
-                {user.loyaltyPoints !== undefined && (
-                    <p>Puncte loialitate: <span className="font-semibold">{user.loyaltyPoints}</span></p>
-                )}
-            </div>
-
-            {/* Quick links */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Link
-                    to="/menu"
-                    className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition duration-200 flex flex-col items-center justify-center"
-                >
-                    <span className="text-xl font-bold">🍽️ Menu</span>
-                    <p className="mt-2 text-gray-600">Vezi meniul disponibil</p>
-                </Link>
-
-                <Link
-                    to="/orders"
-                    className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition duration-200 flex flex-col items-center justify-center"
-                >
-                    <span className="text-xl font-bold">🛒 Comenzi</span>
-                    <p className="mt-2 text-gray-600">Vezi comenzile tale</p>
-                </Link>
-
-                <Link
-                    to="/loyalty"
-                    className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition duration-200 flex flex-col items-center justify-center"
-                >
-                    <span className="text-xl font-bold">🎁 Loialitate</span>
-                    <p className="mt-2 text-gray-600">Răsfață-te cu punctele acumulate</p>
-                </Link>
-
-                <Link
-                    to="/profile"
-                    className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition duration-200 flex flex-col items-center justify-center"
-                >
-                    <span className="text-xl font-bold">👤 Profil</span>
-                    <p className="mt-2 text-gray-600">Vezi și modifică datele tale</p>
-                </Link>
-
-                {/* Role-specific card */}
-                {user.role === 'Kitchen' && (
-                    <Link
-                        to="/kitchen"
-                        className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition duration-200 flex flex-col items-center justify-center"
-                    >
-                        <span className="text-xl font-bold">👨‍🍳 Bucătărie</span>
-                        <p className="mt-2 text-gray-600">Gestionați comenzile și stocul</p>
-                    </Link>
-                )}
             </div>
 
             {/* Recent activity placeholder */}

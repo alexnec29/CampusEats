@@ -4,10 +4,13 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import Home from './pages/Home';
+import Menu from './pages/Menu';
+import Orders from './pages/Orders';
+import AddMenuItem from './pages/AddMenuItem';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import PublicRoute from './components/PublicRoute';
-import Home from './pages/Home';
 
 function App() {
     return (
@@ -29,6 +32,33 @@ function App() {
                             element={
                                 <PrivateRoute>
                                     <Profile />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/menu"
+                            element={
+                                <PrivateRoute>
+                                    <Menu />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/orders"
+                            element={
+                                <PrivateRoute>
+                                    <Orders />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/add-menu-item"
+                            element={
+                                <PrivateRoute>
+                                    <AddMenuItem />
                                 </PrivateRoute>
                             }
                         />
