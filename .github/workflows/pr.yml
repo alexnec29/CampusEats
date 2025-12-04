@@ -1,0 +1,64 @@
+﻿name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [CampusEats.Api, CampusEats.Client]
+
+    steps:
+      # Checkout the repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Setup .NET SDK for API
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      # Restore .NET dependencies (API)
+      - name: Restore .NET projects
+        if: matrix.project == 'CampusEats.Api'
+        run: dotnet restore CampusEats.Api/CampusEats.Api.csproj
+
+      # Build .NET projects (API)
+      - name: Build .NET projects
+        if: matrix.project == 'CampusEats.Api'
+        run: dotnet build CampusEats.Api/CampusEats.Api.csproj --configuration Release --no-restore
+
+      # Optional: run API tests if you have them
+      - name: Run API tests
+        if: matrix.project == 'CampusEats.Api'
+        run: dotnet test CampusEats.Api/CampusEats.Api.csproj --no-build --verbosity normal
+
+      # Setup Node for React client
+      - name: Setup Node.js
+        if: matrix.project == 'CampusEats.Client'
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      # Install React dependencies
+      - name: Install React dependencies
+        if: matrix.project == 'CampusEats.Client'
+        run: npm install
+        working-directory: ./CampusEats.Client
+
+      # Build React client
+      - name: Build React client
+        if: matrix.project == 'CampusEats.Client'
+        run: npm run build
+        working-directory: ./CampusEats.Client
+
+      # Optional: run React tests
+      - name: Run React tests
+        if: matrix.project == 'CampusEats.Client'
+        run: npm test -- --watchAll=false
+        working-directory: ./CampusEats.Client
