@@ -13,6 +13,6 @@ public class CreateMenuItemRequest
     [Required]
     [Range(0.01, 999.99, ErrorMessage = "Price must be between 0.01 and 999.99")]
     public decimal Price { get; set; }
-
+    public int CategoryId { get; init; }
     public ICollection<int> AllergenIds { get; set; } = new List<int>();
 }

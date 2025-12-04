@@ -5,7 +5,7 @@ public class UpdateMenuItemRequest
 {
     
     [Required]
-    public Guid Id { get; set; } 
+    public int Id { get; set; } 
     
     [Required]
     [MaxLength(100)]
