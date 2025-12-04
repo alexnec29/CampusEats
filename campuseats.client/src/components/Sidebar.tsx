@@ -26,6 +26,9 @@ const Sidebar: React.FC = () => {
           <li>
             <Link to="/" className="block hover:text-gray-300">Home</Link>
           </li>
+          <li>
+            <Link to="/menu" className="block hover:text-gray-300">Menu</Link>
+          </li>
           {!isAuthenticated ? (
             <>
               <li>
@@ -36,11 +39,19 @@ const Sidebar: React.FC = () => {
               </li>
             </>
           ) : (
-            <li>
-              <button onClick={handleLogout} className="block hover:text-gray-300 text-left w-full">
-                Logout
-              </button>
-            </li>
+            <>
+              <li>
+                <Link to="/orders" className="block hover:text-gray-300">My Orders</Link>
+              </li>
+              <li>
+                <Link to="/add-menu-item" className="block hover:text-gray-300">Add Menu Item</Link>
+              </li>
+              <li>
+                <button onClick={handleLogout} className="block hover:text-gray-300 text-left w-full">
+                  Logout
+                </button>
+              </li>
+            </>
           )}
         </ul>
       </nav>

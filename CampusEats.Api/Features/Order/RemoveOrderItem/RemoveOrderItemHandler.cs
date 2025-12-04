@@ -13,6 +13,9 @@ public class RemoveOrderItemHandler(
         if (order == null)
             return Results.NotFound("Order not found");
 
+        if (order.Status != Models.Enums.OrderStatus.Pending)
+            return Results.BadRequest("Cannot remove items from a non-pending order");
+
         var item = order.OrderItems.FirstOrDefault(i => i.Id == request.OrderItemId);
         if (item == null)
             return Results.NotFound("Order item not found");

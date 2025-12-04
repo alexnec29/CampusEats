@@ -13,6 +13,12 @@ public class CsrfTokenFilterMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
+        if (context.Request.Path.StartsWithSegments("/swagger"))
+        {
+            await _next(context);
+            return;
+        }
+
         if (context.Request.Cookies["JWT"] != null)
         {
             string? csrfTokenFromCookie = context.Request.Cookies["CSRF-TOKEN"];
