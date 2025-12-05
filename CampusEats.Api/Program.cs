@@ -33,29 +33,6 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =
     options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidateAudience = true,
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]))
-        };
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                if (context.Request.Cookies.TryGetValue("JWT", out var cookieToken)) context.Token = cookieToken;
-                return Task.CompletedTask;
-            }
-        };
-    });
-
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AllRoles", policy => policy.RequireRole(nameof(Role.Kitchen), nameof(Role.Buyer), nameof(Role.Admin)))
     .AddPolicy("Admin", policy => policy.RequireRole(nameof(Role.Admin)))
@@ -107,7 +84,6 @@ if (app.Environment.IsDevelopment())
     app.UseCors();
     app.UseMiddleware<CsrfTokenFilterMiddleware>();
     app.UseMiddleware<JwtFilterMiddleware>();
-    app.UseAuthentication();
     app.UseAuthorization();
     app.UseSwagger();
     app.UseSwaggerUI();

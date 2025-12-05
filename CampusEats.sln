@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CampusEats.Api", "CampusEat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CampusEats.Client", "CampusEats.Client\CampusEats.Client.csproj", "{D9E53AA6-5C2A-42E9-B349-22508917AC31}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CampusEats.Test", "CampusEats.Test\CampusEats.Test.csproj", "{1A92ABBF-C6EA-44A4-BF5C-DBBCDA8EBB28}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{D9E53AA6-5C2A-42E9-B349-22508917AC31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9E53AA6-5C2A-42E9-B349-22508917AC31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9E53AA6-5C2A-42E9-B349-22508917AC31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A92ABBF-C6EA-44A4-BF5C-DBBCDA8EBB28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A92ABBF-C6EA-44A4-BF5C-DBBCDA8EBB28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A92ABBF-C6EA-44A4-BF5C-DBBCDA8EBB28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A92ABBF-C6EA-44A4-BF5C-DBBCDA8EBB28}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
