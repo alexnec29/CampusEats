@@ -5,7 +5,7 @@ using MediatR;
 
 namespace CampusEats.Api.Features.User;
 
-public class CreateUserHandler(IUserRepository userRepository, CreateUserValidator validator) : IRequestHandler<CreateUserRequest, IResult>
+public class CreateUserHandler(IUserRepository userRepository) : IRequestHandler<CreateUserRequest, IResult>
 {
     public async Task<IResult> Handle(CreateUserRequest request, CancellationToken cancellationToken)
     {
