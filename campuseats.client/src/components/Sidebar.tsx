@@ -53,6 +53,11 @@ const Sidebar: React.FC = () => {
             <h3 className="text-white text-lg font-bold mb-4 uppercase">Administrare</h3>
             <ul className="flex flex-col space-y-2">
               <li>
+                <Link to="/kitchen-orders" className="block px-4 py-2 rounded hover:bg-gray-700 transition">
+                  Kitchen Dashboard
+                </Link>
+              </li>
+              <li>
                 <Link to="/add-menu-item" className="block px-4 py-2 rounded hover:bg-gray-700 transition">
                   Adaugă produs
                 </Link>

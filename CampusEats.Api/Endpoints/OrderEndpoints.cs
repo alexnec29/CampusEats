@@ -59,7 +59,7 @@ public static class OrderEndpoints
         {
             var userRole = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
             
-            // Buyer can only set status to Placed or Cancelled
+            // Buyer can only set status to Placed, Cancelled or Paid
             if (userRole == nameof(CampusEats.Api.Models.Enums.Role.Buyer) && 
                 request.Status != CampusEats.Api.Models.Enums.OrderStatus.Placed && 
                 request.Status != CampusEats.Api.Models.Enums.OrderStatus.Cancelled &&
@@ -68,9 +68,19 @@ public static class OrderEndpoints
                 return Results.Forbid();
             }
 
+            // Kitchen can only set status to Preparing, Ready, Completed or Cancelled
+            if (userRole == nameof(CampusEats.Api.Models.Enums.Role.Kitchen) &&
+                request.Status != CampusEats.Api.Models.Enums.OrderStatus.Preparing &&
+                request.Status != CampusEats.Api.Models.Enums.OrderStatus.Ready &&
+                request.Status != CampusEats.Api.Models.Enums.OrderStatus.Completed &&
+                request.Status != CampusEats.Api.Models.Enums.OrderStatus.Cancelled)
+            {
+                return Results.Forbid();
+            }
+
             var command = request with { OrderId = orderId };
             return await mediator.Send(command);
-        }).RequireAuthorization("Buyer");
+        }).RequireAuthorization("AllRoles");
 
         // Cancel order
         orders.MapPost("/{orderId}/cancel", async (int orderId, IMediator mediator) =>
@@ -101,7 +111,7 @@ public static class OrderEndpoints
 
             var query = new GetOrdersByStatusRequest(parsedStatus);
             return await mediator.Send(query);
-        }).RequireAuthorization("Admin");
+        }).RequireAuthorization("Kitchen");
 
         // Get orders by user
         orders.MapGet("/user/{userId:guid}", async (Guid userId, IMediator mediator) =>

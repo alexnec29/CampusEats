@@ -9,6 +9,7 @@ import Menu from './pages/Menu';
 import Orders from './pages/Orders';
 import Cart from './pages/Cart';
 import Payment from './pages/Payment';
+import KitchenOrders from './pages/KitchenOrders';
 import AddMenuItem from './pages/AddMenuItem';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
@@ -70,6 +71,15 @@ function App() {
                             element={
                                 <PrivateRoute>
                                     <Payment />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/kitchen-orders"
+                            element={
+                                <PrivateRoute>
+                                    <KitchenOrders />
                                 </PrivateRoute>
                             }
                         />
