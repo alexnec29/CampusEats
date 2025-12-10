@@ -30,10 +30,11 @@ export interface OrderItem {
 export enum OrderStatus {
     Inactive = 0,
     Pending = 1,
-    Preparing = 2,
-    Ready = 3,
-    Completed = 4,
-    Cancelled = 5
+    Placed = 2,
+    Preparing = 3,
+    Ready = 4,
+    Completed = 5,
+    Cancelled = 6
 }
 
 export enum MenuCategory {

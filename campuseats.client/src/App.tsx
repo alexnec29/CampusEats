@@ -7,6 +7,7 @@ import Profile from './pages/Profile';
 import Home from './pages/Home';
 import Menu from './pages/Menu';
 import Orders from './pages/Orders';
+import Cart from './pages/Cart';
 import AddMenuItem from './pages/AddMenuItem';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
@@ -50,6 +51,15 @@ function App() {
                             element={
                                 <PrivateRoute>
                                     <Orders />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/cart"
+                            element={
+                                <PrivateRoute>
+                                    <Cart />
                                 </PrivateRoute>
                             }
                         />

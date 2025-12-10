@@ -137,7 +137,17 @@ const Menu: React.FC = () => {
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Menu</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">Menu</h2>
+        {(userRole === 'Buyer' || userRole === 'Admin') && (
+            <button
+                onClick={() => navigate('/cart')}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+                Go to Cart
+            </button>
+        )}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {menuItems.map(item => (
           <div key={item.id} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">

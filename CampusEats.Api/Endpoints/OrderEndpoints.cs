@@ -55,11 +55,21 @@ public static class OrderEndpoints
         }).RequireAuthorization("Buyer");
 
         // Update order status
-        orders.MapPut("/{orderId}/status", async (int orderId, UpdateOrderStatusRequest request, IMediator mediator) =>
+        orders.MapPut("/{orderId}/status", async (int orderId, UpdateOrderStatusRequest request, HttpContext httpContext, IMediator mediator) =>
         {
+            var userRole = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            
+            // Buyer can only set status to Placed or Cancelled
+            if (userRole == nameof(CampusEats.Api.Models.Enums.Role.Buyer) && 
+                request.Status != CampusEats.Api.Models.Enums.OrderStatus.Placed && 
+                request.Status != CampusEats.Api.Models.Enums.OrderStatus.Cancelled)
+            {
+                return Results.Forbid();
+            }
+
             var command = request with { OrderId = orderId };
             return await mediator.Send(command);
-        }).RequireAuthorization("Admin");
+        }).RequireAuthorization("Buyer");
 
         // Cancel order
         orders.MapPost("/{orderId}/cancel", async (int orderId, IMediator mediator) =>
