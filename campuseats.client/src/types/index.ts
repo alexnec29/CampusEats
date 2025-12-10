@@ -16,7 +16,7 @@ export interface Order {
     status: OrderStatus;
     totalAmount: number;
     orderItems: OrderItem[];
-    createdAt: string;
+    orderDate: string;
 }
 
 export interface OrderItem {
@@ -34,7 +34,8 @@ export enum OrderStatus {
     Preparing = 3,
     Ready = 4,
     Completed = 5,
-    Cancelled = 6
+    Cancelled = 6,
+    Paid = 7
 }
 
 export enum MenuCategory {

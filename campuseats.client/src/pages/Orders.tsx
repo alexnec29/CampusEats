@@ -26,7 +26,7 @@ const Orders: React.FC = () => {
           
           // Sort by date descending
           const sorted = placedOrders.sort((a: Order, b: Order) => 
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
           );
           setOrders(sorted);
         }
@@ -45,6 +45,7 @@ const Orders: React.FC = () => {
         case OrderStatus.Inactive: return 'Inactive';
         case OrderStatus.Pending: return 'Cart'; // Should not be seen here usually
         case OrderStatus.Placed: return 'Placed';
+        case OrderStatus.Paid: return 'Paid';
         case OrderStatus.Preparing: return 'Preparing';
         case OrderStatus.Ready: return 'Ready';
         case OrderStatus.Completed: return 'Completed';
@@ -58,6 +59,7 @@ const Orders: React.FC = () => {
           case OrderStatus.Inactive: return 'bg-gray-200 text-gray-600';
           case OrderStatus.Pending: return 'bg-yellow-100 text-yellow-800';
           case OrderStatus.Placed: return 'bg-blue-100 text-blue-800';
+          case OrderStatus.Paid: return 'bg-green-100 text-green-800';
           case OrderStatus.Preparing: return 'bg-purple-100 text-purple-800';
           case OrderStatus.Ready: return 'bg-green-100 text-green-800';
           case OrderStatus.Completed: return 'bg-gray-100 text-gray-800';
@@ -80,7 +82,7 @@ const Orders: React.FC = () => {
         if (ordersRes.ok) {
           const data = await ordersRes.json();
           const sorted = data.sort((a: Order, b: Order) => 
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
           );
           setOrders(sorted);
         }
@@ -107,7 +109,7 @@ const Orders: React.FC = () => {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <span className="text-sm text-gray-500">Order #{order.id}</span>
-                  <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleString()}</p>
+                  <p className="text-sm text-gray-500">{new Date(order.orderDate).toLocaleString()}</p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
                   {getStatusLabel(order.status)}

@@ -62,7 +62,8 @@ public static class OrderEndpoints
             // Buyer can only set status to Placed or Cancelled
             if (userRole == nameof(CampusEats.Api.Models.Enums.Role.Buyer) && 
                 request.Status != CampusEats.Api.Models.Enums.OrderStatus.Placed && 
-                request.Status != CampusEats.Api.Models.Enums.OrderStatus.Cancelled)
+                request.Status != CampusEats.Api.Models.Enums.OrderStatus.Cancelled &&
+                request.Status != CampusEats.Api.Models.Enums.OrderStatus.Paid)
             {
                 return Results.Forbid();
             }

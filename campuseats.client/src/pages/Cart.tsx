@@ -65,8 +65,8 @@ const Cart: React.FC = () => {
       });
 
       if (response.ok) {
-        alert('Order placed successfully!');
-        navigate('/orders');
+        alert('Order placed successfully! Redirecting to payment...');
+        navigate('/payment', { state: { orderId: cart.id } });
       } else {
         alert('Failed to place order');
       }

@@ -14,7 +14,8 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusRequest
     {
         { OrderStatus.Inactive, new[] { OrderStatus.Pending, OrderStatus.Cancelled } },
         { OrderStatus.Pending,   new[] { OrderStatus.Placed, OrderStatus.Cancelled } },
-        { OrderStatus.Placed,    new[] { OrderStatus.Preparing, OrderStatus.Cancelled } },
+        { OrderStatus.Placed,    new[] { OrderStatus.Preparing, OrderStatus.Cancelled, OrderStatus.Paid } },
+        { OrderStatus.Paid,      new[] { OrderStatus.Preparing, OrderStatus.Cancelled } },
         { OrderStatus.Preparing, new[] { OrderStatus.Ready, OrderStatus.Cancelled } },
         { OrderStatus.Ready,     new[] { OrderStatus.Completed } },
     };
