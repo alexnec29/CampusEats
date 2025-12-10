@@ -4,8 +4,10 @@ public enum OrderStatus
 {
     Inactive,
     Pending,
+    Placed,
     Preparing,
     Ready,
     Completed,
-    Cancelled
+    Cancelled,
+    Paid
 }

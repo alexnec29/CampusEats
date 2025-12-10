@@ -11,26 +11,7 @@ public class GetOrdersByStatusHandler(
     {
         var orders = await orderRepository.GetOrdersByStatusAsync(request.Status);
 
-        if (!orders.Any())
-            return Results.NotFound();
-
-        // Map to DTO
-        var response = orders.Select(o => new OrderDetailResponse
-        {
-            Id = o.Id,
-            UserId = o.UserId,
-            TotalAmount = o.TotalAmount,
-            Status = o.Status,
-            OrderDate = o.OrderDate,
-            Notes = o.Notes,
-            Items = o.OrderItems.Select(oi => new OrderDetailItemResponse
-            {
-                MenuItemId = oi.MenuItemId,
-                Quantity = oi.Quantity,
-                MenuItemPrice = oi.Price,
-            }).ToList(),
-        }).ToList();
-
-        return Results.Ok(response);
+        // Return entities directly to match the structure expected by frontend (same as GetUserOrders)
+        return Results.Ok(orders);
     }
 }
