@@ -14,12 +14,7 @@ public class LoginUserHandler(IUserRepository userRepository, IJwtService<Models
         {
             return Results.NotFound("Username not found");
         }
-
-        if (request.Password != request.ConfirmPassword)
-        {
-            return Results.BadRequest("Passwords do not match");
-            
-        }
+        
         if (!BCrypt.Net.BCrypt.Verify(request.Password, user.HashedPassword))
         {
             return Results.Unauthorized();

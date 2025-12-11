@@ -6,8 +6,7 @@ import { apiClient } from '../utils/apiClient';
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
     username: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -71,17 +70,6 @@ const Login: React.FC = () => {
             type="password"
             name="password"
             value={formData.password}
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Confirm Password</label>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
             onChange={handleChange}
             className="w-full border border-gray-300 p-2 rounded"
             required
