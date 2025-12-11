@@ -20,7 +20,7 @@ public class GetAllOrdersHandler(
             Status = o.Status,
             OrderDate = o.OrderDate,
             Notes = o.Notes,
-            Items = o.OrderItems.Select(oi => new OrderItemResponse
+            OrderItems = o.OrderItems.Select(oi => new OrderItemResponse
             {
                 MenuItemId = oi.MenuItemId,
                 Quantity = oi.Quantity,
