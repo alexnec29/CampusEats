@@ -40,7 +40,7 @@ interface BuyerProfile {
 
 interface KitchenProfile {
     companyName: string;
-    kithcenAddress: Address;
+    kitchenAddress: Address;
     weeklyWorkingHours: WeeklyWorkingHours;
 }
 
@@ -251,7 +251,7 @@ const Profile: React.FC = () => {
             const defaultHours = { open: "09:00", close: "17:00" };
             setEditKitchenProfile({
                 companyName: "",
-                kithcenAddress: {
+                kitchenAddress: {
                     street: "",
                     building: "",
                     city: "",
@@ -416,9 +416,9 @@ const Profile: React.FC = () => {
                                 <div>
                                     <span className="font-medium">Adresă bucătărie:</span>
                                     <div className="mt-1 text-sm">
-                                        {kitchenProfile.kithcenAddress.street}, {kitchenProfile.kithcenAddress.building}
+                                        {kitchenProfile.kitchenAddress.street}, {kitchenProfile.kitchenAddress.building}
                                         <br />
-                                        {kitchenProfile.kithcenAddress.city}, {kitchenProfile.kithcenAddress.county}
+                                        {kitchenProfile.kitchenAddress.city}, {kitchenProfile.kitchenAddress.county}
                                     </div>
                                 </div>
                             </div>
@@ -692,12 +692,12 @@ const Profile: React.FC = () => {
                                         type="text"
                                         placeholder="Stradă"
                                         className="w-full p-3 border rounded-lg"
-                                        value={editKitchenProfile.kithcenAddress.street}
+                                        value={editKitchenProfile.kitchenAddress.street}
                                         onChange={(e) =>
                                             setEditKitchenProfile({
                                                 ...editKitchenProfile,
-                                                kithcenAddress: {
-                                                    ...editKitchenProfile.kithcenAddress,
+                                                kitchenAddress: {
+                                                    ...editKitchenProfile.kitchenAddress,
                                                     street: e.target.value,
                                                 },
                                             })
@@ -707,12 +707,12 @@ const Profile: React.FC = () => {
                                         type="text"
                                         placeholder="Clădire/Număr"
                                         className="w-full p-3 border rounded-lg"
-                                        value={editKitchenProfile.kithcenAddress.building}
+                                        value={editKitchenProfile.kitchenAddress.building}
                                         onChange={(e) =>
                                             setEditKitchenProfile({
                                                 ...editKitchenProfile,
-                                                kithcenAddress: {
-                                                    ...editKitchenProfile.kithcenAddress,
+                                                kitchenAddress: {
+                                                    ...editKitchenProfile.kitchenAddress,
                                                     building: e.target.value,
                                                 },
                                             })
@@ -723,12 +723,12 @@ const Profile: React.FC = () => {
                                             type="text"
                                             placeholder="Oraș"
                                             className="w-full p-3 border rounded-lg"
-                                            value={editKitchenProfile.kithcenAddress.city}
+                                            value={editKitchenProfile.kitchenAddress.city}
                                             onChange={(e) =>
                                                 setEditKitchenProfile({
                                                     ...editKitchenProfile,
-                                                    kithcenAddress: {
-                                                        ...editKitchenProfile.kithcenAddress,
+                                                    kitchenAddress: {
+                                                        ...editKitchenProfile.kitchenAddress,
                                                         city: e.target.value,
                                                     },
                                                 })
@@ -738,12 +738,12 @@ const Profile: React.FC = () => {
                                             type="text"
                                             placeholder="Județ"
                                             className="w-full p-3 border rounded-lg"
-                                            value={editKitchenProfile.kithcenAddress.county}
+                                            value={editKitchenProfile.kitchenAddress.county}
                                             onChange={(e) =>
                                                 setEditKitchenProfile({
                                                     ...editKitchenProfile,
-                                                    kithcenAddress: {
-                                                        ...editKitchenProfile.kithcenAddress,
+                                                    kitchenAddress: {
+                                                        ...editKitchenProfile.kitchenAddress,
                                                         county: e.target.value,
                                                     },
                                                 })

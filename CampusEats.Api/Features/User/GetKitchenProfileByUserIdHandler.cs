@@ -17,7 +17,7 @@ public class GetKitchenProfileByUserIdHandler(IKitchenProfileRepository kitchenP
         GetKitchenProfileByUserIdResponse response = new GetKitchenProfileByUserIdResponse
         {
             CompanyName = kitchenProfile.CompanyName,
-            KithcenAddress = kitchenProfile.KitchenAddress,
+            KitchenAddress = kitchenProfile.KitchenAddress,
             WeeklyWorkingHours = kitchenProfile.WeeklyWorkingHours
         };
         
