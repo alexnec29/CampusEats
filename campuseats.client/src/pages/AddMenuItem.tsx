@@ -9,7 +9,7 @@ const AddMenuItem: React.FC = () => {
     name: '',
     description: '',
     price: '',
-    category: MenuCategory.Breakfast,
+    category: MenuCategory.MainCourse,
     imageUrl: '',
     isAvailable: true
   });

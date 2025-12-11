@@ -3,7 +3,7 @@ export interface MenuItem {
     name: string;
     description: string;
     price: number;
-    category: number; // Enum
+    category: number;
     imageUrl?: string;
     isAvailable: boolean;
     createdAt: string;
@@ -35,5 +35,23 @@ export interface OrderItem {
     imageUrl?: string;
     subtotal: number;
     addedAt: string;
-    Desserts = 5
 }
+
+export enum OrderStatus {
+    Inactive = 0,
+    Pending = 1,
+    Placed = 2,
+    Preparing = 3,
+    Ready = 4,
+    Completed = 5,
+    Cancelled = 6,
+    Paid = 7
+}
+
+export enum MenuCategory {
+    MainCourse = 0,
+    Appetizer = 1,
+    Dessert = 2,
+    Beverage = 3,
+    SideDish = 4,
+    Snack = 5
