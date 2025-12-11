@@ -28,6 +28,13 @@ public static class UserEndpoints
             LogoutUserRequest request = new LogoutUserRequest(jwt);
             return await mediator.Send(request);
         }).RequireAuthorization("AllRoles");
+        
+        users.MapPut("/change-password", async (HttpContext httpContext, ChangePasswordRequest request, IMediator mediator) =>
+        {
+            Guid userId = new Guid(httpContext.User.FindFirstValue("/id")!);
+            request = request with { UserId = userId };
+            return await mediator.Send(request);
+        }).RequireAuthorization("AllRoles");
 
         users.MapPut("/update-buyer-profile", async (HttpContext httpContext, UpdateBuyerProfileRequest request, IMediator mediator) =>
         {
