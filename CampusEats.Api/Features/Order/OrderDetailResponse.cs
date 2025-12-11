@@ -8,12 +8,18 @@ public class OrderDetailResponse
 {
     public int Id { get; set; }
     public Guid UserId { get; set; }
-
     public decimal TotalAmount { get; set; }
     public OrderStatus Status { get; set; }
     public DateTime OrderDate { get; set; }
+    public DateTime? LastUpdatedDate { get; set; }
     public string? Notes { get; set; }
     public List<OrderDetailItemResponse> Items { get; set; } = new();
     public PaymentInfoResponse? Payment { get; set; }
     public KitchenTaskResponse? KitchenTask { get; set; }
+    public int ItemCount { get; set; }
+    public decimal EstimatedDeliveryTime { get; set; }
+    public string? DeliveryAddress { get; set; }
+    public string? KitchenStatusMessage { get; set; }
+    public bool CanBeCancelled { get; set; }
+    public bool CanBeModified { get; set; }
 }

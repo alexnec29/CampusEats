@@ -17,6 +17,12 @@ export interface Order {
     totalAmount: number;
     orderItems: OrderItem[];
     orderDate: string;
+    lastUpdatedDate?: string;
+    itemCount: number;
+    estimatedDeliveryTime: number;
+    deliveryAddress?: string;
+    paymentMethod?: string;
+    kitchenStatus?: string;
 }
 
 export interface OrderItem {
@@ -25,24 +31,9 @@ export interface OrderItem {
     menuItem?: MenuItem;
     quantity: number;
     price: number;
-}
-
-export enum OrderStatus {
-    Inactive = 0,
-    Pending = 1,
-    Placed = 2,
-    Preparing = 3,
-    Ready = 4,
-    Completed = 5,
-    Cancelled = 6,
-    Paid = 7
-}
-
-export enum MenuCategory {
-    Breakfast = 0,
-    Lunch = 1,
-    Dinner = 2,
-    Snacks = 3,
-    Drinks = 4,
+    menuItemDescription?: string;
+    imageUrl?: string;
+    subtotal: number;
+    addedAt: string;
     Desserts = 5
 }
