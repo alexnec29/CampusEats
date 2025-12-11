@@ -14,6 +14,8 @@ import AddMenuItem from './pages/AddMenuItem';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import PublicRoute from './components/PublicRoute';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminUsers from './pages/AdminUsers';
 
 function App() {
     return (
@@ -89,6 +91,23 @@ function App() {
                             element={
                                 <PrivateRoute>
                                     <AddMenuItem />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin"
+                            element={
+                                <PrivateRoute>
+                                    <AdminDashboard />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/admin/users"
+                            element={
+                                <PrivateRoute>
+                                    <AdminUsers />
                                 </PrivateRoute>
                             }
                         />
