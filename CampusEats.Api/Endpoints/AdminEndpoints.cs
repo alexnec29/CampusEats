@@ -17,5 +17,11 @@ public static class AdminEndpoints
         {
             return await mediator.Send(new GetAllUsersRequest());
         });
+        
+        admin.MapPut("/users/{id}/role", async (Guid id, UpdateUserRoleRequest request, IMediator mediator) =>
+        {
+            var result = await mediator.Send(request with { UserId = id });
+            return result;
+        });
     }
 }
