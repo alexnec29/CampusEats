@@ -11,13 +11,17 @@ using CampusEats.Api.Middleware;
 using CampusEats.Api.Models;
 using CampusEats.Api.Models.Enums;
 using CampusEats.Api.Utils.JwtUtil;
+using CampusEats.Api.Utils.PaymentUtil;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
+
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 builder.Services.AddCors(options =>
 {
@@ -50,6 +54,11 @@ builder.Services.AddDbContext<CampusEatsDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+// Payment Service
+builder.Services.AddScoped<IPaymentService, StripePaymentService>();
+builder.Services.AddScoped<IPaymentService, PayPalPaymentService>();
+builder.Services.AddScoped<PaymentProviderFactory>();
 
 // Jwt Service
 builder.Services.AddScoped<IJwtService<User>, JwtService>();
@@ -100,6 +109,7 @@ app.MapOrderEndpoints();
 app.MapAllergenEndpoints();
 app.MapKitchenEndpoints();
 app.MapMenuItemEndpoints();
+app.MapPaymentEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {

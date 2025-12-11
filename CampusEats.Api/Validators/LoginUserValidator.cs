@@ -19,8 +19,5 @@ public class LoginUserValidator : AbstractValidator<LoginUserRequest>
             .Matches(@"(?=.*[a-z])").WithMessage("Password must contain at least one lowercase letter")
             .Matches(@"(?=.*\d)").WithMessage("Password must contain at least one number")
             .Matches(@"(?=.*[\W_])").WithMessage("Password must contain at least one special character");
-        
-        RuleFor(x => x.ConfirmPassword)
-            .NotEmpty().WithMessage("Confirm password is required");
     }
 }

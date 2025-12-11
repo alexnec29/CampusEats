@@ -28,13 +28,13 @@ public class GetOrderByIdHandler(
                 Quantity = oi.Quantity,
                 MenuItemPrice = oi.Price,
             }).ToList(),
-            Payment = order.Payment != null ? new PaymentInfoResponse
-            {
-                Amount = order.Payment.Amount,
-                Status = order.Payment.Status,
-                Method = order.Payment.Method,
-                TransactionId = order.Payment.TransactionId
-            } : null,
+            // Payment = order.Payment != null ? new PaymentInfoResponse
+            // {
+            //     Amount = order.Payment.Amount,
+            //     Status = order.Payment.Status,
+            //     Method = order.Payment.Method,
+            //     TransactionId = order.Payment.TransactionId
+            // } : null,
             KitchenTask = order.KitchenTask != null ? new KitchenTaskResponse
             {
                 Status = order.KitchenTask.Status,
