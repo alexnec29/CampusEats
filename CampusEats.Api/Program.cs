@@ -100,6 +100,7 @@ app.MapOrderEndpoints();
 app.MapAllergenEndpoints();
 app.MapKitchenEndpoints();
 app.MapMenuItemEndpoints();
+app.MapAdminEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {
