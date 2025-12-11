@@ -14,6 +14,6 @@ public class OrderDetailResponse
     public DateTime OrderDate { get; set; }
     public string? Notes { get; set; }
     public List<OrderDetailItemResponse> Items { get; set; } = new();
-    public PaymentInfoResponse? Payment { get; set; }
+    // public PaymentInfoResponse? Payment { get; set; }
     public KitchenTaskResponse? KitchenTask { get; set; }
 }
