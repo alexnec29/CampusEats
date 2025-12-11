@@ -3,8 +3,10 @@
 namespace CampusEats.Api.Features.User;
 
 public record ChangePasswordRequest(
-    Guid UserId, 
     string CurrentPassword, 
     string NewPassword, 
     string ConfirmNewPassword
-) : IRequest<IResult>;
+) : IRequest<IResult>
+{
+    public Guid UserId { get; init; } = Guid.Empty;
+};
