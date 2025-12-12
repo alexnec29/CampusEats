@@ -34,3 +34,6 @@ obj/
 node_modules/
 campuseats.client/build/
 npm-debug.log*
+
+# Environment files
+.env
