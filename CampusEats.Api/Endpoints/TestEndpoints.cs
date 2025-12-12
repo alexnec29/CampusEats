@@ -12,6 +12,11 @@ public static class TestEndpoints
 {
     public static void MapTestEndpoints(this WebApplication app)
     {
+        // Health check endpoint for Docker healthcheck
+        app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
+            .WithTags("Health")
+            .WithOpenApi();
+
         var api = app.MapGroup("api")
             .WithTags("API")
             .WithOpenApi();
