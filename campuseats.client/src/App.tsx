@@ -7,10 +7,15 @@ import Profile from './pages/Profile';
 import Home from './pages/Home';
 import Menu from './pages/Menu';
 import Orders from './pages/Orders';
+import Cart from './pages/Cart';
+import Payment from './pages/Payment';
+import KitchenOrders from './pages/KitchenOrders';
 import AddMenuItem from './pages/AddMenuItem';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import PublicRoute from './components/PublicRoute';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminUsers from './pages/AdminUsers';
 
 function App() {
     return (
@@ -55,10 +60,54 @@ function App() {
                         />
 
                         <Route
+                            path="/cart"
+                            element={
+                                <PrivateRoute>
+                                    <Cart />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/payment"
+                            element={
+                                <PrivateRoute>
+                                    <Payment />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/kitchen-orders"
+                            element={
+                                <PrivateRoute>
+                                    <KitchenOrders />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
                             path="/add-menu-item"
                             element={
                                 <PrivateRoute>
                                     <AddMenuItem />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin"
+                            element={
+                                <PrivateRoute>
+                                    <AdminDashboard />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/admin/users"
+                            element={
+                                <PrivateRoute>
+                                    <AdminUsers />
                                 </PrivateRoute>
                             }
                         />

@@ -13,11 +13,17 @@ public static class MenuItemEndpoints
         group.MapGet("/", async (IMediator mediator) =>
         {
             return await mediator.Send(new GetAllMenuItemsRequest());
-        }).RequireAuthorization();
+        }).RequireAuthorization("AllRoles");
 
         group.MapPost("/", async (CreateMenuItemRequest request, IMediator mediator) =>
         {
             return await mediator.Send(request);
-        }).RequireAuthorization("AllRoles"); // Allow all roles for testing purposes
+        }).RequireAuthorization("Kitchen");
+
+        group.MapDelete("/{id}", async (int id, IMediator mediator) =>
+        {
+            await mediator.Send(new DeleteMenuItemRequest(id));
+            return Results.NoContent();
+        }).RequireAuthorization("Kitchen");
     }
 }

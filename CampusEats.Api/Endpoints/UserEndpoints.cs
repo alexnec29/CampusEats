@@ -28,6 +28,13 @@ public static class UserEndpoints
             LogoutUserRequest request = new LogoutUserRequest(jwt);
             return await mediator.Send(request);
         }).RequireAuthorization("AllRoles");
+        
+        users.MapPut("/change-password", async (HttpContext httpContext, ChangePasswordRequest request, IMediator mediator) =>
+        {
+            Guid userId = new Guid(httpContext.User.FindFirstValue("/id")!);
+            request = request with { UserId = userId };
+            return await mediator.Send(request);
+        }).RequireAuthorization("AllRoles");
 
         users.MapPut("/update-buyer-profile", async (HttpContext httpContext, UpdateBuyerProfileRequest request, IMediator mediator) =>
         {
@@ -48,7 +55,8 @@ public static class UserEndpoints
         {
             if (httpContext.User.Identity?.IsAuthenticated == true)
             {
-                return Results.Ok(new { isAuthenticated = true, username = httpContext.User.Identity?.Name });
+                var role = httpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+                return Results.Ok(new { isAuthenticated = true, username = httpContext.User.Identity?.Name, role = role });
             }
             return Results.Ok(new { isAuthenticated = false });
         }).AllowAnonymous();

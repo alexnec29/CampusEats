@@ -11,13 +11,17 @@ using CampusEats.Api.Middleware;
 using CampusEats.Api.Models;
 using CampusEats.Api.Models.Enums;
 using CampusEats.Api.Utils.JwtUtil;
+using CampusEats.Api.Utils.PaymentUtil;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
+
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 builder.Services.AddCors(options =>
 {
@@ -32,29 +36,6 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =
 {
     options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidateAudience = true,
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]))
-        };
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                if (context.Request.Cookies.TryGetValue("JWT", out var cookieToken)) context.Token = cookieToken;
-                return Task.CompletedTask;
-            }
-        };
-    });
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AllRoles", policy => policy.RequireRole(nameof(Role.Kitchen), nameof(Role.Buyer), nameof(Role.Admin)))
@@ -73,6 +54,11 @@ builder.Services.AddDbContext<CampusEatsDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+// Payment Service
+builder.Services.AddScoped<IPaymentService, StripePaymentService>();
+builder.Services.AddScoped<IPaymentService, PayPalPaymentService>();
+builder.Services.AddScoped<PaymentProviderFactory>();
 
 // Jwt Service
 builder.Services.AddScoped<IJwtService<User>, JwtService>();
@@ -107,7 +93,6 @@ if (app.Environment.IsDevelopment())
     app.UseCors();
     app.UseMiddleware<CsrfTokenFilterMiddleware>();
     app.UseMiddleware<JwtFilterMiddleware>();
-    app.UseAuthentication();
     app.UseAuthorization();
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -124,6 +109,8 @@ app.MapOrderEndpoints();
 app.MapAllergenEndpoints();
 app.MapKitchenEndpoints();
 app.MapMenuItemEndpoints();
+app.MapAdminEndpoints();
+app.MapPaymentEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {
