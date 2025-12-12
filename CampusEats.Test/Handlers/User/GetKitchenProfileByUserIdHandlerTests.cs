@@ -62,6 +62,6 @@ public class GetKitchenProfileByUserIdHandlerTests
         Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
         Assert.NotNull(okResult.Value);
         okResult.Value.CompanyName.Should().Be("Test Kitchen");
-        okResult.Value.KithcenAddress.street.Should().Be("Main St");
+        okResult.Value.KitchenAddress.street.Should().Be("Main St");
     }
 }
