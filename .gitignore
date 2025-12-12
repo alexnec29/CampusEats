@@ -29,3 +29,8 @@ obj/
 *.tmp
 *.swp
 *.DS_Store
+
+# React / Node.js
+node_modules/
+campuseats.client/build/
+npm-debug.log*
