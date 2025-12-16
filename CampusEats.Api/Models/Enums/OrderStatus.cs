@@ -9,5 +9,7 @@ public enum OrderStatus
     Ready,
     Completed,
     Cancelled,
-    Paid
+    Paid,
+    PendingPayment,
+    FailedPayment
 }

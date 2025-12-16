@@ -1,4 +1,5 @@
 ﻿using CampusEats.Api.Infrastructure.Repositories;
+using CampusEats.Api.Models.Enums;
 using CampusEats.Api.Utils.PaymentUtil;
 using MediatR;
 
@@ -36,11 +37,25 @@ public class CreatePaymentIntentHandler(
             amount += menuItem.Price * cartItem.Quantity;
         }
 
-        string currency = "usd";
+        const string currency = "usd";
         int orderId = request.OrderId;
         
-        string result = await provider.CreatePaymentIntentAsync(amount, currency, orderId);
+        var paymentIntentData = await provider.CreatePaymentIntentAsync(amount, currency, orderId);
+
+        paymentIntentData.TryGetValue("paymentIntentClientResult", out var clientResult);
+        paymentIntentData.TryGetValue("paymentIntentId", out var paymentIntentId);
+
+        if (clientResult == null || paymentIntentId == null)
+        {
+            return Results.InternalServerError($"A problem occured while creating payment intent, clientResult: {clientResult}, paymentIntentId: {paymentIntentId}");
+        }
         
-        return Results.Ok(result);
+        order.PaymentIntentId = paymentIntentId;
+        order.PaymentProvider = request.PaymentProvider;
+        order.Status = OrderStatus.PendingPayment;
+        
+        await orderRepository.UpdateAsync(order);
+        
+        return Results.Ok(clientResult);
     }
 }

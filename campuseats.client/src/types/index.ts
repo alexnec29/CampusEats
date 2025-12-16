@@ -35,7 +35,9 @@ export enum OrderStatus {
     Ready = 4,
     Completed = 5,
     Cancelled = 6,
-    Paid = 7
+    Paid = 7,
+    PendingPayment = 8,
+    FailedPayment = 9
 }
 
 export enum MenuCategory {

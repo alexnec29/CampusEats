@@ -7,6 +7,7 @@ using CampusEats.Api.Features.Order.GetAllOrders;
 using CampusEats.Api.Features.Order.GetOrdersByStatus;
 using CampusEats.Api.Features.Order.GetUserOrders;
 using CampusEats.Api.Features.Order.CancelOrder;
+using CampusEats.Api.Features.Order.CancelOrderByKitchen;
 using CampusEats.Api.Features.Order.UpdateOrderItemQuantity;
 using MediatR;
 
@@ -131,5 +132,8 @@ public static class OrderEndpoints
             var query = new GetUserOrdersRequest(userId);
             return await mediator.Send(query);
         });
+
+        orders.MapPost("/cancel-by-kitchen", async (CancelOrderByKitchenRequest request, IMediator mediator) => 
+            await mediator.Send(request)).RequireAuthorization("Kitchen");
     }
 }
