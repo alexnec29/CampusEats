@@ -68,6 +68,9 @@ const Profile: React.FC = () => {
     const [editKitchenProfile, setEditKitchenProfile] = useState<KitchenProfile | null>(null);
     const [loadingKitchenUpdate, setLoadingKitchenUpdate] = useState(false);
 
+    //Loyalty Profile
+    const [loyaltyPoints, setLoyaltyPoints] = useState<number | null>(null);
+
     // Load user info and profile
     useEffect(() => {
         const loadUserData = async () => {
@@ -80,7 +83,10 @@ const Profile: React.FC = () => {
                     
                     // Load role-specific profile
                     if (data.role === "Buyer") {
-                        await loadBuyerProfile();
+                        await Promise.all([
+                            loadBuyerProfile(),
+                            loadLoyaltyAccount(),
+                        ]);
                     } else if (data.role === "Kitchen") {
                         await loadKitchenProfile();
                     }
@@ -121,6 +127,18 @@ const Profile: React.FC = () => {
             }
         } catch (err) {
             console.error("Failed to load kitchen profile", err);
+        }
+    };
+
+    const loadLoyaltyAccount = async () => {
+        try {
+            const res = await apiClient("/api/loyalty/account");
+            if (res.ok) {
+                const data = await res.json();
+                setLoyaltyPoints(data.pointsBalance);
+            }
+        } catch (err) {
+            console.error("Failed to load loyalty account", err);
         }
     };
 
@@ -336,11 +354,11 @@ const Profile: React.FC = () => {
                             {user.role}
                         </span>
                     </div>
-                    {user.loyaltyPoints !== undefined && (
+                    {user.role === "Buyer" && loyaltyPoints !== null && (
                         <div className="flex items-center gap-3 text-gray-700">
                             <Star className="w-5 h-5 text-yellow-500" />
                             <span className="font-medium">Puncte loialitate:</span>
-                            {user.loyaltyPoints}
+                            {loyaltyPoints}
                         </div>
                     )}
                 </div>

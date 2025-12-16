@@ -6,6 +6,7 @@ interface AppUser {
     username: string;
     email: string;
     role: string;
+    loyaltyPoints?: number; // only for Buyers
 }
 
 const AdminUsers: React.FC = () => {
@@ -16,7 +17,8 @@ const AdminUsers: React.FC = () => {
         try {
             const res = await apiClient('/api/admin/users');
             if (res.ok) {
-                setUsers(await res.json());
+                const data: AppUser[] = await res.json();
+                setUsers(data);
             }
         } catch (err) {
             console.error('Error loading users', err);
@@ -35,6 +37,34 @@ const AdminUsers: React.FC = () => {
             if (res.ok) fetchUsers();
         } catch (err) {
             console.error('Error updating role', err);
+        }
+    };
+
+    const adjustPoints = async (userId: string, points: number) => {
+        try {
+            const res = await apiClient('/api/loyalty/adjust', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId,
+                    points,
+                    reason: 'Manual adjustment by admin'
+                }),
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setUsers(prev =>
+                    prev.map(u =>
+                        u.id === userId ? { ...u, loyaltyPoints: data.pointsBalance } : u
+                    )
+                );
+            } else {
+                const text = await res.text();
+                alert('Eroare: ' + text);
+            }
+        } catch (err) {
+            console.error('Error adjusting points', err);
         }
     };
 
@@ -60,11 +90,12 @@ const AdminUsers: React.FC = () => {
                         <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Username</th>
                         <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Email</th>
                         <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                        <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Loyalty Points</th>
                     </tr>
                     </thead>
 
                     <tbody className="bg-white divide-y divide-gray-200">
-                    {users.map((u) => (
+                    {users.map(u => (
                         <tr key={u.id}>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{u.username}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{u.email}</td>
@@ -79,6 +110,19 @@ const AdminUsers: React.FC = () => {
                                     <option value="Kitchen">Kitchen</option>
                                     <option value="Admin">Admin</option>
                                 </select>
+                            </td>
+
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {u.role === 'Buyer' ? (
+                                    <input
+                                        type="number"
+                                        value={u.loyaltyPoints ?? 0}
+                                        onChange={(e) => adjustPoints(u.id, parseInt(e.target.value) || 0)}
+                                        className="border rounded px-2 py-1 w-20 text-sm"
+                                    />
+                                ) : (
+                                    '-'
+                                )}
                             </td>
                         </tr>
                     ))}
