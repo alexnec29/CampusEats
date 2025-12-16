@@ -111,6 +111,7 @@ app.MapKitchenEndpoints();
 app.MapMenuItemEndpoints();
 app.MapAdminEndpoints();
 app.MapPaymentEndpoints();
+app.MapLoyaltyEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {
