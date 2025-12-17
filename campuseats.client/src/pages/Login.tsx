@@ -14,7 +14,7 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/');
+      navigate('/home');
     }
   }, [isAuthenticated, navigate]);
 
@@ -38,7 +38,7 @@ const Login: React.FC = () => {
       if (response.ok) {
         console.log('Login successful');
         await checkAuthStatus(); 
-        navigate('/');
+        navigate('/home');
       } else {
         const data = await response.text();
         setError(data || 'Login failed');

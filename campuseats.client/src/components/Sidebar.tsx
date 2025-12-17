@@ -26,7 +26,7 @@ const Sidebar: React.FC = () => {
             <h3 className="text-white text-lg font-bold mb-4 uppercase">Navigare</h3>
             <ul className="flex flex-col space-y-2">
               <li>
-                <Link to="/" className="block px-4 py-2 rounded hover:bg-gray-700 transition">
+                <Link to="/home" className="block px-4 py-2 rounded hover:bg-gray-700 transition">
                   Home
                 </Link>
               </li>
