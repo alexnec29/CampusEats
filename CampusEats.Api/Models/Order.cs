@@ -1,4 +1,5 @@
 ﻿using CampusEats.Api.Models.Enums;
+using Stripe;
 
 namespace CampusEats.Api.Models;
 
@@ -14,5 +15,7 @@ public class Order
     public User User { get; set; } = null!;
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     public Payment? Payment { get; set; }
+    public string PaymentIntentId { get; set; } = string.Empty;
+    public string PaymentProvider { get; set; } = string.Empty;
     public KitchenTask? KitchenTask { get; set; }
 }

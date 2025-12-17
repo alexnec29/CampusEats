@@ -50,6 +50,8 @@ const Orders: React.FC = () => {
         case OrderStatus.Ready: return 'Ready';
         case OrderStatus.Completed: return 'Completed';
         case OrderStatus.Cancelled: return 'Cancelled';
+        case OrderStatus.PendingPayment: return 'PendingPayment';
+        case OrderStatus.FailedPayment: return 'FailedPayment';
         default: return 'Unknown';
     }
   };

@@ -5,6 +5,7 @@ namespace CampusEats.Api.Utils.PaymentUtil;
 public interface IPaymentService
 {
     string Name { get; }
-    Task<string> CreatePaymentIntentAsync(decimal amount, string currency, int orderId);
+    Task<Dictionary<string, string>> CreatePaymentIntentAsync(decimal amount, string currency, int orderId);
     Task ProcessWebhookAsync(HttpRequest request);
+    Task<(bool, string)> CreateRefundAsync(string paymentIntentId);
 }
