@@ -11,7 +11,6 @@ public static class LoyaltyEndpoints
     {
         var loyalty = app.MapGroup("api/loyalty")
             .WithTags("Loyalty")
-            .RequireAuthorization("Buyer")
             .WithOpenApi();
 
         // Get user's loyalty account
@@ -19,14 +18,14 @@ public static class LoyaltyEndpoints
         {
             var userId = new Guid(httpContext.User.FindFirstValue("/id")!);
             return await mediator.Send(new GetLoyaltyAccountRequest(userId));
-        });
+        }).RequireAuthorization("Buyer");
 
         // Get transaction history
         loyalty.MapGet("/transactions", async (HttpContext httpContext, IMediator mediator) =>
         {
             var userId = new Guid(httpContext.User.FindFirstValue("/id")!);
             return await mediator.Send(new GetLoyaltyTransactionsRequest(userId));
-        });
+        }).RequireAuthorization("Buyer");
 
         // Redeem points for discount
         loyalty.MapPost("/redeem", async (RedeemPointsRequest request, HttpContext httpContext, IMediator mediator) =>
@@ -34,7 +33,7 @@ public static class LoyaltyEndpoints
             var userId = new Guid(httpContext.User.FindFirstValue("/id")!);
             request = request with { UserId = userId };
             return await mediator.Send(request);
-        });
+        }).RequireAuthorization("Buyer");
 
         // Admin: Manually adjust points
         loyalty.MapPost("/adjust", async (AdjustPointsRequest request, IMediator mediator) =>
