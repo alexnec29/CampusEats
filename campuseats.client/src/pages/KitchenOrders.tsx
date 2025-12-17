@@ -127,18 +127,20 @@ const KitchenOrders: React.FC = () => {
                 </ul>
                 {order.notes && <p className="text-xs text-gray-500 mt-2 italic">Note: {order.notes}</p>}
             </div>
-            <button
-                onClick={() => updateStatus(order.id, nextStatus)}
-                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition text-sm font-semibold"
-            >
-                {actionLabel}
-            </button>
-            <button
-                onClick={() => cancelOrder(order.id)}
-                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition text-sm font-semibold"
-            >
-                Cancel
-            </button>
+            <div className="flex flex-row gap-3">
+                <button
+                    onClick={() => updateStatus(order.id, nextStatus)}
+                    className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition text-sm font-semibold"
+                >
+                    {actionLabel}
+                </button>
+                <button
+                    onClick={() => cancelOrder(order.id)}
+                    className="w-full bg-red-100 text-red-600 py-2 rounded hover:bg-red-200 transition text-sm font-semibold"
+                >
+                    Cancel
+                </button>
+            </div>
         </div>
     );
 
