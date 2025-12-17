@@ -324,21 +324,22 @@ const Profile: React.FC = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto space-y-8 p-4">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 page-transition">
+            <div className="max-w-4xl mx-auto space-y-8 p-6">
 
             {/* Header */}
-            <div className="bg-blue-600 text-white p-8 rounded-xl shadow-md flex items-center gap-6">
-                <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center text-4xl font-bold">
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-10 rounded-2xl shadow-2xl flex items-center gap-6 animate-fade-in transform transition-all duration-300 hover:shadow-3xl">
+                <div className="w-24 h-24 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-5xl font-bold border-4 border-white/30">
                     {user.username.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                    <h1 className="text-3xl font-bold">{user.username}</h1>
-                    <p className="text-blue-100">Profilul utilizatorului</p>
+                    <h1 className="text-4xl md:text-5xl font-bold drop-shadow-lg">{user.username}</h1>
+                    <p className="text-blue-100 text-lg">Profilul utilizatorului</p>
                 </div>
             </div>
 
             {/* Info Card */}
-            <div className="bg-white p-8 rounded-xl shadow space-y-6">
+            <div className="bg-white p-8 rounded-2xl shadow-xl space-y-6 animate-fade-in-delay">
                 <h2 className="text-xl font-semibold border-b pb-2">Informații generale</h2>
                 <div className="space-y-4">
                     {user.email && (
@@ -366,12 +367,12 @@ const Profile: React.FC = () => {
 
             {/* Buyer Profile Card */}
             {user.role === "Buyer" && (
-                <div className="bg-white p-8 rounded-xl shadow space-y-6">
-                    <div className="flex justify-between items-center border-b pb-2">
-                        <h2 className="text-xl font-semibold">Profil cumpărător</h2>
+                <div className="bg-white p-8 rounded-2xl shadow-xl space-y-6 animate-fade-in-delay-2">
+                    <div className="flex justify-between items-center border-b-2 border-gray-200 pb-4">
+                        <h2 className="text-2xl font-bold text-gray-900">Profil cumpărător</h2>
                         <button
                             onClick={openBuyerEditModal}
-                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-100 hover:bg-blue-200 transition text-blue-700"
+                            className="flex items-center gap-2 px-5 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition text-white font-semibold shadow-lg transform hover:scale-105"
                         >
                             <Edit className="w-4 h-4" />
                             {buyerProfile ? "Editează" : "Creează"}
@@ -412,12 +413,12 @@ const Profile: React.FC = () => {
 
             {/* Kitchen Profile Card */}
             {user.role === "Kitchen" && (
-                <div className="bg-white p-8 rounded-xl shadow space-y-6">
-                    <div className="flex justify-between items-center border-b pb-2">
-                        <h2 className="text-xl font-semibold">Profil bucătărie</h2>
+                <div className="bg-white p-8 rounded-2xl shadow-xl space-y-6 animate-fade-in-delay-2">
+                    <div className="flex justify-between items-center border-b-2 border-gray-200 pb-4">
+                        <h2 className="text-2xl font-bold text-gray-900">Profil bucătărie</h2>
                         <button
                             onClick={openKitchenEditModal}
-                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-100 hover:bg-blue-200 transition text-blue-700"
+                            className="flex items-center gap-2 px-5 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition text-white font-semibold shadow-lg transform hover:scale-105"
                         >
                             <Edit className="w-4 h-4" />
                             {kitchenProfile ? "Editează" : "Creează"}
@@ -464,15 +465,15 @@ const Profile: React.FC = () => {
             )}
 
             {/* Account Settings */}
-            <div className="bg-white p-8 rounded-xl shadow space-y-6">
-                <h2 className="text-xl font-semibold border-b pb-2">Setări cont</h2>
+            <div className="bg-white p-8 rounded-2xl shadow-xl space-y-6">
+                <h2 className="text-2xl font-bold border-b-2 border-gray-200 pb-4">Setări cont</h2>
                 <div className="flex flex-col gap-4">
                     <button
                         onClick={() => setShowPasswordModal(true)}
-                        className="flex items-center justify-between px-5 py-3 rounded-lg bg-gray-100 hover:bg-gray-200 transition shadow-sm"
+                        className="flex items-center justify-between px-6 py-4 rounded-lg bg-gradient-to-r from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 transition shadow-md transform hover:scale-105 border-2 border-gray-200"
                     >
-                        <span className="flex items-center gap-3 font-medium">
-                            <KeyRound className="w-5 h-5" />
+                        <span className="flex items-center gap-3 font-semibold text-gray-900">
+                            <KeyRound className="w-5 h-5 text-blue-600" />
                             Schimbă parola
                         </span>
                         <Edit className="w-5 h-5 text-gray-500" />
@@ -838,6 +839,7 @@ const Profile: React.FC = () => {
                     </div>
                 </div>
             )}
+            </div>
         </div>
     );
 };

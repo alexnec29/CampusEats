@@ -50,65 +50,88 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10">
-      <h2 className="text-2xl font-bold mb-5">Register</h2>
-      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-gray-700">Username</label>
-          <input
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4 page-transition">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10 transform transition-all duration-300 hover:shadow-3xl">
+          <div className="text-center mb-8">
+            <h2 className="text-4xl font-bold text-gray-900 mb-2">
+              Creează un cont
+            </h2>
+            <p className="text-gray-600">Înregistrează-te pentru CampusEats</p>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded mb-6 animate-fade-in">
+              <p className="font-medium">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Username</label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-purple-500 focus:outline-none transition duration-200"
+                placeholder="Alege un username"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-purple-500 focus:outline-none transition duration-200"
+                placeholder="adresa@email.com"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Parolă</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-purple-500 focus:outline-none transition duration-200"
+                placeholder="Creează o parolă"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Confirmă Parola</label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-purple-500 focus:outline-none transition duration-200"
+                placeholder="Confirmă parola"
+                required
+              />
+            </div>
+            <button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold p-4 rounded-lg hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition duration-300 shadow-lg"
+            >
+              Înregistrează-te
+            </button>
+          </form>
+
+          <div className="text-center mt-6">
+            <p className="text-gray-600">
+              Ai deja cont?{" "}
+              <a href="/login" className="text-purple-600 hover:text-purple-800 font-semibold hover:underline">
+                Login
+              </a>
+            </p>
+          </div>
         </div>
-        <div>
-          <label className="block text-gray-700">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Confirm Password</label>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
-        </div>
-        <button type="submit" className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">
-          Register
-        </button>
-      </form>
-      <div className="text-center mt-4">
-        <p className="text-gray-600">
-          Already have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">
-            Login
-          </a>
-        </p>
       </div>
     </div>
   );

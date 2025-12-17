@@ -49,43 +49,64 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10">
-      <h2 className="text-2xl font-bold mb-5">Login</h2>
-      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-gray-700">Username</label>
-          <input
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4 page-transition">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10 transform transition-all duration-300 hover:shadow-3xl">
+          <div className="text-center mb-8">
+            <h2 className="text-4xl font-bold text-gray-900 mb-2">
+              Bine ai venit înapoi!
+            </h2>
+            <p className="text-gray-600">Intră în contul tău CampusEats</p>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded mb-6 animate-fade-in">
+              <p className="font-medium">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Username</label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-blue-500 focus:outline-none transition duration-200"
+                placeholder="Introdu username-ul"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Parolă</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-blue-500 focus:outline-none transition duration-200"
+                placeholder="Introdu parola"
+                required
+              />
+            </div>
+            <button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold p-4 rounded-lg hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition duration-300 shadow-lg"
+            >
+              Login
+            </button>
+          </form>
+
+          <div className="text-center mt-6">
+            <p className="text-gray-600">
+              Nu ai cont?{" "}
+              <a href="/register" className="text-blue-600 hover:text-blue-800 font-semibold hover:underline">
+                Înregistrează-te
+              </a>
+            </p>
+          </div>
         </div>
-        <div>
-          <label className="block text-gray-700">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full border border-gray-300 p-2 rounded"
-            required
-          />
-        </div>
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-          Login
-        </button>
-      </form>
-      <div className="text-center mt-4">
-        <p className="text-gray-600">
-          Don't have an account?{" "}
-          <a href="/register" className="text-blue-600 hover:underline">
-            Register
-          </a>
-        </p>
       </div>
     </div>
   );

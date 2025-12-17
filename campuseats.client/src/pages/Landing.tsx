@@ -55,9 +55,21 @@ const Landing: React.FC = () => {
     const t = translations[language];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="min-h-screen relative">
+            {/* Background Image with Overlay */}
+            <div 
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                style={{
+                    backgroundImage: 'url(/images/campus-cafeteria.jpg)',
+                }}
+            >
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/85 via-blue-800/80 to-purple-900/85"></div>
+            </div>
+
+            {/* Content */}
+            <div className="relative z-10">
             {/* Language Selector */}
-            <div className="absolute top-4 left-4 z-10">
+            <div className="absolute top-4 left-4 z-20">
                 <div className="bg-white rounded-lg shadow-md p-2 flex items-center gap-2">
                     <Globe className="w-5 h-5 text-gray-600" />
                     <button
@@ -82,10 +94,10 @@ const Landing: React.FC = () => {
             {/* Hero Section */}
             <div className="container mx-auto px-4 py-16">
                 <div className="text-center mb-16">
-                    <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 animate-fade-in">
-                        {t.welcome} <span className="text-blue-600">CampusEats</span>
+                    <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 animate-fade-in drop-shadow-2xl">
+                        {t.welcome} <span className="text-yellow-400">CampusEats</span>
                     </h1>
-                    <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto animate-fade-in-delay">
+                    <p className="text-xl md:text-2xl text-gray-100 mb-8 max-w-3xl mx-auto animate-fade-in-delay drop-shadow-lg">
                         {t.subtitle}
                     </p>
                     
@@ -93,7 +105,7 @@ const Landing: React.FC = () => {
                     <div className="flex justify-center items-center animate-fade-in-delay-2">
                         <Link
                             to="/login"
-                            className="px-10 py-4 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105"
+                            className="px-10 py-4 bg-yellow-500 text-gray-900 font-bold rounded-lg shadow-2xl hover:bg-yellow-400 transition duration-300 transform hover:scale-105"
                         >
                             {t.login}
                         </Link>
@@ -201,19 +213,20 @@ const Landing: React.FC = () => {
 
                 {/* Final CTA */}
                 <div className="mt-16 text-center animate-fade-in-slow">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                    <h2 className="text-3xl font-bold text-white mb-4 drop-shadow-lg">
                         {t.cta.title}
                     </h2>
-                    <p className="text-xl text-gray-600 mb-8">
+                    <p className="text-xl text-gray-100 mb-8 drop-shadow-md">
                         {t.cta.subtitle}
                     </p>
                     <Link
                         to="/register"
-                        className="inline-block px-10 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-lg shadow-lg hover:from-blue-700 hover:to-purple-700 transition duration-300 transform hover:scale-105"
+                        className="inline-block px-10 py-4 bg-yellow-500 text-gray-900 font-bold rounded-lg shadow-2xl hover:bg-yellow-400 transition duration-300 transform hover:scale-105"
                     >
                         {t.cta.button}
                     </Link>
                 </div>
+            </div>
             </div>
         </div>
     );
