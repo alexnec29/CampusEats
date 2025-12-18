@@ -16,7 +16,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             <div className="flex-1 flex flex-col">
                 {isAuthenticated && <Header />}
-                <main className="flex-1 p-8">{children}</main>
+                <main className={`flex-1 ${isAuthenticated ? 'p-8' : ''}`}>{children}</main>
             </div>
         </div>
     );

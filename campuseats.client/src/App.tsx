@@ -1,10 +1,11 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Home from './pages/Home';
+import Landing from './pages/Landing';
 import Menu from './pages/Menu';
 import Orders from './pages/Orders';
 import Cart from './pages/Cart';
@@ -17,14 +18,25 @@ import PublicRoute from './components/PublicRoute';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
 
-function App() {
+function AnimatedRoutes() {
+    const location = useLocation();
+    
     return (
-        <AuthProvider>
-            <Router>
-                <Layout>
-                    <Routes>
+        <div key={location.pathname} className="page-transition">
+            <Routes location={location}>
+                        {/* Public Landing Page */}
                         <Route
                             path="/"
+                            element={
+                                <PublicRoute>
+                                    <Landing />
+                                </PublicRoute>
+                            }
+                        />
+
+                        {/* Home Dashboard - after login */}
+                        <Route
+                            path="/home"
                             element={
                                 <PrivateRoute>
                                     <Home />
@@ -141,6 +153,16 @@ function App() {
                             }
                         />
                     </Routes>
+        </div>
+    );
+}
+
+function App() {
+    return (
+        <AuthProvider>
+            <Router>
+                <Layout>
+                    <AnimatedRoutes />
                 </Layout>
             </Router>
         </AuthProvider>
