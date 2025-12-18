@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { apiClient } from "../utils/apiClient";
 import { Mail, Shield, Star, KeyRound, Trash2, Edit, MapPin, Clock, Building } from "lucide-react";
+import { useToast } from "../context/ToastContext";
+import { useConfirm } from "../context/ConfirmContext";
 
 interface UserInfo {
     username: string;
@@ -45,6 +47,8 @@ interface KitchenProfile {
 }
 
 const Profile: React.FC = () => {
+    const { showToast } = useToast();
+    const { confirm } = useConfirm();
     const [user, setUser] = useState<UserInfo | null>(null);
     const [buyerProfile, setBuyerProfile] = useState<BuyerProfile | null>(null);
     const [kitchenProfile, setKitchenProfile] = useState<KitchenProfile | null>(null);
@@ -190,7 +194,7 @@ const Profile: React.FC = () => {
             });
 
             if (res.ok) {
-                alert("Parola a fost schimbată cu succes!");
+                showToast("Parola a fost schimbată cu succes!", 'success');
                 setShowPasswordModal(false);
                 setCurrentPassword("");
                 setNewPassword("");
@@ -243,16 +247,16 @@ const Profile: React.FC = () => {
             });
 
             if (res.ok || res.status === 204) {
-                alert("Profilul de cumpărător a fost actualizat cu succes!");
+                showToast("Profilul de cumpărător a fost actualizat cu succes!", 'success');
                 setShowBuyerEditModal(false);
                 await loadBuyerProfile();
             } else {
                 const text = await res.text();
-                alert("Eroare: " + text);
+                showToast("Eroare: " + text, 'error');
             }
         } catch (err) {
             console.error(err);
-            alert("Eroare la actualizarea profilului.");
+            showToast("Eroare la actualizarea profilului.", 'error');
         } finally {
             setLoadingBuyerUpdate(false);
         }
@@ -301,16 +305,16 @@ const Profile: React.FC = () => {
             });
 
             if (res.ok || res.status === 204) {
-                alert("Profilul de bucătărie a fost actualizat cu succes!");
+                showToast("Profilul de bucătărie a fost actualizat cu succes!", 'success');
                 setShowKitchenEditModal(false);
                 await loadKitchenProfile();
             } else {
                 const text = await res.text();
-                alert("Eroare: " + text);
+                showToast("Eroare: " + text, 'error');
             }
         } catch (err) {
             console.error(err);
-            alert("Eroare la actualizarea profilului.");
+            showToast("Eroare la actualizarea profilului.", 'error');
         } finally {
             setLoadingKitchenUpdate(false);
         }
@@ -319,8 +323,17 @@ const Profile: React.FC = () => {
     // -----------------------------
     // Delete account placeholder
     // -----------------------------
-    const handleDeleteAccount = () => {
-        alert("Funcționalitatea de ștergere cont nu este încă implementată.");
+    const handleDeleteAccount = async () => {
+        const confirmed = await confirm({
+            title: 'Șterge Cont',
+            message: 'Funcționalitatea de ștergere cont nu este încă implementată. Ești sigur că vrei să continui?',
+            confirmText: 'Șterge',
+            type: 'danger'
+        });
+        
+        if (confirmed) {
+             showToast("Funcționalitatea de ștergere cont nu este încă implementată.", 'info');
+        }
     };
 
     return (

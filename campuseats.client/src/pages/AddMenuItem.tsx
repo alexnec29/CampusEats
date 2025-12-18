@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../utils/apiClient';
 import { MenuCategory } from '../types';
+import { useToast } from '../context/ToastContext';
 
 const AddMenuItem: React.FC = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -42,14 +44,14 @@ const AddMenuItem: React.FC = () => {
       });
 
       if (response.ok) {
-        alert('Menu item added successfully!');
+        showToast('Produs adăugat cu succes!', 'success');
         navigate('/menu');
       } else {
-        alert('Failed to add menu item');
+        showToast('Nu s-a putut adăuga produsul', 'error');
       }
     } catch (error) {
       console.error('Error adding menu item:', error);
-      alert('Error adding menu item');
+      showToast('Eroare la adăugarea produsului', 'error');
     }
   };
 

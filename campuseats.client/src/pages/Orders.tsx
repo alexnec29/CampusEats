@@ -2,12 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { apiClient } from '../utils/apiClient';
 import { Order, OrderStatus } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
+import { useConfirm } from '../context/ConfirmContext';
 import { useNavigate } from 'react-router-dom';
 
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const { isAuthenticated } = useAuth();
+  const { showToast } = useToast();
+  const { confirm } = useConfirm();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -71,7 +75,14 @@ const Orders: React.FC = () => {
   };
 
   const removeItem = async (orderId: number, itemId: number) => {
-    if (!window.confirm('Are you sure you want to remove this item?')) return;
+    const confirmed = await confirm({
+        title: 'Șterge produs',
+        message: 'Ești sigur că vrei să ștergi acest produs?',
+        confirmText: 'Șterge',
+        type: 'danger'
+    });
+
+    if (!confirmed) return;
 
     try {
       const response = await apiClient(`/api/orders/${orderId}/items/${itemId}`, {
@@ -87,13 +98,14 @@ const Orders: React.FC = () => {
             new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
           );
           setOrders(sorted);
+          showToast('Produs șters cu succes', 'success');
         }
       } else {
-        alert('Failed to remove item');
+        showToast('Nu s-a putut șterge produsul', 'error');
       }
     } catch (error) {
       console.error('Error removing item:', error);
-      alert('Error removing item');
+      showToast('Eroare la ștergerea produsului', 'error');
     }
   };
 

@@ -13,6 +13,8 @@ import Payment from './pages/Payment';
 import KitchenOrders from './pages/KitchenOrders';
 import AddMenuItem from './pages/AddMenuItem';
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
+import { ConfirmProvider } from './context/ConfirmContext';
 import PrivateRoute from './components/PrivateRoute';
 import PublicRoute from './components/PublicRoute';
 import AdminDashboard from './pages/AdminDashboard';
@@ -160,11 +162,15 @@ function AnimatedRoutes() {
 function App() {
     return (
         <AuthProvider>
-            <Router>
-                <Layout>
-                    <AnimatedRoutes />
-                </Layout>
-            </Router>
+            <ToastProvider>
+                <ConfirmProvider>
+                    <Router>
+                        <Layout>
+                            <AnimatedRoutes />
+                        </Layout>
+                    </Router>
+                </ConfirmProvider>
+            </ToastProvider>
         </AuthProvider>
     );
 }

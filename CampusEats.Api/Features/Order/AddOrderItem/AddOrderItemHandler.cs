@@ -26,15 +26,23 @@ public class AddOrderItemHandler(
         if (menuItem == null)
             return Results.NotFound("Menu item not found");
 
-        var orderItem = new Models.OrderItem
+        var existingItem = order.OrderItems.FirstOrDefault(i => i.MenuItemId == request.MenuItemId);
+        if (existingItem != null)
         {
-            OrderId = order.Id,
-            MenuItemId = request.MenuItemId,
-            Quantity = request.Quantity,
-            Price = menuItem.Price
-        };
+            existingItem.Quantity += request.Quantity;
+        }
+        else
+        {
+            var orderItem = new Models.OrderItem
+            {
+                OrderId = order.Id,
+                MenuItemId = request.MenuItemId,
+                Quantity = request.Quantity,
+                Price = menuItem.Price
+            };
 
-        order.OrderItems.Add(orderItem);
+            order.OrderItems.Add(orderItem);
+        }
         
         order.TotalAmount = order.OrderItems.Sum(i => i.Price * i.Quantity);
 
