@@ -117,7 +117,7 @@ const PaymentPage: React.FC = () => {
     };
 
     fetchClientSecret();
-  }, [orderId, navigate]);
+  }, [orderId, navigate, showToast]);
 
   const options = {
     clientSecret: clientSecret || "",
