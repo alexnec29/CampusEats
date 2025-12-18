@@ -157,9 +157,10 @@ const Menu: React.FC = () => {
         <div className="flex justify-between items-center mb-8">
             <div>
                 <h2 className="text-4xl font-bold text-gray-900 mb-2">Meniu</h2>
-                <p className="text-gray-600">Descoperă preparatele noastre delicioase</p>
+                <p className="text-gray-600">
+                  {(userRole === 'Buyer') ? ("Descoperă preparatele noastre delicioase") : ("Modify menu items")}</p>
             </div>
-            {(userRole === 'Buyer' || userRole === 'Admin') && (
+            {(userRole === 'Buyer') && (
                 <button
                     onClick={() => navigate('/cart')}
                     className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 font-bold shadow-lg transform hover:scale-105 transition duration-300 flex items-center"
@@ -196,7 +197,7 @@ const Menu: React.FC = () => {
                     <p className="text-gray-600 mb-6 line-clamp-2">{item.description}</p>
                     
                     <div className="flex space-x-3">
-                        {(userRole === 'Buyer' || userRole === 'Admin') && (
+                        {(userRole === 'Buyer') && (
                         <button
                             onClick={() => addToOrder(item)}
                             className={`flex-1 py-3 px-4 rounded-xl font-bold shadow-md transition-all duration-300 transform active:scale-95 ${
