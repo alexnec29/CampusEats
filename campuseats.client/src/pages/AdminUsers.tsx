@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apiClient } from '../utils/apiClient';
+import { useToast } from '../context/ToastContext';
 
 interface AppUser {
     id: string;
@@ -12,6 +13,7 @@ interface AppUser {
 const AdminUsers: React.FC = () => {
     const [users, setUsers] = useState<AppUser[]>([]);
     const [loading, setLoading] = useState(true);
+    const { showToast } = useToast();
 
     const [selectedUser, setSelectedUser] = useState<AppUser | null>(null);
     const [delta, setDelta] = useState<number>(0);
@@ -73,11 +75,14 @@ const AdminUsers: React.FC = () => {
                 );
 
                 setDelta(0);
+                showToast('Puncte actualizate cu succes', 'success');
             } else {
-                alert(await res.text());
+                const errorText = await res.text();
+                showToast(errorText || 'Eroare la actualizarea punctelor', 'error');
             }
         } catch (err) {
             console.error('Error adjusting points', err);
+            showToast('Eroare la actualizarea punctelor', 'error');
         }
 
         setSaving(false);

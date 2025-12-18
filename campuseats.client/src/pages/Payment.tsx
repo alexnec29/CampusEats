@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { apiClient } from '../utils/apiClient';
+import { useToast } from '../context/ToastContext';
 
 const stripePromise = loadStripe('pk_test_51ScmzvGeihajtF8vETlsa6FKEZkyQNnMVNEo35DxraZ8qZQs6vhovSNFOfqMmFX684XhuIRzxU5YBvnXcTGf5v7A00v1m3wMH6');
 
@@ -10,6 +11,7 @@ const PaymentFormInner: React.FC = () => {
   const stripe = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -34,6 +36,7 @@ const PaymentFormInner: React.FC = () => {
 
     if (error) {
       setErrorMessage(error.message || "An unexpected error occurred.");
+      showToast(error.message || "Payment failed", 'error');
       setIsProcessing(false);
     }
   };
@@ -80,13 +83,14 @@ const PaymentPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const orderId = location.state?.orderId;
+  const { showToast } = useToast();
   
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!orderId) {
-      alert('No order ID found');
+      showToast('No order ID found', 'error');
       navigate('/orders');
       return;
     }
@@ -113,7 +117,7 @@ const PaymentPage: React.FC = () => {
     };
 
     fetchClientSecret();
-  }, [orderId, navigate]);
+  }, [orderId, navigate, showToast]);
 
   const options = {
     clientSecret: clientSecret || "",

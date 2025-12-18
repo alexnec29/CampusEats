@@ -2,12 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { apiClient } from '../utils/apiClient';
 import { MenuItem, Order, OrderStatus } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
+import { useConfirm } from '../context/ConfirmContext';
 import { useNavigate } from 'react-router-dom';
 
 const Menu: React.FC = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const { isAuthenticated, userRole } = useAuth();
+  const { showToast } = useToast();
+  const { confirm } = useConfirm();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -73,7 +77,7 @@ const Menu: React.FC = () => {
                      }
                 }
             } else {
-                alert('Failed to create order');
+                showToast('Nu s-a putut crea comanda', 'error');
                 return;
             }
         } else {
@@ -88,7 +92,7 @@ const Menu: React.FC = () => {
       }
 
       if (!pendingOrder) {
-        alert('Could not create or find order.');
+        showToast('Nu s-a putut crea sau găsi comanda.', 'error');
         return;
       }
 
@@ -103,19 +107,26 @@ const Menu: React.FC = () => {
       });
 
       if (addRes.ok) {
-        alert(`Added ${item.name} to order!`);
+        showToast(`${item.name} a fost adăugat în coș!`, 'success');
       } else {
-        alert('Failed to add item.');
+        showToast('Nu s-a putut adăuga produsul.', 'error');
       }
 
     } catch (error) {
       console.error('Error adding to order:', error);
-      alert('Error adding to order');
+      showToast('Eroare la adăugarea în coș', 'error');
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Are you sure you want to delete this item?')) return;
+    const confirmed = await confirm({
+        title: 'Șterge Produs',
+        message: 'Ești sigur că vrei să ștergi acest produs din meniu?',
+        confirmText: 'Șterge',
+        type: 'danger'
+    });
+
+    if (!confirmed) return;
 
     try {
       const response = await apiClient(`/api/menu-items/${id}`, {
@@ -124,64 +135,97 @@ const Menu: React.FC = () => {
 
       if (response.ok) {
         setMenuItems(prev => prev.filter(item => item.id !== id));
+        showToast('Produs șters cu succes', 'success');
       } else {
-        alert('Failed to delete item');
+        showToast('Nu s-a putut șterge produsul', 'error');
       }
     } catch (error) {
       console.error('Error deleting item:', error);
-      alert('Error deleting item');
+      showToast('Eroare la ștergerea produsului', 'error');
     }
   };
 
-  if (loading) return <div className="p-4">Loading menu...</div>;
+  if (loading) return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
+  );
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Menu</h2>
-        {(userRole === 'Buyer' || userRole === 'Admin') && (
-            <button
-                onClick={() => navigate('/cart')}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            >
-                Go to Cart
-            </button>
-        )}
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {menuItems.map(item => (
-          <div key={item.id} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
-            {item.imageUrl && (
-              <img src={item.imageUrl} alt={item.name} className="w-full h-48 object-cover rounded-md mb-4" />
-            )}
-            <h3 className="text-xl font-semibold">{item.name}</h3>
-            <p className="text-gray-600 mb-2">{item.description}</p>
-            <div className="flex justify-between items-center mt-4">
-              <span className="text-lg font-bold">${item.price.toFixed(2)}</span>
-              
-              <div className="flex space-x-2">
-                {(userRole === 'Buyer' || userRole === 'Admin') && (
-                  <button
-                    onClick={() => addToOrder(item)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-                    disabled={!item.isAvailable}
-                  >
-                    {item.isAvailable ? 'Add to Order' : 'Unavailable'}
-                  </button>
-                )}
-
-                {(userRole === 'Kitchen' || userRole === 'Admin') && (
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                  >
-                    Delete
-                  </button>
-                )}
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6 page-transition">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+            <div>
+                <h2 className="text-4xl font-bold text-gray-900 mb-2">Meniu</h2>
+                <p className="text-gray-600">Descoperă preparatele noastre delicioase</p>
             </div>
-          </div>
-        ))}
+            {(userRole === 'Buyer' || userRole === 'Admin') && (
+                <button
+                    onClick={() => navigate('/cart')}
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 font-bold shadow-lg transform hover:scale-105 transition duration-300 flex items-center"
+                >
+                    <span className="mr-2">🛒</span> Vezi Coșul
+                </button>
+            )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {menuItems.map(item => (
+            <div key={item.id} className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
+                <div className="relative h-48 bg-gray-200">
+                    {item.imageUrl ? (
+                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <span className="text-4xl">🍽️</span>
+                        </div>
+                    )}
+                    {!item.isAvailable && (
+                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                            <span className="bg-red-500 text-white px-4 py-1 rounded-full font-bold transform -rotate-12">Indisponibil</span>
+                        </div>
+                    )}
+                </div>
+                
+                <div className="p-6">
+                    <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-xl font-bold text-gray-900">{item.name}</h3>
+                        <span className="text-2xl font-bold text-blue-600">${item.price.toFixed(2)}</span>
+                    </div>
+                    
+                    <p className="text-gray-600 mb-6 line-clamp-2">{item.description}</p>
+                    
+                    <div className="flex space-x-3">
+                        {(userRole === 'Buyer' || userRole === 'Admin') && (
+                        <button
+                            onClick={() => addToOrder(item)}
+                            className={`flex-1 py-3 px-4 rounded-xl font-bold shadow-md transition-all duration-300 transform active:scale-95 ${
+                                item.isAvailable 
+                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 hover:shadow-lg' 
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            }`}
+                            disabled={!item.isAvailable}
+                        >
+                            {item.isAvailable ? 'Adaugă în Coș' : 'Indisponibil'}
+                        </button>
+                        )}
+
+                        {(userRole === 'Kitchen' || userRole === 'Admin') && (
+                        <button
+                            onClick={() => handleDelete(item.id)}
+                            className="bg-red-100 text-red-600 p-3 rounded-xl hover:bg-red-200 transition-colors"
+                            title="Delete Item"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+            ))}
+        </div>
       </div>
     </div>
   );

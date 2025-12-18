@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { apiClient } from '../utils/apiClient';
 import { Order, OrderStatus } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
 
 const KitchenOrders: React.FC = () => {
@@ -10,6 +11,7 @@ const KitchenOrders: React.FC = () => {
     const [readyOrders, setReadyOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const { userRole } = useAuth();
+    const { showToast } = useToast();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -50,12 +52,13 @@ const KitchenOrders: React.FC = () => {
 
             if (response.ok) {
                 moveOrder(orderId, newStatus);
+                showToast(`Status actualizat la ${newStatus}`, 'success');
             } else {
-                alert('Failed to update status');
+                showToast('Nu s-a putut actualiza statusul', 'error');
             }
         } catch (error) {
             console.error('Error updating status:', error);
-            alert('Error updating status');
+            showToast('Eroare la actualizarea statusului', 'error');
         }
     };
 
@@ -67,14 +70,14 @@ const KitchenOrders: React.FC = () => {
                 body: JSON.stringify({ orderId: orderId })
             });
             if (response.ok) {
-                alert('Order cancelled successfully');
+                showToast('Comandă anulată cu succes', 'success');
                 removeOrderFromCurrentList(orderId)
             } else {
-                alert('Order already cancelled');
+                showToast('Comanda este deja anulată', 'warning');
             }
         } catch (error) {
             console.error('Error cancelling order:', error);
-            alert('Error cancelling order');
+            showToast('Eroare la anularea comenzii', 'error');
         }
     };
 
