@@ -50,7 +50,7 @@ jobs:
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.sources="." `
             /d:sonar.exclusions="**/node_modules/**,**/bin/**,**/obj/**,**/dist/**" `
-            /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" `
+            /d:sonar.cs.opencover.reportsPaths="**/TestResults/coverage.opencover.xml" `
             /d:sonar.javascript.lcov.reportPaths="campuseats.client/coverage/lcov.info"
 
       - name: Restore dependencies
