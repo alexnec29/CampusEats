@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  sonarqube-dotnet:
-    name: SonarQube .NET Analysis
+  sonarqube:
+    name: SonarQube Analysis
     runs-on: windows-latest
     
     steps:
@@ -31,6 +31,13 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: campuseats.client/package-lock.json
       
       - name: Cache SonarQube packages
         uses: actions/cache@v4
@@ -66,26 +73,15 @@ jobs:
           ${{ runner.temp }}\scanner\dotnet-sonarscanner begin /k:"alexnec29_CampusEats" /o:"alexnec29" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
           dotnet build --configuration Release --no-restore
           ${{ runner.temp }}\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-  
-  sonarqube-js:
-    name: SonarQube JS/TS Analysis
-    runs-on: windows-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: campuseats.client/package-lock.json
-      
-      - name: SonarQube Scan
+      - name: SonarQube Scan JS/TS
         uses: SonarSource/sonarqube-scan-action@v6
+        with:
+          projectBaseDir: campuseats.client
+          args: >
+            -Dsonar.projectKey=alexnec29_CampusEats
+            -Dsonar.organization=alexnec29
+            -Dsonar.sources=src
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
