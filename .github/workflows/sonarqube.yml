@@ -61,7 +61,7 @@ jobs:
         shell: powershell
         run: |
           ${{ runner.temp }}\scanner\dotnet-sonarscanner begin /k:"alexnec29_CampusEats" /o:"alexnec29" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-          dotnet build --no-restore
+          dotnet build --configuration Release --no-restore
           ${{ runner.temp }}\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
   
   sonarqube-js:
