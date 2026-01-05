@@ -37,3 +37,8 @@ npm-debug.log*
 
 # Environment files
 .env
+
+# SonarQube
+.sonarqube/
+.scannerwork/
+coverage.opencover.xml

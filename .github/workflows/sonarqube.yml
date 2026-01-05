@@ -1,0 +1,111 @@
+name: SonarQube Analysis
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  sonarqube:
+    name: SonarQube Code Analysis
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: campuseats_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for better analysis
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: campuseats.client/package-lock.json
+
+      - name: Setup Java (required for SonarScanner)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install SonarScanner for .NET
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Restore .NET dependencies
+        run: dotnet restore
+
+      - name: Begin SonarQube Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          dotnet sonarscanner begin \
+            /k:"alexnec29_CampusEats" \
+            /o:"alexnec29" \
+            /d:sonar.host.url="${SONAR_HOST_URL}" \
+            /d:sonar.token="${SONAR_TOKEN}" \
+            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
+            /d:sonar.javascript.lcov.reportPaths="campuseats.client/coverage/lcov.info"
+
+      - name: Build .NET Solution
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run .NET Tests with Coverage
+        run: |
+          dotnet test CampusEats.Test/CampusEats.Test.csproj \
+            --configuration Release \
+            --no-restore \
+            --no-build \
+            --verbosity normal \
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=opencover \
+            /p:CoverletOutput=./coverage.opencover.xml
+        env:
+          ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=campuseats_db;Username=postgres;Password=password"
+
+      - name: Install client dependencies
+        working-directory: campuseats.client
+        run: npm ci
+
+      - name: Run Client Tests with Coverage
+        working-directory: campuseats.client
+        run: npm test -- --coverage --watchAll=false --passWithNoTests --coverageReporters=lcov
+        continue-on-error: true
+
+      - name: End SonarQube Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
+
+      - name: Upload Coverage Reports (Optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            **/coverage.opencover.xml
+            campuseats.client/coverage/lcov.info
+          retention-days: 7
