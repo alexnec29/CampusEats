@@ -53,7 +53,7 @@ jobs:
           java-version: '17'
 
       - name: Install SonarScanner for .NET
-        run: dotnet tool install --global dotnet-sonarscanner
+        run: dotnet tool restore
 
       - name: Restore .NET dependencies
         run: dotnet restore

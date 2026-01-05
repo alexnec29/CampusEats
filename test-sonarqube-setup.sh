@@ -3,7 +3,7 @@
 # Test script to verify SonarQube setup and coverage generation
 # This script tests the setup locally without connecting to SonarQube
 
-set -e
+set -euo pipefail
 
 echo "=========================================="
 echo "CampusEats - SonarQube Setup Test"
@@ -81,7 +81,7 @@ echo ""
 # 8. Verify coverage file exists
 echo "8. Verifying coverage report generation..."
 if [ -f "CampusEats.Test/coverage.opencover.xml" ]; then
-    COVERAGE_FILE_SIZE=$(stat -f%z "CampusEats.Test/coverage.opencover.xml" 2>/dev/null || stat -c%s "CampusEats.Test/coverage.opencover.xml" 2>/dev/null)
+    COVERAGE_FILE_SIZE=$(wc -c < "CampusEats.Test/coverage.opencover.xml")
     echo -e "${GREEN}✓ Coverage report generated (${COVERAGE_FILE_SIZE} bytes)${NC}"
     echo "  Location: CampusEats.Test/coverage.opencover.xml"
 else
@@ -99,10 +99,10 @@ if [ ! -d "node_modules" ]; then
 fi
 
 echo "  Running React tests with coverage..."
-npm test -- --coverage --watchAll=false --passWithNoTests --coverageReporters=lcov > /dev/null 2>&1 || true
+npm test -- --coverage --watchAll=false --passWithNoTests --coverageReporters=lcov 2>&1 | grep -E "(PASS|FAIL|Test Suites)" || true
 
 if [ -f "coverage/lcov.info" ]; then
-    LCOV_FILE_SIZE=$(stat -f%z "coverage/lcov.info" 2>/dev/null || stat -c%s "coverage/lcov.info" 2>/dev/null)
+    LCOV_FILE_SIZE=$(wc -c < "coverage/lcov.info")
     echo -e "${GREEN}✓ React coverage report generated (${LCOV_FILE_SIZE} bytes)${NC}"
     echo "  Location: campuseats.client/coverage/lcov.info"
 else
