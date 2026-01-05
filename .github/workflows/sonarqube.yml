@@ -50,7 +50,7 @@ jobs:
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.sources="." `
             /d:sonar.exclusions="**/node_modules/**,**/bin/**,**/obj/**,**/dist/**" `
-            /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.cobertura.xml" `
+            /d:sonar.cs.vscoveragexml.reportsPaths="**/TestResults/**/coverage.cobertura.xml" `
             /d:sonar.javascript.lcov.reportPaths="campuseats.client/coverage/lcov.info"
 
       - name: Restore dependencies
@@ -64,8 +64,7 @@ jobs:
         run: |
           dotnet test --configuration Release --no-build `
             --collect:"XPlat Code Coverage" `
-            --results-directory ./TestResults `
-            -- . DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+            --results-directory ./TestResults
 
       # PASUL 3: GENERARE COVERAGE FRONTEND (Dacă ai teste)
       - name: Test Frontend
