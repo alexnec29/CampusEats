@@ -8,8 +8,8 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  sonarqube:
-    name: Build and analyze
+  sonarqube-dotnet:
+    name: SonarQube .NET Analysis
     runs-on: windows-latest
     
     steps:
@@ -54,7 +54,7 @@ jobs:
       - name: Restore .NET dependencies
         run: dotnet restore
       
-      - name: Build and analyze
+      - name: Build and analyze .NET
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -63,3 +63,19 @@ jobs:
           ${{ runner.temp }}\scanner\dotnet-sonarscanner begin /k:"alexnec29_CampusEats" /o:"alexnec29" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
           dotnet build --no-restore
           ${{ runner.temp }}\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+  
+  sonarqube-js:
+    name: SonarQube JS/TS Analysis
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
