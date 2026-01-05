@@ -64,7 +64,8 @@ jobs:
         run: |
           dotnet test --configuration Release --no-build `
             --collect:"XPlat Code Coverage" `
-            --results-directory ./TestResults
+            --results-directory ./TestResults `
+            -- . DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
       # PASUL 3: GENERARE COVERAGE FRONTEND (Dacă ai teste)
       - name: Test Frontend
