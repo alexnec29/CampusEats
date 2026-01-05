@@ -61,7 +61,20 @@ jobs:
       - name: Restore .NET dependencies
         run: dotnet restore
 
+      - name: Check SonarQube Configuration
+        id: check_sonar
+        run: |
+          if [ -z "${{ secrets.SONAR_TOKEN }}" ] || [ -z "${{ secrets.SONAR_HOST_URL }}" ]; then
+            echo "sonar_configured=false" >> $GITHUB_OUTPUT
+            echo "⚠️ SonarQube secrets not configured. Skipping SonarQube analysis."
+            echo "To enable SonarQube analysis, configure SONAR_TOKEN and SONAR_HOST_URL in repository secrets."
+          else
+            echo "sonar_configured=true" >> $GITHUB_OUTPUT
+            echo "✓ SonarQube secrets configured. Analysis will run."
+          fi
+
       - name: Begin SonarQube Analysis
+        if: steps.check_sonar.outputs.sonar_configured == 'true'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -100,11 +113,28 @@ jobs:
         continue-on-error: true
 
       - name: End SonarQube Analysis
+        if: steps.check_sonar.outputs.sonar_configured == 'true'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
 
+      - name: SonarQube Analysis Skipped
+        if: steps.check_sonar.outputs.sonar_configured == 'false'
+        run: |
+          echo "⚠️ SonarQube analysis was skipped because secrets are not configured."
+          echo ""
+          echo "To enable SonarQube analysis:"
+          echo "1. Set up a SonarCloud account at https://sonarcloud.io"
+          echo "2. Create a project for this repository"
+          echo "3. Generate a token"
+          echo "4. Add the following secrets to your repository:"
+          echo "   - SONAR_TOKEN: Your SonarCloud token"
+          echo "   - SONAR_HOST_URL: https://sonarcloud.io"
+          echo ""
+          echo "See SONARQUBE_QUICKSTART.md for detailed instructions."
+
       - name: Upload Coverage Reports (Optional)
+        if: steps.check_sonar.outputs.sonar_configured == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-reports

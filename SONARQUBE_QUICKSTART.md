@@ -2,11 +2,18 @@
 
 Quick guide to get SonarQube scanning up and running for the CampusEats project.
 
+> **⚠️ Important:** The SonarQube workflow will skip analysis if secrets are not configured. Follow the steps below to enable analysis.
+
 ## Prerequisites
 
-- GitHub repository secrets configured:
-  - `SONAR_TOKEN`: Your SonarQube/SonarCloud authentication token
-  - `SONAR_HOST_URL`: Your SonarQube server URL (e.g., `https://sonarcloud.io`)
+**Required GitHub repository secrets:**
+- `SONAR_TOKEN`: Your SonarQube/SonarCloud authentication token
+- `SONAR_HOST_URL`: Your SonarQube server URL (e.g., `https://sonarcloud.io`)
+
+**Without these secrets configured, the workflow will:**
+- ✅ Still build and test your code
+- ⚠️ Skip SonarQube analysis with a warning message
+- ✅ Generate code coverage reports locally
 
 ## Using SonarCloud (Recommended for Open Source)
 
