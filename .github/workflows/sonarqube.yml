@@ -78,6 +78,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: campuseats.client/package-lock.json
       
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
