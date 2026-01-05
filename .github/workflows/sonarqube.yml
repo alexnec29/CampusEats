@@ -1,9 +1,7 @@
 name: SonarQube Analysis
 on:
   push:
-    branches:
-      - master
-      - main
+    branches: [ master, main ]
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -12,7 +10,7 @@ permissions:
 
 jobs:
   sonarqube:
-    name: SonarQube Analysis
+    name: SonarQube Unified Analysis
     runs-on: windows-latest
     
     steps:
@@ -25,7 +23,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 
       
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -36,52 +34,49 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: campuseats.client/package-lock.json
-      
-      - name: Cache SonarQube packages
-        uses: actions/cache@v4
-        with:
-          path: ~\sonar\cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      
-      - name: Cache SonarQube scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.temp }}\scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
-      
+
       - name: Install SonarQube scanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        shell: powershell
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      # PASUL 1: BEGIN - Configurăm ambele surse și fișierele de coverage
+      - name: Begin Sonar Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
-          New-Item -Path ${{ runner.temp }}\scanner -ItemType Directory
-          dotnet tool update dotnet-sonarscanner --tool-path ${{ runner.temp }}\scanner
-      
-      - name: Restore .NET dependencies
+          dotnet-sonarscanner begin /k:"alexnec29_CampusEats" `
+            /o:"alexnec29" `
+            /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" `
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
+            /d:sonar.sources="." `
+            /d:sonar.exclusions="**/node_modules/**,**/bin/**,**/obj/**,**/dist/**" `
+            /d:sonar.cs.opencover.reportsPaths="**/TestResults/coverage.opencover.xml" `
+            /d:sonar.javascript.lcov.reportPaths="campuseats.client/coverage/lcov.info"
+
+      - name: Restore dependencies
         run: dotnet restore
-      
-      - name: Build and analyze .NET
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        shell: powershell
+
+      - name: Build Application
+        run: dotnet build --configuration Release --no-restore
+
+      # PASUL 2: GENERARE COVERAGE BACKEND
+      - name: Test Backend
         run: |
-          ${{ runner.temp }}\scanner\dotnet-sonarscanner begin /k:"alexnec29_CampusEats" /o:"alexnec29" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-          dotnet build --configuration Release --no-restore
-          ${{ runner.temp }}\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-      
-      - name: SonarQube Scan JS/TS
-        uses: SonarSource/sonarqube-scan-action@v6
-        with:
-          projectBaseDir: campuseats.client
-          args: >
-            -Dsonar.projectKey=alexnec29_CampusEats
-            -Dsonar.organization=alexnec29
-            -Dsonar.sources=src
+          dotnet test --configuration Release --no-build `
+            /p:CollectCoverage=true `
+            /p:CoverletOutputFormat=opencover `
+            /p:CoverletOutput=./TestResults/coverage.opencover.xml
+
+      # PASUL 3: GENERARE COVERAGE FRONTEND (Dacă ai teste)
+      - name: Test Frontend
+        working-directory: campuseats.client
+        run: |
+          npm install
+          npm test -- --watchAll=false --coverage --coverageReporters="lcov"
+
+      # PASUL 4: END - Trimitem totul la SonarCloud
+      - name: End Sonar Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
