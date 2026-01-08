@@ -30,7 +30,7 @@ public class EarnPointsHandlerTests
         var loyaltyAccountRepo = new LoyaltyAccountRepository(dbContext);
         var loyaltyTransactionRepo = new LoyaltyTransactionRepository(dbContext);
 
-        var handler = new EarnPointsHandler(userRepo, loyaltyAccountRepo, loyaltyTransactionRepo, config);
+        var handler = new EarnPointsHandler(userRepo, loyaltyAccountRepo, loyaltyTransactionRepo, dbContext, config);
         var request = new EarnPointsRequest(user.Id, 1, 50.00m);
 
         // Act
@@ -67,7 +67,7 @@ public class EarnPointsHandlerTests
         var loyaltyAccountRepo = new LoyaltyAccountRepository(dbContext);
         var loyaltyTransactionRepo = new LoyaltyTransactionRepository(dbContext);
 
-        var handler = new EarnPointsHandler(userRepo, loyaltyAccountRepo, loyaltyTransactionRepo, config);
+        var handler = new EarnPointsHandler(userRepo, loyaltyAccountRepo, loyaltyTransactionRepo, dbContext, config);
         var request = new EarnPointsRequest(user.Id, 1, 25.50m);
 
         // Act

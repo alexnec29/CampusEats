@@ -1,6 +1,8 @@
+using CampusEats.Api.Infrastructure;
 using CampusEats.Api.Infrastructure.Repositories;
 using CampusEats.Api.Models;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace CampusEats.Api.Features.Loyalty.EarnPoints;
@@ -9,6 +11,7 @@ public class EarnPointsHandler(
     IUserRepository userRepository,
     ILoyaltyAccountRepository loyaltyAccountRepository,
     ILoyaltyTransactionRepository loyaltyTransactionRepository,
+    CampusEatsDbContext dbContext,
     IConfiguration configuration
 ) : IRequestHandler<EarnPointsRequest, IResult>
 {
@@ -20,8 +23,10 @@ public class EarnPointsHandler(
         if (user == null)
             return Results.NotFound("User not found");
 
-        // Get or create loyalty account
-        var account = await loyaltyAccountRepository.GetByUserIdAsync(user.Id);
+        // Get or create loyalty account with locking to prevent race conditions
+        var account = await dbContext.LoyaltyAccounts
+            .FirstOrDefaultAsync(l => l.UserId == user.Id, cancellationToken);
+        
         if (account == null)
         {
             account = new LoyaltyAccount
@@ -29,7 +34,8 @@ public class EarnPointsHandler(
                 UserId = user.Id,
                 PointsBalance = 0
             };
-            await loyaltyAccountRepository.AddAsync(account);
+            dbContext.LoyaltyAccounts.Add(account);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
 
         // Calculate points to earn: 1 point per $1 spent (configurable)
@@ -49,8 +55,8 @@ public class EarnPointsHandler(
                 Description = $"Earned from order #{request.OrderId}"
             };
 
-            await loyaltyTransactionRepository.AddAsync(transaction);
-            await loyaltyAccountRepository.UpdateAsync(account);
+            dbContext.LoyaltyTransactions.Add(transaction);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
 
         return Results.Ok(new

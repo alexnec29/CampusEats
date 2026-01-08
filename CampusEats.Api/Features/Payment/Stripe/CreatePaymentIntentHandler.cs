@@ -1,7 +1,9 @@
-﻿using CampusEats.Api.Infrastructure.Repositories;
+using CampusEats.Api.Infrastructure;
+using CampusEats.Api.Infrastructure.Repositories;
 using CampusEats.Api.Models.Enums;
 using CampusEats.Api.Utils.PaymentUtil;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace CampusEats.Api.Features.Payment.Stripe;
@@ -12,6 +14,7 @@ public class CreatePaymentIntentHandler(
     IOrderRepository orderRepository,
     ILoyaltyAccountRepository loyaltyAccountRepository,
     ILoyaltyTransactionRepository loyaltyTransactionRepository,
+    CampusEatsDbContext dbContext,
     IConfiguration configuration
     ) : IRequestHandler<CreatePaymentIntentRequest, IResult>
 {
@@ -45,7 +48,10 @@ public class CreatePaymentIntentHandler(
         decimal loyaltyDiscount = 0;
         if (request.LoyaltyPointsToUse.HasValue && request.LoyaltyPointsToUse.Value > 0)
         {
-            var account = await loyaltyAccountRepository.GetByUserIdAsync(order.UserId);
+            // Get account and validate points atomically
+            var account = await dbContext.LoyaltyAccounts
+                .FirstOrDefaultAsync(l => l.UserId == order.UserId, cancellationToken);
+                
             if (account == null || account.PointsBalance < request.LoyaltyPointsToUse.Value)
             {
                 return Results.BadRequest("Insufficient loyalty points");
@@ -65,7 +71,7 @@ public class CreatePaymentIntentHandler(
             account.PointsBalance -= request.LoyaltyPointsToUse.Value;
             account.UpdatedAt = DateTime.UtcNow;
 
-            var transaction = new Models.LoyaltyTransaction
+            var loyaltyTransaction = new Models.LoyaltyTransaction
             {
                 LoyaltyAccountId = account.Id,
                 Points = -request.LoyaltyPointsToUse.Value,
@@ -73,8 +79,8 @@ public class CreatePaymentIntentHandler(
                 Description = $"Applied to order #{order.Id}"
             };
 
-            await loyaltyTransactionRepository.AddAsync(transaction);
-            await loyaltyAccountRepository.UpdateAsync(account);
+            dbContext.LoyaltyTransactions.Add(loyaltyTransaction);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
 
         // Calculate final amount after discount
