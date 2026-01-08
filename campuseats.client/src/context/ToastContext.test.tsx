@@ -189,22 +189,31 @@ describe('ToastContext', () => {
       </ToastProvider>
     );
 
+    // Create first toast
     await userEvent.click(screen.getByTestId('show-success'));
+    
+    // Wait a bit and create second toast
+    act(() => {
+      jest.advanceTimersByTime(100);
+    });
+    
     await userEvent.click(screen.getByTestId('show-error'));
 
+    // Both toasts should be visible
     expect(screen.getByText('Success message')).toBeInTheDocument();
     expect(screen.getByText('Error message')).toBeInTheDocument();
 
-    // Fast-forward time by 3 seconds to remove first toast
+    // Advance time by 2.9 seconds - first toast timeout should trigger soon
     act(() => {
-      jest.advanceTimersByTime(3000);
+      jest.advanceTimersByTime(2900);
     });
 
+    // First toast should be removed after its 3 second timeout
     await waitFor(() => {
       expect(screen.queryByText('Success message')).not.toBeInTheDocument();
     });
 
-    // Error toast should still be visible
+    // Second toast should still be visible (100ms buffer remaining)
     expect(screen.getByText('Error message')).toBeInTheDocument();
   });
 });

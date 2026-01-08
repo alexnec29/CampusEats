@@ -1,4 +1,4 @@
-import { MenuCategory, OrderStatus } from './index';
+import { MenuCategory, OrderStatus, MenuItem, Order, OrderItem } from './index';
 
 describe('Type Definitions', () => {
   describe('MenuCategory Enum', () => {
@@ -76,7 +76,7 @@ describe('Type Definitions', () => {
 
   describe('MenuItem Interface', () => {
     test('can create valid menu item object', () => {
-      const menuItem = {
+      const menuItem: MenuItem = {
         id: 1,
         name: 'Pizza',
         description: 'Delicious pizza',
@@ -94,7 +94,7 @@ describe('Type Definitions', () => {
     });
 
     test('imageUrl is optional', () => {
-      const menuItem = {
+      const menuItem: MenuItem = {
         id: 1,
         name: 'Burger',
         description: 'Tasty burger',
@@ -110,7 +110,7 @@ describe('Type Definitions', () => {
 
   describe('Order Interface', () => {
     test('can create valid order object', () => {
-      const order = {
+      const order: Order = {
         id: 1,
         userId: 'user123',
         status: OrderStatus.Pending,
@@ -126,7 +126,7 @@ describe('Type Definitions', () => {
     });
 
     test('notes field is optional', () => {
-      const order = {
+      const order: Order = {
         id: 1,
         userId: 'user123',
         status: OrderStatus.Placed,
@@ -141,7 +141,7 @@ describe('Type Definitions', () => {
 
   describe('OrderItem Interface', () => {
     test('can create valid order item object', () => {
-      const orderItem = {
+      const orderItem: OrderItem = {
         id: 1,
         menuItemId: 5,
         quantity: 2,
@@ -154,7 +154,7 @@ describe('Type Definitions', () => {
     });
 
     test('menuItem field is optional', () => {
-      const orderItem = {
+      const orderItem: OrderItem = {
         id: 1,
         menuItemId: 5,
         quantity: 1,
