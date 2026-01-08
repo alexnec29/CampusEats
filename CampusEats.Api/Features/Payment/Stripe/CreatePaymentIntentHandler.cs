@@ -107,13 +107,6 @@ public class CreatePaymentIntentHandler(
         
         await orderRepository.UpdateAsync(order);
         
-        return Results.Ok(new
-        {
-            ClientSecret = clientResult,
-            OriginalAmount = amount,
-            LoyaltyDiscount = loyaltyDiscount,
-            FinalAmount = finalAmount,
-            PointsUsed = request.LoyaltyPointsToUse ?? 0
-        });
+        return Results.Ok(clientResult);
     }
 }
