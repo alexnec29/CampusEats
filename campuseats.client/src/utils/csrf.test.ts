@@ -35,7 +35,7 @@ describe('getCsrfToken', () => {
     expect(token).toBe('token-with-space');
   });
 
-  test('returns null when CSRF-TOKEN cookie has no value', () => {
+  test('returns empty string when CSRF-TOKEN cookie exists but has no value', () => {
     document.cookie = 'CSRF-TOKEN=';
     const token = getCsrfToken();
     expect(token).toBe('');
