@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import Layout from './Layout';
 import { AuthProvider } from '../context/AuthContext';
 import * as apiClient from '../utils/apiClient';
@@ -17,11 +17,11 @@ const renderWithRouter = (component: React.ReactElement, isAuthenticated: boolea
   } as Response);
 
   return render(
-    <BrowserRouter>
+    <MemoryRouter>
       <AuthProvider>
         {component}
       </AuthProvider>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 

@@ -30,9 +30,9 @@ describe('getCsrfToken', () => {
   });
 
   test('handles cookies with spaces correctly', () => {
-    document.cookie = ' CSRF-TOKEN=token-with-space ';
+    document.cookie = ' CSRF-TOKEN=token-with-space';
     const token = getCsrfToken();
-    expect(token).toBe('token-with-space ');
+    expect(token).toBe('token-with-space');
   });
 
   test('returns null when CSRF-TOKEN cookie has no value', () => {

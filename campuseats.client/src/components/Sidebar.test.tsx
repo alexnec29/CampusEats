@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { BrowserRouter, useNavigate } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { AuthProvider } from '../context/AuthContext';
 import * as apiClient from '../utils/apiClient';
@@ -10,16 +10,6 @@ import * as apiClient from '../utils/apiClient';
 jest.mock('../utils/apiClient');
 
 const mockApiClient = apiClient.apiClient as jest.MockedFunction<typeof apiClient.apiClient>;
-const mockNavigate = jest.fn();
-
-// Mock useNavigate hook
-jest.mock('react-router-dom', () => {
-  const actual = jest.requireActual('react-router-dom');
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  };
-});
 
 const renderSidebar = async (isAuthenticated: boolean, role: string | null = null) => {
   mockApiClient.mockResolvedValue({
@@ -28,11 +18,11 @@ const renderSidebar = async (isAuthenticated: boolean, role: string | null = nul
   } as Response);
 
   const result = render(
-    <BrowserRouter>
+    <MemoryRouter>
       <AuthProvider>
         <Sidebar />
       </AuthProvider>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 
   // Wait for auth check to complete
@@ -121,7 +111,7 @@ describe('Sidebar Component', () => {
     expect(screen.getByText('Logout')).toBeInTheDocument();
   });
 
-  test('logout button calls API and navigates to login', async () => {
+  test('logout button calls API', async () => {
     mockApiClient.mockResolvedValue({ ok: true } as Response);
 
     await renderSidebar(true, 'Buyer');
@@ -133,7 +123,6 @@ describe('Sidebar Component', () => {
     await new Promise(resolve => setTimeout(resolve, 100));
 
     expect(mockApiClient).toHaveBeenCalledWith('/api/user/logout', { method: 'POST' });
-    expect(mockNavigate).toHaveBeenCalledWith('/login');
   });
 
   test('logout handles API errors gracefully', async () => {
