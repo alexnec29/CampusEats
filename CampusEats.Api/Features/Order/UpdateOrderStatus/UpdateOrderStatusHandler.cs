@@ -1,6 +1,7 @@
 ﻿using CampusEats.Api.Infrastructure.Repositories;
 using CampusEats.Api.Models.Enums;
 using CampusEats.Api.Validators;
+using CampusEats.Api.Features.Loyalty.EarnPoints;
 using MediatR;
 
 namespace CampusEats.Api.Features.Order.UpdateOrderStatus;
@@ -9,6 +10,7 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusRequest
 {
     private readonly IOrderRepository _orderRepository;
     private readonly UpdateOrderStatusValidator _validator;
+    private readonly IMediator _mediator;
 
     private static readonly Dictionary<OrderStatus, OrderStatus[]> AllowedTransitions = new()
     {
@@ -20,10 +22,11 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusRequest
         { OrderStatus.Ready,     new[] { OrderStatus.Completed } },
     };
 
-    public UpdateOrderStatusHandler(IOrderRepository orderRepository, UpdateOrderStatusValidator validator)
+    public UpdateOrderStatusHandler(IOrderRepository orderRepository, UpdateOrderStatusValidator validator, IMediator mediator)
     {
         _orderRepository = orderRepository;
         _validator = validator;
+        _mediator = mediator;
     }
 
     public async Task<IResult> Handle(UpdateOrderStatusRequest request, CancellationToken cancellationToken)
@@ -46,6 +49,16 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusRequest
             order.KitchenTask.Status = request.Status;
 
         await _orderRepository.UpdateAsync(order);
+
+        // Award loyalty points when order is completed
+        if (request.Status == OrderStatus.Completed && order.TotalAmount > 0)
+        {
+            await _mediator.Send(new EarnPointsRequest(
+                order.UserId,
+                order.Id,
+                order.TotalAmount
+            ), cancellationToken);
+        }
 
         return Results.Ok();
     }

@@ -3,6 +3,7 @@ using CampusEats.Api.Infrastructure.Repositories;
 using CampusEats.Api.Models.Enums;
 using CampusEats.Api.Validators;
 using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Moq;
@@ -19,6 +20,7 @@ public class UpdateOrderStatusHandlerTests
         UpdateOrderStatusRequest request = new UpdateOrderStatusRequest(nonExistentOrderId, OrderStatus.Placed);
         
         Mock<IOrderRepository> mockedRepository = new Mock<IOrderRepository>();
+        Mock<IMediator> mockedMediator = new Mock<IMediator>();
         UpdateOrderStatusValidator validator = new UpdateOrderStatusValidator();
         
         mockedRepository.Setup(repo => repo.GetByIdAsync(nonExistentOrderId))
@@ -26,7 +28,8 @@ public class UpdateOrderStatusHandlerTests
         
         UpdateOrderStatusHandler handler = new UpdateOrderStatusHandler(
             mockedRepository.Object,
-            validator
+            validator,
+            mockedMediator.Object
         );
         
         //Act
@@ -51,6 +54,7 @@ public class UpdateOrderStatusHandlerTests
         };
         
         Mock<IOrderRepository> mockedRepository = new Mock<IOrderRepository>();
+        Mock<IMediator> mockedMediator = new Mock<IMediator>();
         UpdateOrderStatusValidator validator = new UpdateOrderStatusValidator();
         
         mockedRepository.Setup(repo => repo.GetByIdAsync(orderId))
@@ -58,7 +62,8 @@ public class UpdateOrderStatusHandlerTests
         
         UpdateOrderStatusHandler handler = new UpdateOrderStatusHandler(
             mockedRepository.Object,
-            validator
+            validator,
+            mockedMediator.Object
         );
         
         //Act
