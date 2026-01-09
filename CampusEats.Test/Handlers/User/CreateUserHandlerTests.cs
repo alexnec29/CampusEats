@@ -23,8 +23,9 @@ public class CreateUserHandlerTests
         Mock<IUserRepository> mockedUserRepository = new Mock<IUserRepository>();
         mockedUserRepository.Setup(repo => repo.GetByUsernameAsync("usedUsername"))
             .ReturnsAsync(new Api.Models.User { Username = "usedUsername" });
+        Mock<ILoyaltyAccountRepository> mockedLoyaltyAccountRepository = new Mock<ILoyaltyAccountRepository>();
         
-        CreateUserHandler handler = new CreateUserHandler(mockedUserRepository.Object);
+        CreateUserHandler handler = new CreateUserHandler(mockedUserRepository.Object, mockedLoyaltyAccountRepository.Object);
         
         //Act
         IResult result = await handler.Handle(request, CancellationToken.None);
@@ -48,8 +49,9 @@ public class CreateUserHandlerTests
         Mock<IUserRepository> mockedUserRepository = new Mock<IUserRepository>();
         mockedUserRepository.Setup(repo => repo.GetByEmailAsync("usedEmail@gmail.com"))
             .ReturnsAsync(new Api.Models.User { Email = "usedEmail@gmail.com" });
+        Mock<ILoyaltyAccountRepository> mockedLoyaltyAccountRepository = new Mock<ILoyaltyAccountRepository>();
         
-        CreateUserHandler handler = new CreateUserHandler(mockedUserRepository.Object);
+        CreateUserHandler handler = new CreateUserHandler(mockedUserRepository.Object, mockedLoyaltyAccountRepository.Object);
         
         //Act
         IResult result = await handler.Handle(request, CancellationToken.None);
@@ -71,8 +73,9 @@ public class CreateUserHandlerTests
              "notMatchingPassword"
              );
         Mock<IUserRepository> mockedUserRepository = new Mock<IUserRepository>();
+        Mock<ILoyaltyAccountRepository> mockedLoyaltyAccountRepository = new Mock<ILoyaltyAccountRepository>();
         
-        CreateUserHandler handler = new CreateUserHandler(mockedUserRepository.Object);
+        CreateUserHandler handler = new CreateUserHandler(mockedUserRepository.Object, mockedLoyaltyAccountRepository.Object);
         
         //Act
         IResult result = await handler.Handle(request, CancellationToken.None);
@@ -88,6 +91,7 @@ public class CreateUserHandlerTests
     {
         //Arrange
         Api.Models.User? capturedUser = null;
+        Api.Models.LoyaltyAccount? capturedLoyaltyAccount = null;
         CreateUserRequest request = new CreateUserRequest(
             "validUsername", 
             "validEmail@gmail.com", 
@@ -97,8 +101,11 @@ public class CreateUserHandlerTests
         Mock<IUserRepository> mockedUserRepository = new Mock<IUserRepository>();
         mockedUserRepository.Setup(repo => repo.AddAsync(It.IsAny<Api.Models.User>()))
             .Callback<Api.Models.User>(user => capturedUser = user);
+        Mock<ILoyaltyAccountRepository> mockedLoyaltyAccountRepository = new Mock<ILoyaltyAccountRepository>();
+        mockedLoyaltyAccountRepository.Setup(repo => repo.AddAsync(It.IsAny<Api.Models.LoyaltyAccount>()))
+            .Callback<Api.Models.LoyaltyAccount>(account => capturedLoyaltyAccount = account);
         
-        CreateUserHandler handler = new CreateUserHandler(mockedUserRepository.Object);
+        CreateUserHandler handler = new CreateUserHandler(mockedUserRepository.Object, mockedLoyaltyAccountRepository.Object);
         
         //Act
         IResult result = await handler.Handle(request, CancellationToken.None);
@@ -110,6 +117,11 @@ public class CreateUserHandlerTests
         Assert.Equal(request.Email, capturedUser.Email);
         Assert.True(BCrypt.Net.BCrypt.Verify(request.Password, capturedUser.HashedPassword));
         Assert.Equal(Role.Buyer, capturedUser.Role);
+        
+        Assert.NotNull(capturedLoyaltyAccount);
+        Assert.Equal(capturedUser.Id, capturedLoyaltyAccount.UserId);
+        Assert.Equal(0, capturedLoyaltyAccount.PointsBalance);
+        
         var createdResult = Assert.IsType<Created>(result);
         Assert.Equal(StatusCodes.Status201Created, createdResult.StatusCode);
     }

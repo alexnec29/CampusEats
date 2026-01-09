@@ -43,6 +43,18 @@ public static class DbInitializer
                 new User { Username = "admin", HashedPassword = BCrypt.Net.BCrypt.HashPassword("admiN$$4"), Email = "admin@gmail.com", Role = Role.Admin }
             );
             await context.SaveChangesAsync();
+            
+            // Create loyalty accounts for buyer users
+            var buyerUsers = context.Users.Where(u => u.Role == Role.Buyer).ToList();
+            foreach (var buyer in buyerUsers)
+            {
+                context.LoyaltyAccounts.Add(new LoyaltyAccount
+                {
+                    UserId = buyer.Id,
+                    PointsBalance = 0
+                });
+            }
+            await context.SaveChangesAsync();
         }
     }
 }

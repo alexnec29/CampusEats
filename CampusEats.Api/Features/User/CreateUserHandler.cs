@@ -1,11 +1,14 @@
 ﻿using CampusEats.Api.Infrastructure.Repositories;
+using CampusEats.Api.Models;
 using CampusEats.Api.Models.Enums;
 using CampusEats.Api.Validators;
 using MediatR;
 
 namespace CampusEats.Api.Features.User;
 
-public class CreateUserHandler(IUserRepository userRepository) : IRequestHandler<CreateUserRequest, IResult>
+public class CreateUserHandler(
+    IUserRepository userRepository,
+    ILoyaltyAccountRepository loyaltyAccountRepository) : IRequestHandler<CreateUserRequest, IResult>
 {
     public async Task<IResult> Handle(CreateUserRequest request, CancellationToken cancellationToken)
     {
@@ -34,6 +37,14 @@ public class CreateUserHandler(IUserRepository userRepository) : IRequestHandler
         };
 
         await userRepository.AddAsync(newUser);
+        
+        // Create loyalty account for buyer
+        LoyaltyAccount loyaltyAccount = new LoyaltyAccount
+        {
+            UserId = newUser.Id,
+            PointsBalance = 0
+        };
+        await loyaltyAccountRepository.AddAsync(loyaltyAccount);
         
         return Results.Created();
     }
