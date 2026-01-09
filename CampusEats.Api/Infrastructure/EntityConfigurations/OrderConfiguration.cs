@@ -14,6 +14,15 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasColumnType("decimal(10,2)")
             .IsRequired();
 
+        builder.Property(o => o.LoyaltyPointsDiscount)
+            .HasColumnType("decimal(10,2)")
+            .HasDefaultValue(0)
+            .IsRequired();
+
+        builder.Property(o => o.RedeemedLoyaltyPoints)
+            .HasDefaultValue(0)
+            .IsRequired();
+
         builder.Property(o => o.Status)
             .IsRequired();
 
