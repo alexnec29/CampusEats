@@ -1,8 +1,11 @@
 using CampusEats.Api.Features.Payment.Stripe;
+using CampusEats.Api.Infrastructure;
+using CampusEats.Test.Helpers;
 using CampusEats.Api.Infrastructure.Repositories;
 using CampusEats.Api.Models.Enums;
 using CampusEats.Api.Utils.PaymentUtil;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Moq;
 
 namespace CampusEats.Test.Handlers.Payment;
@@ -21,11 +24,19 @@ public class CreatePaymentIntentHandlerTests
         PaymentProviderFactory factory = new PaymentProviderFactory(new List<IPaymentService>());
         Mock<IMenuItemRepository> mockedMenuItemRepo = new Mock<IMenuItemRepository>();
         Mock<IOrderRepository> mockedOrderRepo = new Mock<IOrderRepository>();
+        Mock<ILoyaltyAccountRepository> mockedLoyaltyAccountRepo = new Mock<ILoyaltyAccountRepository>();
+        Mock<ILoyaltyTransactionRepository> mockedLoyaltyTransactionRepo = new Mock<ILoyaltyTransactionRepository>();
+        var dbContext = DbContextHelper.CreateInMemoryDbContext();
+        var config = new ConfigurationBuilder().Build();
         
         CreatePaymentIntentHandler handler = new CreatePaymentIntentHandler(
             factory,
             mockedMenuItemRepo.Object,
-            mockedOrderRepo.Object
+            mockedOrderRepo.Object,
+            mockedLoyaltyAccountRepo.Object,
+            mockedLoyaltyTransactionRepo.Object,
+            dbContext,
+            config
         );
         
         //Act
@@ -53,6 +64,10 @@ public class CreatePaymentIntentHandlerTests
         );
         Mock<IMenuItemRepository> mockedMenuItemRepo = new Mock<IMenuItemRepository>();
         Mock<IOrderRepository> mockedOrderRepo = new Mock<IOrderRepository>();
+        Mock<ILoyaltyAccountRepository> mockedLoyaltyAccountRepo = new Mock<ILoyaltyAccountRepository>();
+        Mock<ILoyaltyTransactionRepository> mockedLoyaltyTransactionRepo = new Mock<ILoyaltyTransactionRepository>();
+        var dbContext = DbContextHelper.CreateInMemoryDbContext();
+        var config = new ConfigurationBuilder().Build();
         
         mockedOrderRepo.Setup(r => r.GetByIdAsync(nonExistentOrderId))
             .ReturnsAsync((Api.Models.Order?)null);
@@ -60,7 +75,11 @@ public class CreatePaymentIntentHandlerTests
         CreatePaymentIntentHandler handler = new CreatePaymentIntentHandler(
             factory,
             mockedMenuItemRepo.Object,
-            mockedOrderRepo.Object
+            mockedOrderRepo.Object,
+            mockedLoyaltyAccountRepo.Object,
+            mockedLoyaltyTransactionRepo.Object,
+            dbContext,
+            config
         );
         
         //Act
@@ -100,6 +119,10 @@ public class CreatePaymentIntentHandlerTests
         );
         Mock<IMenuItemRepository> mockedMenuItemRepo = new Mock<IMenuItemRepository>();
         Mock<IOrderRepository> mockedOrderRepo = new Mock<IOrderRepository>();
+        Mock<ILoyaltyAccountRepository> mockedLoyaltyAccountRepo = new Mock<ILoyaltyAccountRepository>();
+        Mock<ILoyaltyTransactionRepository> mockedLoyaltyTransactionRepo = new Mock<ILoyaltyTransactionRepository>();
+        var dbContext = DbContextHelper.CreateInMemoryDbContext();
+        var config = new ConfigurationBuilder().Build();
         
         mockedOrderRepo.Setup(r => r.GetByIdAsync(orderId))
             .ReturnsAsync(order);
@@ -110,7 +133,11 @@ public class CreatePaymentIntentHandlerTests
         CreatePaymentIntentHandler handler = new CreatePaymentIntentHandler(
             factory,
             mockedMenuItemRepo.Object,
-            mockedOrderRepo.Object
+            mockedOrderRepo.Object,
+            mockedLoyaltyAccountRepo.Object,
+            mockedLoyaltyTransactionRepo.Object,
+            dbContext,
+            config
         );
         
         //Act
@@ -177,7 +204,11 @@ public class CreatePaymentIntentHandlerTests
     //     CreatePaymentIntentHandler handler = new CreatePaymentIntentHandler(
     //         factory,
     //         mockedMenuItemRepo.Object,
-    //         mockedOrderRepo.Object
+    //         mockedOrderRepo.Object,
+    //         mockedLoyaltyAccountRepo.Object,
+    //         mockedLoyaltyTransactionRepo.Object,
+    //         dbContext,
+    //         config
     //     );
     //     
     //     //Act
