@@ -31,6 +31,8 @@ public class CreateOrderHandler(
             Notes = request.Notes,
             Status = OrderStatus.Pending,
             TotalAmount = 0m,
+            LoyaltyPointsDiscount = 0m,
+            RedeemedLoyaltyPoints = 0,
             KitchenTask = new Models.KitchenTask
             {
                 Status = OrderStatus.Inactive

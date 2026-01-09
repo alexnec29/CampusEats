@@ -147,7 +147,13 @@ public static class TestEndpoints
                 db.Users.Add(user);
                 await db.SaveChangesAsync();
 
-                var order = new Order { UserId = user.Id, TotalAmount = 20m };
+                var order = new Order 
+                { 
+                    UserId = user.Id, 
+                    TotalAmount = 20m,
+                    LoyaltyPointsDiscount = 0m,
+                    RedeemedLoyaltyPoints = 0
+                };
                 await orderRepo.AddAsync(order);
 
                 var task = new KitchenTask
