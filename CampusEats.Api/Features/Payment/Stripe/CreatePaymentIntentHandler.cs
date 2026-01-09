@@ -7,7 +7,6 @@ namespace CampusEats.Api.Features.Payment.Stripe;
 
 public class CreatePaymentIntentHandler(
     PaymentProviderFactory paymentProviderFactory, 
-    IMenuItemRepository menuItemRepository,
     IOrderRepository orderRepository
     ) : IRequestHandler<CreatePaymentIntentRequest, IResult>
 {
