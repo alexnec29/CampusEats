@@ -8,7 +8,9 @@ namespace CampusEats.Api.Features.Payment.Stripe;
 public class CreatePaymentIntentHandler(
     PaymentProviderFactory paymentProviderFactory, 
     IMenuItemRepository menuItemRepository,
-    IOrderRepository orderRepository
+    IOrderRepository orderRepository,
+    ILoyaltyAccountRepository loyaltyAccountRepository,
+    ILoyaltyTransactionRepository loyaltyTransactionRepository
     ) : IRequestHandler<CreatePaymentIntentRequest, IResult>
 {
     public async Task<IResult> Handle(CreatePaymentIntentRequest request, CancellationToken cancellationToken)
@@ -35,6 +37,50 @@ public class CreatePaymentIntentHandler(
                 return Results.NotFound($"Menu item with id: {cartItem.MenuItemId} not found");
             }
             amount += menuItem.Price * cartItem.Quantity;
+        }
+
+        // Apply loyalty points discount if requested
+        int pointsRedeemed = 0;
+        if (request.LoyaltyPointsToRedeem.HasValue && request.LoyaltyPointsToRedeem.Value > 0)
+        {
+            var loyaltyAccount = await loyaltyAccountRepository.GetByUserIdAsync(order.UserId);
+            if (loyaltyAccount == null)
+            {
+                return Results.BadRequest("Loyalty account not found");
+            }
+
+            if (loyaltyAccount.PointsBalance < request.LoyaltyPointsToRedeem.Value)
+            {
+                return Results.BadRequest($"Insufficient loyalty points. Available: {loyaltyAccount.PointsBalance}, Requested: {request.LoyaltyPointsToRedeem.Value}");
+            }
+
+            // Calculate discount: 100 points = $1 discount
+            decimal discount = request.LoyaltyPointsToRedeem.Value / 100m;
+            
+            // Ensure discount doesn't exceed total amount
+            if (discount > amount)
+            {
+                discount = amount;
+            }
+
+            amount -= discount;
+            pointsRedeemed = request.LoyaltyPointsToRedeem.Value;
+
+            // Deduct loyalty points immediately
+            loyaltyAccount.PointsBalance -= pointsRedeemed;
+            loyaltyAccount.UpdatedAt = DateTime.UtcNow;
+
+            var transaction = new Models.LoyaltyTransaction
+            {
+                LoyaltyAccountId = loyaltyAccount.Id,
+                Points = -pointsRedeemed,
+                TransactionType = "Redeem",
+                Description = $"Redeemed for order #{order.Id} discount",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await loyaltyTransactionRepository.AddAsync(transaction);
+            await loyaltyAccountRepository.UpdateAsync(loyaltyAccount);
         }
 
         const string currency = "usd";

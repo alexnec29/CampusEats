@@ -8,7 +8,9 @@ namespace CampusEats.Api.Utils.PaymentUtil;
 public class StripePaymentService(
     IConfiguration configuration, 
     IOrderRepository ordersRepository,
-    ILogger<StripePaymentService> logger
+    ILogger<StripePaymentService> logger,
+    ILoyaltyAccountRepository loyaltyAccountRepository,
+    ILoyaltyTransactionRepository loyaltyTransactionRepository
     ) : IPaymentService
 {
     public string Name { get; } = "Stripe";
@@ -84,6 +86,34 @@ public class StripePaymentService(
             logger.LogInformation($"Payment intent: {stripeEvent.Type}, success: true");
             await ordersRepository.UpdateAsync(order);
             logger.LogInformation($"Order status: {order.Status}");
+
+            // Add loyalty points when payment succeeds
+            if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
+            {
+                // Award loyalty points: $1 spent = 10 points
+                int pointsToAward = (int)(order.TotalAmount * 10);
+                
+                var loyaltyAccount = await loyaltyAccountRepository.GetByUserIdAsync(order.UserId);
+                if (loyaltyAccount != null)
+                {
+                    loyaltyAccount.PointsBalance += pointsToAward;
+                    loyaltyAccount.UpdatedAt = DateTime.UtcNow;
+
+                    var transaction = new LoyaltyTransaction
+                    {
+                        LoyaltyAccountId = loyaltyAccount.Id,
+                        Points = pointsToAward,
+                        TransactionType = "Earn",
+                        Description = $"Earned from order #{order.Id} payment",
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    await loyaltyTransactionRepository.AddAsync(transaction);
+                    await loyaltyAccountRepository.UpdateAsync(loyaltyAccount);
+                    
+                    logger.LogInformation($"Awarded {pointsToAward} loyalty points to user {order.UserId}");
+                }
+            }
         }
         catch (Exception ex)
         {
