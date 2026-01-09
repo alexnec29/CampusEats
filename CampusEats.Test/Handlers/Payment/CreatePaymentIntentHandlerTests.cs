@@ -19,12 +19,10 @@ public class CreatePaymentIntentHandlerTests
         
         // Create factory with empty list (no providers registered)
         PaymentProviderFactory factory = new PaymentProviderFactory(new List<IPaymentService>());
-        Mock<IMenuItemRepository> mockedMenuItemRepo = new Mock<IMenuItemRepository>();
         Mock<IOrderRepository> mockedOrderRepo = new Mock<IOrderRepository>();
         
         CreatePaymentIntentHandler handler = new CreatePaymentIntentHandler(
             factory,
-            mockedMenuItemRepo.Object,
             mockedOrderRepo.Object
         );
         
@@ -51,7 +49,6 @@ public class CreatePaymentIntentHandlerTests
         PaymentProviderFactory factory = new PaymentProviderFactory(
             new List<IPaymentService> { mockedPaymentService.Object }
         );
-        Mock<IMenuItemRepository> mockedMenuItemRepo = new Mock<IMenuItemRepository>();
         Mock<IOrderRepository> mockedOrderRepo = new Mock<IOrderRepository>();
         
         mockedOrderRepo.Setup(r => r.GetByIdAsync(nonExistentOrderId))
@@ -59,7 +56,6 @@ public class CreatePaymentIntentHandlerTests
         
         CreatePaymentIntentHandler handler = new CreatePaymentIntentHandler(
             factory,
-            mockedMenuItemRepo.Object,
             mockedOrderRepo.Object
         );
         
@@ -73,12 +69,11 @@ public class CreatePaymentIntentHandlerTests
     }
     
     [Fact]
-    public async Task Given_OrderWithNonExistentMenuItem_When_HandleIsCalled_Then_NotFoundReturned()
+    public async Task Given_OrderWithNoItems_When_HandleIsCalled_Then_BadRequestReturned()
     {
         //Arrange
         string provider = "Stripe";
         int orderId = 1;
-        int nonExistentMenuItemId = 999;
         CreatePaymentIntentRequest request = new CreatePaymentIntentRequest(provider, orderId);
         
         var order = new Api.Models.Order
@@ -86,10 +81,8 @@ public class CreatePaymentIntentHandlerTests
             Id = orderId,
             UserId = Guid.NewGuid(),
             Status = OrderStatus.Pending,
-            OrderItems = new List<Api.Models.OrderItem>
-            {
-                new Api.Models.OrderItem { MenuItemId = nonExistentMenuItemId, Quantity = 2 }
-            }
+            TotalAmount = 0,
+            OrderItems = new List<Api.Models.OrderItem>()
         };
         
         Mock<IPaymentService> mockedPaymentService = new Mock<IPaymentService>();
@@ -98,18 +91,13 @@ public class CreatePaymentIntentHandlerTests
         PaymentProviderFactory factory = new PaymentProviderFactory(
             new List<IPaymentService> { mockedPaymentService.Object }
         );
-        Mock<IMenuItemRepository> mockedMenuItemRepo = new Mock<IMenuItemRepository>();
         Mock<IOrderRepository> mockedOrderRepo = new Mock<IOrderRepository>();
         
         mockedOrderRepo.Setup(r => r.GetByIdAsync(orderId))
             .ReturnsAsync(order);
         
-        mockedMenuItemRepo.Setup(r => r.GetByIdAsync(nonExistentMenuItemId))
-            .ReturnsAsync((Api.Models.MenuItem?)null);
-        
         CreatePaymentIntentHandler handler = new CreatePaymentIntentHandler(
             factory,
-            mockedMenuItemRepo.Object,
             mockedOrderRepo.Object
         );
         
@@ -119,7 +107,7 @@ public class CreatePaymentIntentHandlerTests
         //Assert
         var httpResult = result as IStatusCodeHttpResult;
         Assert.NotNull(httpResult);
-        Assert.Equal(StatusCodes.Status404NotFound, httpResult.StatusCode);
+        Assert.Equal(StatusCodes.Status400BadRequest, httpResult.StatusCode);
     }
     
     // [Fact]

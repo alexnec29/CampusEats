@@ -11,8 +11,8 @@ public class ApplyLoyaltyDiscountValidator : AbstractValidator<ApplyLoyaltyDisco
             .WithMessage("Order ID must be greater than 0");
 
         RuleFor(x => x.PointsToRedeem)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("Points to redeem must be non-negative");
+            .GreaterThan(0)
+            .WithMessage("Points to redeem must be greater than 0");
 
         RuleFor(x => x.UserId)
             .NotEmpty()

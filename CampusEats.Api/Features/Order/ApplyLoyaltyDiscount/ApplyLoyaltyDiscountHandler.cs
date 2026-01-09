@@ -63,28 +63,31 @@ public class ApplyLoyaltyDiscountHandler(
         decimal discountAmount = request.PointsToRedeem * PointsToMoneyRate;
 
         // Ensure discount doesn't exceed order total
+        int actualPointsUsed = request.PointsToRedeem;
         if (discountAmount > originalTotal)
         {
             discountAmount = originalTotal;
+            // Recalculate actual points used based on capped discount
+            actualPointsUsed = (int)Math.Ceiling(discountAmount / PointsToMoneyRate);
         }
 
         // Calculate new total
         decimal newTotal = originalTotal - discountAmount;
 
         // Update order with discount information
-        order.LoyaltyPointsUsed = request.PointsToRedeem;
+        order.LoyaltyPointsUsed = actualPointsUsed;
         order.DiscountAmount = discountAmount;
         order.TotalAmount = newTotal;
 
         // Deduct points from loyalty account
-        loyaltyAccount.PointsBalance -= request.PointsToRedeem;
+        loyaltyAccount.PointsBalance -= actualPointsUsed;
         loyaltyAccount.UpdatedAt = DateTime.UtcNow;
 
         // Create loyalty transaction record
         var transaction = new LoyaltyTransaction
         {
             LoyaltyAccountId = loyaltyAccount.Id,
-            Points = -request.PointsToRedeem,
+            Points = -actualPointsUsed,
             TransactionType = "Redeem",
             Description = $"Redeemed for order #{order.Id} discount"
         };
@@ -96,7 +99,7 @@ public class ApplyLoyaltyDiscountHandler(
         return Results.Ok(new
         {
             orderId = order.Id,
-            pointsUsed = request.PointsToRedeem,
+            pointsUsed = actualPointsUsed,
             discountAmount = discountAmount,
             originalTotal = originalTotal,
             newTotal = newTotal,
