@@ -14,9 +14,10 @@ public static class AllergenEndpoints
             .WithTags("Allergens") 
             .WithOpenApi();
 
-        group.MapGet("/{id:int}", (int id, IMediator mediator) => 
+        group.MapGet("/{id:int}", async (int id, IMediator mediator) => 
         {
-            return Results.Ok($"Allergen {id} fetched (GetById logic pending)"); 
+            var result = await mediator.Send(new GetAllergenById.GetAllergenByIdQuery(id));
+            return result != null ? Results.Ok(result) : Results.NotFound();
         }).WithName("GetByIdAllergen")
           .RequireAuthorization("AllRoles");
 

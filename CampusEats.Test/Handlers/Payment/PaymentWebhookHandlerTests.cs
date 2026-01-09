@@ -1,4 +1,4 @@
-using CampusEats.Api.Features.Payment;
+using CampusEats.Api.Features.Payment.Stripe;
 using CampusEats.Api.Utils.PaymentUtil;
 using Microsoft.AspNetCore.Http;
 using Moq;

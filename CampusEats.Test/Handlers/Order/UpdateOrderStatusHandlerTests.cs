@@ -3,8 +3,10 @@ using CampusEats.Api.Infrastructure.Repositories;
 using CampusEats.Api.Models.Enums;
 using CampusEats.Api.Validators;
 using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace CampusEats.Test.Handlers.Order;
@@ -19,6 +21,8 @@ public class UpdateOrderStatusHandlerTests
         UpdateOrderStatusRequest request = new UpdateOrderStatusRequest(nonExistentOrderId, OrderStatus.Placed);
         
         Mock<IOrderRepository> mockedRepository = new Mock<IOrderRepository>();
+        Mock<IMediator> mockedMediator = new Mock<IMediator>();
+        Mock<ILogger<UpdateOrderStatusHandler>> mockedLogger = new Mock<ILogger<UpdateOrderStatusHandler>>();
         UpdateOrderStatusValidator validator = new UpdateOrderStatusValidator();
         
         mockedRepository.Setup(repo => repo.GetByIdAsync(nonExistentOrderId))
@@ -26,7 +30,9 @@ public class UpdateOrderStatusHandlerTests
         
         UpdateOrderStatusHandler handler = new UpdateOrderStatusHandler(
             mockedRepository.Object,
-            validator
+            validator,
+            mockedMediator.Object,
+            mockedLogger.Object
         );
         
         //Act
@@ -51,6 +57,8 @@ public class UpdateOrderStatusHandlerTests
         };
         
         Mock<IOrderRepository> mockedRepository = new Mock<IOrderRepository>();
+        Mock<IMediator> mockedMediator = new Mock<IMediator>();
+        Mock<ILogger<UpdateOrderStatusHandler>> mockedLogger = new Mock<ILogger<UpdateOrderStatusHandler>>();
         UpdateOrderStatusValidator validator = new UpdateOrderStatusValidator();
         
         mockedRepository.Setup(repo => repo.GetByIdAsync(orderId))
@@ -58,7 +66,9 @@ public class UpdateOrderStatusHandlerTests
         
         UpdateOrderStatusHandler handler = new UpdateOrderStatusHandler(
             mockedRepository.Object,
-            validator
+            validator,
+            mockedMediator.Object,
+            mockedLogger.Object
         );
         
         //Act
