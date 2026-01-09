@@ -13,6 +13,9 @@ public class CreatePaymentIntentHandler(
     ILoyaltyTransactionRepository loyaltyTransactionRepository
     ) : IRequestHandler<CreatePaymentIntentRequest, IResult>
 {
+    // Loyalty points conversion: 100 points = $1.00
+    private const decimal PointsPerDollar = 100m;
+    
     public async Task<IResult> Handle(CreatePaymentIntentRequest request, CancellationToken cancellationToken)
     {
         IPaymentService? provider = paymentProviderFactory.GetProvider(request.PaymentProvider);
@@ -54,8 +57,8 @@ public class CreatePaymentIntentHandler(
                 return Results.BadRequest($"Insufficient loyalty points. Available: {loyaltyAccount.PointsBalance}, Requested: {request.LoyaltyPointsToRedeem.Value}");
             }
 
-            // Calculate discount: 100 points = $1 discount
-            decimal discount = request.LoyaltyPointsToRedeem.Value / 100m;
+            // Calculate discount: PointsPerDollar points = $1 discount
+            decimal discount = request.LoyaltyPointsToRedeem.Value / PointsPerDollar;
             
             // Ensure discount doesn't exceed total amount
             if (discount > amount)

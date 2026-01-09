@@ -13,6 +13,9 @@ public class StripePaymentService(
     ILoyaltyTransactionRepository loyaltyTransactionRepository
     ) : IPaymentService
 {
+    // Loyalty points earning: $1 spent = 10 points
+    private const int PointsPerDollarSpent = 10;
+    
     public string Name { get; } = "Stripe";
     
     public async Task<Dictionary<string, string>> CreatePaymentIntentAsync(decimal amount, string currency, int orderId)
@@ -90,8 +93,8 @@ public class StripePaymentService(
             // Add loyalty points when payment succeeds
             if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
             {
-                // Award loyalty points: $1 spent = 10 points
-                int pointsToAward = (int)(order.TotalAmount * 10);
+                // Award loyalty points: PointsPerDollarSpent points per $1 spent
+                int pointsToAward = (int)(order.TotalAmount * PointsPerDollarSpent);
                 
                 var loyaltyAccount = await loyaltyAccountRepository.GetByUserIdAsync(order.UserId);
                 if (loyaltyAccount != null)

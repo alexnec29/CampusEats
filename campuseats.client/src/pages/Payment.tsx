@@ -92,6 +92,9 @@ const PaymentPage: React.FC = () => {
   const [orderTotal, setOrderTotal] = useState<number>(0);
   const [loadingLoyalty, setLoadingLoyalty] = useState(true);
 
+  // Loyalty points conversion: 100 points = $1.00
+  const POINTS_PER_DOLLAR = 100;
+
   useEffect(() => {
     if (!orderId) {
       showToast('No order ID found', 'error');
@@ -164,21 +167,24 @@ const PaymentPage: React.FC = () => {
   }, [orderId, loadingLoyalty, createPaymentIntent]);
 
   const handleRedeemChange = (value: number) => {
-    const maxPoints = Math.min(loyaltyPoints, Math.floor(orderTotal * 100)); // Can't redeem more than order total
+    const maxPoints = Math.min(loyaltyPoints, Math.floor(orderTotal * POINTS_PER_DOLLAR)); // Can't redeem more than order total
     const newValue = Math.max(0, Math.min(value, maxPoints));
     setPointsToRedeem(newValue);
   };
 
   const applyPoints = () => {
-    if (pointsToRedeem > 0) {
-      setClientSecret(null); // Reset to trigger new payment intent
-      setTimeout(() => {
-        createPaymentIntent();
-      }, 100);
-    }
+    // Reset client secret to trigger re-creation with new points
+    setClientSecret(null);
   };
 
-  const discount = pointsToRedeem / 100;
+  // Recreate payment intent when points change and client secret is null
+  useEffect(() => {
+    if (!clientSecret && !loadingLoyalty && orderId) {
+      createPaymentIntent();
+    }
+  }, [clientSecret, loadingLoyalty, orderId, createPaymentIntent]);
+
+  const discount = pointsToRedeem / POINTS_PER_DOLLAR;
   const finalAmount = Math.max(0, orderTotal - discount);
 
   const options = {
@@ -206,12 +212,12 @@ const PaymentPage: React.FC = () => {
             </div>
             <div className="mb-3">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Redeem Points (100 points = $1.00)
+                Redeem Points ({POINTS_PER_DOLLAR} points = $1.00)
               </label>
               <input
                 type="number"
                 min="0"
-                max={Math.min(loyaltyPoints, Math.floor(orderTotal * 100))}
+                max={Math.min(loyaltyPoints, Math.floor(orderTotal * POINTS_PER_DOLLAR))}
                 value={pointsToRedeem}
                 onChange={(e) => handleRedeemChange(parseInt(e.target.value) || 0)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
