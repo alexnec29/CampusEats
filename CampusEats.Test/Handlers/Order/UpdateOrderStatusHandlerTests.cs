@@ -6,6 +6,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace CampusEats.Test.Handlers.Order;
@@ -21,6 +22,7 @@ public class UpdateOrderStatusHandlerTests
         
         Mock<IOrderRepository> mockedRepository = new Mock<IOrderRepository>();
         Mock<IMediator> mockedMediator = new Mock<IMediator>();
+        Mock<ILogger<UpdateOrderStatusHandler>> mockedLogger = new Mock<ILogger<UpdateOrderStatusHandler>>();
         UpdateOrderStatusValidator validator = new UpdateOrderStatusValidator();
         
         mockedRepository.Setup(repo => repo.GetByIdAsync(nonExistentOrderId))
@@ -29,7 +31,8 @@ public class UpdateOrderStatusHandlerTests
         UpdateOrderStatusHandler handler = new UpdateOrderStatusHandler(
             mockedRepository.Object,
             validator,
-            mockedMediator.Object
+            mockedMediator.Object,
+            mockedLogger.Object
         );
         
         //Act
@@ -55,6 +58,7 @@ public class UpdateOrderStatusHandlerTests
         
         Mock<IOrderRepository> mockedRepository = new Mock<IOrderRepository>();
         Mock<IMediator> mockedMediator = new Mock<IMediator>();
+        Mock<ILogger<UpdateOrderStatusHandler>> mockedLogger = new Mock<ILogger<UpdateOrderStatusHandler>>();
         UpdateOrderStatusValidator validator = new UpdateOrderStatusValidator();
         
         mockedRepository.Setup(repo => repo.GetByIdAsync(orderId))
@@ -63,7 +67,8 @@ public class UpdateOrderStatusHandlerTests
         UpdateOrderStatusHandler handler = new UpdateOrderStatusHandler(
             mockedRepository.Object,
             validator,
-            mockedMediator.Object
+            mockedMediator.Object,
+            mockedLogger.Object
         );
         
         //Act
