@@ -33,7 +33,6 @@ public class OrderRepository : IOrderRepository
         await _context.Orders
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.MenuItem)
-            .Include(o => o.Payment)
             .Include(o => o.KitchenTask)
             .Include(o => o.User)
             .ToListAsync();
@@ -42,7 +41,6 @@ public class OrderRepository : IOrderRepository
         await _context.Orders
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.MenuItem)
-            .Include(o => o.Payment)
             .Include(o => o.KitchenTask)
             .Include(o => o.User)
             .FirstOrDefaultAsync(o => o.Id == id);
@@ -53,7 +51,6 @@ public class OrderRepository : IOrderRepository
             .Where(o => o.UserId == userId)
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.MenuItem)
-            .Include(o => o.Payment)
             .Include(o => o.KitchenTask)
             .Include(o => o.User)
             .ToListAsync();
@@ -63,7 +60,6 @@ public class OrderRepository : IOrderRepository
             .Where(o => o.Status == status)
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.MenuItem)
-            .Include(o => o.Payment)
             .Include(o => o.KitchenTask)
             .Include(o => o.User)
             .ToListAsync();

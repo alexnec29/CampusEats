@@ -1,7 +1,7 @@
 ﻿using CampusEats.Api.Utils.PaymentUtil;
 using MediatR;
 
-namespace CampusEats.Api.Features.Payment.Stripe;
+namespace CampusEats.Api.Features.Payment;
 
 public class PaymentWebhookHandler(PaymentProviderFactory paymentProviderFactory) : IRequestHandler<PaymentWebhookRequest, IResult>
 {

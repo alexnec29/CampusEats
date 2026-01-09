@@ -3,7 +3,7 @@ using CampusEats.Api.Models.Enums;
 using CampusEats.Api.Utils.PaymentUtil;
 using MediatR;
 
-namespace CampusEats.Api.Features.Payment.Stripe;
+namespace CampusEats.Api.Features.Payment;
 
 public class CreatePaymentIntentHandler(
     PaymentProviderFactory paymentProviderFactory, 
@@ -40,7 +40,7 @@ public class CreatePaymentIntentHandler(
         const string currency = "usd";
         int orderId = request.OrderId;
         
-        var paymentIntentData = await provider.CreatePaymentIntentAsync(amount, currency, orderId);
+        var paymentIntentData = await provider.CreatePaymentIntentAsync(amount, currency, orderId, order.UserId);
 
         paymentIntentData.TryGetValue("paymentIntentClientResult", out var clientResult);
         paymentIntentData.TryGetValue("paymentIntentId", out var paymentIntentId);

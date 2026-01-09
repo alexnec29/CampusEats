@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using CampusEats.Api.Behaviors;
 using CampusEats.Api.Endpoints;
 using CampusEats.Api.Features.KitchenTask;
@@ -14,9 +13,7 @@ using CampusEats.Api.Utils.JwtUtil;
 using CampusEats.Api.Utils.PaymentUtil;
 using FluentValidation;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -69,7 +66,6 @@ builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
 builder.Services.AddScoped<IAllergenRepository, AllergenRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
-builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<ILoyaltyAccountRepository, LoyaltyAccountRepository>();
 builder.Services.AddScoped<ILoyaltyTransactionRepository, LoyaltyTransactionRepository>();
 builder.Services.AddScoped<IKitchenTaskRepository, KitchenTaskRepository>();
@@ -85,7 +81,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<CampusEatsDbContext>();
-    context.Database.EnsureCreated();
+    await context.Database.EnsureCreatedAsync();
 }
 
 if (app.Environment.IsDevelopment())
@@ -119,4 +115,4 @@ using (var scope = app.Services.CreateScope())
     await DbInitializer.InitializeAsync(dbContext);
 }
 
-app.Run();
+await app.RunAsync();

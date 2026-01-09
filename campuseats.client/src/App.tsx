@@ -19,6 +19,7 @@ import PrivateRoute from './components/PrivateRoute';
 import PublicRoute from './components/PublicRoute';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
+import { LanguageProvider } from './context/LanguageContext';
 
 function AnimatedRoutes() {
     const location = useLocation();
@@ -164,11 +165,13 @@ function App() {
         <AuthProvider>
             <ToastProvider>
                 <ConfirmProvider>
-                    <Router>
-                        <Layout>
-                            <AnimatedRoutes />
-                        </Layout>
-                    </Router>
+                    <LanguageProvider>
+                        <Router>
+                            <Layout>
+                                <AnimatedRoutes />
+                            </Layout>
+                        </Router>
+                    </LanguageProvider>
                 </ConfirmProvider>
             </ToastProvider>
         </AuthProvider>

@@ -52,7 +52,7 @@ const KitchenOrders: React.FC = () => {
 
             if (response.ok) {
                 moveOrder(orderId, newStatus);
-                showToast(`Status actualizat la ${newStatus}`, 'success');
+                showToast(`Status actualizat la ${OrderStatus[newStatus]}`, 'success');
             } else {
                 showToast('Nu s-a putut actualiza statusul', 'error');
             }

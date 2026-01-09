@@ -1,4 +1,4 @@
-﻿using CampusEats.Api.Features.Payment.Stripe;
+﻿using CampusEats.Api.Features.Payment;
 using MediatR;
 
 namespace CampusEats.Api.Endpoints;

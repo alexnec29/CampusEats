@@ -14,7 +14,6 @@ public class CampusEatsDbContext : DbContext
     public DbSet<MenuItemAllergen> MenuItemAllergens { get; set; } = null!;
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
-    public DbSet<Payment> Payments { get; set; }
     public DbSet<LoyaltyAccount> LoyaltyAccounts { get; set; }
     public DbSet<LoyaltyTransaction> LoyaltyTransactions { get; set; }
     public DbSet<KitchenTask> KitchenTasks { get; set; }

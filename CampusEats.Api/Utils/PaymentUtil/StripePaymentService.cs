@@ -13,7 +13,7 @@ public class StripePaymentService(
 {
     public string Name { get; } = "Stripe";
     
-    public async Task<Dictionary<string, string>> CreatePaymentIntentAsync(decimal amount, string currency, int orderId)
+    public async Task<Dictionary<string, string>> CreatePaymentIntentAsync(decimal amount, string currency, int orderId, Guid userId)
     {
         var service = new PaymentIntentService();
         
@@ -29,7 +29,7 @@ public class StripePaymentService(
 
         var requestOptions = new RequestOptions()
         {
-            IdempotencyKey = $"order_{orderId}_payment_intent"
+            IdempotencyKey = $"payment_intent_for_orderId_{orderId}_userId_{userId}"
         };
         
         var intent = await service.CreateAsync(paymentIntentCreateOptions, requestOptions);
@@ -87,7 +87,7 @@ public class StripePaymentService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex.Message);
+            logger.LogError(ex, ex.Message);
         }
     }
 
@@ -102,7 +102,7 @@ public class StripePaymentService(
         
         var requestOptions = new RequestOptions()
         {
-            IdempotencyKey = $"refund_payment_intent_{paymentIntentId}"
+            IdempotencyKey = $"refund_for_paymentIntentId_{paymentIntentId}"
         };
 
         try
@@ -112,7 +112,7 @@ public class StripePaymentService(
         }
         catch (StripeException e)
         {
-            logger.LogError("Error: {}", e);
+            logger.LogError("Error: {Error}", e);
             return (false, e.StripeError.Message);
         }
     }
