@@ -7,7 +7,6 @@ namespace CampusEats.Api.Features.Payment.Stripe;
 
 public class CreatePaymentIntentHandler(
     PaymentProviderFactory paymentProviderFactory, 
-    IMenuItemRepository menuItemRepository,
     IOrderRepository orderRepository
     ) : IRequestHandler<CreatePaymentIntentRequest, IResult>
 {
@@ -25,17 +24,8 @@ public class CreatePaymentIntentHandler(
             return Results.NotFound($"Order with id: {request.OrderId} not found");
         }
         
-        decimal amount = 0;
-        
-        foreach (var cartItem in order.OrderItems)
-        {
-            Models.MenuItem? menuItem = await menuItemRepository.GetByIdAsync(cartItem.MenuItemId);
-            if (menuItem == null)
-            {
-                return Results.NotFound($"Menu item with id: {cartItem.MenuItemId} not found");
-            }
-            amount += menuItem.Price * cartItem.Quantity;
-        }
+        // Use the order's TotalAmount which already includes loyalty points discount
+        decimal amount = order.TotalAmount;
 
         const string currency = "usd";
         int orderId = request.OrderId;

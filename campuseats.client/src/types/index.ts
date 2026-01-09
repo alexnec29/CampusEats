@@ -15,6 +15,8 @@ export interface Order {
     notes?: string;
     status: OrderStatus;
     totalAmount: number;
+    loyaltyPointsDiscount?: number;
+    redeemedLoyaltyPoints?: number;
     orderItems: OrderItem[];
     orderDate: string;
 }

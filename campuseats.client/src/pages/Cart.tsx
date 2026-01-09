@@ -9,6 +9,9 @@ import { useNavigate } from 'react-router-dom';
 const Cart: React.FC = () => {
   const [cart, setCart] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loyaltyPoints, setLoyaltyPoints] = useState<number>(0);
+  const [pointsToRedeem, setPointsToRedeem] = useState<number>(0);
+  const [applyingPoints, setApplyingPoints] = useState(false);
   const { isAuthenticated } = useAuth();
   const { showToast } = useToast();
   const { confirm } = useConfirm();
@@ -21,11 +24,26 @@ const Cart: React.FC = () => {
         const orders: Order[] = await response.json();
         const pendingOrder = orders.find(o => o.status === OrderStatus.Pending);
         setCart(pendingOrder || null);
+        if (pendingOrder && pendingOrder.redeemedLoyaltyPoints) {
+          setPointsToRedeem(pendingOrder.redeemedLoyaltyPoints);
+        }
       }
     } catch (error) {
       console.error('Error fetching cart:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchLoyaltyPoints = async () => {
+    try {
+      const response = await apiClient('/api/loyalty/account');
+      if (response.ok) {
+        const data = await response.json();
+        setLoyaltyPoints(data.pointsBalance);
+      }
+    } catch (error) {
+      console.error('Error fetching loyalty points:', error);
     }
   };
 
@@ -35,6 +53,7 @@ const Cart: React.FC = () => {
         return;
     }
     fetchCart();
+    fetchLoyaltyPoints();
   }, [isAuthenticated, navigate]);
 
   const updateQuantity = async (itemId: number, newQuantity: number) => {
@@ -85,6 +104,39 @@ const Cart: React.FC = () => {
     } catch (error) {
       console.error('Error removing item:', error);
       showToast('Eroare la ștergerea produsului', 'error');
+    }
+  };
+
+  const applyLoyaltyPoints = async () => {
+    if (!cart) return;
+    
+    if (pointsToRedeem < 0) {
+      showToast('Punctele trebuie să fie un număr pozitiv', 'error');
+      return;
+    }
+
+    setApplyingPoints(true);
+    try {
+      const response = await apiClient(`/api/orders/${cart.id}/apply-loyalty-points`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ points: pointsToRedeem })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        showToast(`Discount aplicat: $${data.loyaltyPointsDiscount.toFixed(2)}`, 'success');
+        await fetchCart();
+        await fetchLoyaltyPoints();
+      } else {
+        const errorData = await response.json();
+        showToast(errorData.message || 'Nu s-a putut aplica discountul', 'error');
+      }
+    } catch (error) {
+      console.error('Error applying loyalty points:', error);
+      showToast('Eroare la aplicarea punctelor', 'error');
+    } finally {
+      setApplyingPoints(false);
     }
   };
 
@@ -200,9 +252,87 @@ const Cart: React.FC = () => {
                 ))}
             </ul>
 
+            {/* Loyalty Points Section */}
+            <div className="p-6 bg-gradient-to-r from-purple-50 to-blue-50 border-t border-b">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                        <span className="mr-2">⭐</span> Puncte de Loialitate
+                    </h3>
+                    <span className="text-sm text-gray-600">
+                        Disponibile: <span className="font-bold text-purple-600">{loyaltyPoints}</span> puncte
+                    </span>
+                </div>
+                
+                {loyaltyPoints > 0 && (
+                    <div className="space-y-4">
+                        <div className="flex flex-col sm:flex-row items-center gap-4">
+                            <div className="flex-1 w-full">
+                                <label className="block text-sm text-gray-600 mb-2">
+                                    Puncte de folosit (1 punct = $0.01):
+                                </label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max={loyaltyPoints}
+                                    value={pointsToRedeem}
+                                    onChange={(e) => setPointsToRedeem(Math.max(0, Math.min(loyaltyPoints, parseInt(e.target.value) || 0)))}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    placeholder="0"
+                                />
+                            </div>
+                            <button
+                                onClick={applyLoyaltyPoints}
+                                disabled={applyingPoints || pointsToRedeem === 0}
+                                className={`w-full sm:w-auto px-6 py-2 rounded-lg font-semibold transition-all ${
+                                    applyingPoints || pointsToRedeem === 0
+                                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                        : 'bg-purple-600 text-white hover:bg-purple-700 shadow-md hover:shadow-lg'
+                                }`}
+                            >
+                                {applyingPoints ? 'Se aplică...' : 'Aplică Discount'}
+                            </button>
+                        </div>
+                        
+                        {pointsToRedeem > 0 && (
+                            <div className="text-sm text-gray-700 bg-white p-3 rounded-lg">
+                                <p>💰 Discount estimat: <span className="font-bold text-green-600">${(pointsToRedeem * 0.01).toFixed(2)}</span></p>
+                            </div>
+                        )}
+                        
+                        {cart.redeemedLoyaltyPoints && cart.redeemedLoyaltyPoints > 0 && (
+                            <div className="text-sm bg-green-100 text-green-800 p-3 rounded-lg border border-green-200">
+                                ✅ Discount aplicat: <span className="font-bold">{cart.redeemedLoyaltyPoints} puncte</span> = <span className="font-bold">${cart.loyaltyPointsDiscount?.toFixed(2)}</span>
+                            </div>
+                        )}
+                    </div>
+                )}
+                
+                {loyaltyPoints === 0 && (
+                    <p className="text-sm text-gray-500 italic">
+                        Nu ai puncte de loialitate disponibile. Câștigă puncte făcând comenzi!
+                    </p>
+                )}
+            </div>
+
             <div className="p-6 bg-gray-50 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div className="text-2xl font-bold text-gray-900">
-                    Total: <span className="text-blue-600">${cart.totalAmount.toFixed(2)}</span>
+                <div className="text-left">
+                    {cart.loyaltyPointsDiscount && cart.loyaltyPointsDiscount > 0 ? (
+                        <div>
+                            <div className="text-sm text-gray-600">
+                                Subtotal: <span className="line-through">${(cart.totalAmount + cart.loyaltyPointsDiscount).toFixed(2)}</span>
+                            </div>
+                            <div className="text-sm text-green-600 mb-1">
+                                Discount: -${cart.loyaltyPointsDiscount.toFixed(2)}
+                            </div>
+                            <div className="text-2xl font-bold text-gray-900">
+                                Total: <span className="text-blue-600">${cart.totalAmount.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="text-2xl font-bold text-gray-900">
+                            Total: <span className="text-blue-600">${cart.totalAmount.toFixed(2)}</span>
+                        </div>
+                    )}
                 </div>
                 <button
                     onClick={placeOrder}

@@ -8,6 +8,8 @@ public class Order
     public int Id { get; set; }
     public Guid UserId { get; set; }
     public decimal TotalAmount { get; set; }
+    public decimal LoyaltyPointsDiscount { get; set; } = 0;
+    public int RedeemedLoyaltyPoints { get; set; } = 0;
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
     public DateTime OrderDate { get; set; } = DateTime.UtcNow;
     public string? Notes { get; set; }
