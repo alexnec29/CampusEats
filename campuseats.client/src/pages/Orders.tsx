@@ -150,6 +150,14 @@ const Orders: React.FC = () => {
                     </li>
                   ))}
                 </ul>
+                {order.loyaltyPointsUsed && order.loyaltyPointsUsed > 0 && order.discountAmount && (
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <div className="flex justify-between text-sm text-green-600">
+                      <span>🎁 Loyalty Discount ({order.loyaltyPointsUsed} points)</span>
+                      <span>-${order.discountAmount.toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
                 <div className="border-t mt-4 pt-2 flex justify-between font-bold">
                   <span>Total</span>
                   <span>${order.totalAmount.toFixed(2)}</span>

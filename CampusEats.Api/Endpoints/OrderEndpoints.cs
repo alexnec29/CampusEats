@@ -9,6 +9,7 @@ using CampusEats.Api.Features.Order.GetUserOrders;
 using CampusEats.Api.Features.Order.CancelOrder;
 using CampusEats.Api.Features.Order.CancelOrderByKitchen;
 using CampusEats.Api.Features.Order.UpdateOrderItemQuantity;
+using CampusEats.Api.Features.Order.ApplyLoyaltyDiscount;
 using MediatR;
 
 namespace CampusEats.Api.Endpoints;
@@ -135,5 +136,17 @@ public static class OrderEndpoints
 
         orders.MapPost("/cancel-by-kitchen", async (CancelOrderByKitchenRequest request, IMediator mediator) => 
             await mediator.Send(request)).RequireAuthorization("Kitchen");
+
+        // Apply loyalty discount to order
+        orders.MapPost("/{orderId}/apply-loyalty-discount", async (int orderId, ApplyLoyaltyDiscountRequest request, HttpContext httpContext, IMediator mediator) =>
+        {
+            var userIdString = httpContext.User.FindFirst("/id")?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            {
+                return Results.Unauthorized();
+            }
+            var command = request with { OrderId = orderId, UserId = userId };
+            return await mediator.Send(command);
+        }).RequireAuthorization("Buyer");
     }
 }

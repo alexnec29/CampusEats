@@ -25,16 +25,13 @@ public class CreatePaymentIntentHandler(
             return Results.NotFound($"Order with id: {request.OrderId} not found");
         }
         
-        decimal amount = 0;
+        // Use the order's TotalAmount which may already have discounts applied
+        decimal amount = order.TotalAmount;
         
-        foreach (var cartItem in order.OrderItems)
+        // Validate that the order has items
+        if (order.OrderItems == null || !order.OrderItems.Any())
         {
-            Models.MenuItem? menuItem = await menuItemRepository.GetByIdAsync(cartItem.MenuItemId);
-            if (menuItem == null)
-            {
-                return Results.NotFound($"Menu item with id: {cartItem.MenuItemId} not found");
-            }
-            amount += menuItem.Price * cartItem.Quantity;
+            return Results.BadRequest("Order has no items");
         }
 
         const string currency = "usd";
