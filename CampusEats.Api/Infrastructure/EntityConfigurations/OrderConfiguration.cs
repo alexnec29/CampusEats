@@ -30,10 +30,6 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(o => o.Payment)
-            .WithOne(p => p.Order)
-            .HasForeignKey<Payment>(p => p.OrderId);
-
         builder.HasOne(o => o.KitchenTask)
             .WithOne(k => k.Order)
             .HasForeignKey<KitchenTask>(k => k.OrderId);

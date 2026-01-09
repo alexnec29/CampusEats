@@ -12,7 +12,7 @@ public static class DbInitializer
         // await context.Database.MigrateAsync();
 
         // --- Seed Allergens (exemplu) ---
-        if (!context.Allergens.Any())
+        if (!await context.Allergens.AnyAsync())
         {
             context.Allergens.AddRange(
                 new Allergen { Name = "Peanuts" },
@@ -22,7 +22,7 @@ public static class DbInitializer
             await context.SaveChangesAsync();
         }
         
-        if (!context.MenuItems.Any())
+        if (!await context.MenuItems.AnyAsync())
         {
             context.MenuItems.AddRange(
                 new MenuItem { Name = "Pizza", Price = 10m },
@@ -34,7 +34,7 @@ public static class DbInitializer
             await context.SaveChangesAsync();
         }
 
-        if (!context.Users.Any())
+        if (!await context.Users.AnyAsync())
         {
             context.Users.AddRange(
                 new User { Username = "buyer1", HashedPassword = BCrypt.Net.BCrypt.HashPassword("Buyer1$4"), Email = "buyer1@gmail.com", Role = Role.Buyer },

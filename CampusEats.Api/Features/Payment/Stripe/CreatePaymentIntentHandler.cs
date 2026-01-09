@@ -90,7 +90,7 @@ public class CreatePaymentIntentHandler(
         const string currency = "usd";
         int orderId = request.OrderId;
         
-        var paymentIntentData = await provider.CreatePaymentIntentAsync(finalAmount, currency, orderId);
+        var paymentIntentData = await provider.CreatePaymentIntentAsync(finalAmount, currency, orderId, order.UserId);
 
         paymentIntentData.TryGetValue("paymentIntentClientResult", out var clientResult);
         paymentIntentData.TryGetValue("paymentIntentId", out var paymentIntentId);

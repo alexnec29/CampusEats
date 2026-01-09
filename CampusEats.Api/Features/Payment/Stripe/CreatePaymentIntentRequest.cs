@@ -1,5 +1,4 @@
-﻿using CampusEats.Api.Models;
-using MediatR;
+﻿using MediatR;
 
 namespace CampusEats.Api.Features.Payment.Stripe;
 

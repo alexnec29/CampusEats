@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../utils/apiClient';
+import { useLanguage } from '../context/LanguageContext';
+import { registerTranslations } from '../i18n/Register';
 
 const Register: React.FC = () => {
+  const { language } = useLanguage();
+  const template = registerTranslations[language];
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -55,9 +59,9 @@ const Register: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10 transform transition-all duration-300 hover:shadow-3xl">
           <div className="text-center mb-8">
             <h2 className="text-4xl font-bold text-gray-900 mb-2">
-              Creează un cont
+              {template.title}
             </h2>
-            <p className="text-gray-600">Înregistrează-te pentru CampusEats</p>
+            <p className="text-gray-600">{template.subtitle}</p>
           </div>
 
           {error && (
@@ -68,50 +72,50 @@ const Register: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">Username</label>
+              <label className="block text-gray-700 font-semibold mb-2">{template.usernameLabel}</label>
               <input
                 type="text"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
                 className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-purple-500 focus:outline-none transition duration-200"
-                placeholder="Alege un username"
+                placeholder={template.usernamePlaceholder}
                 required
               />
             </div>
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">Email</label>
+              <label className="block text-gray-700 font-semibold mb-2">{template.emailLabel}</label>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-purple-500 focus:outline-none transition duration-200"
-                placeholder="adresa@email.com"
+                placeholder={template.emailPlaceholder}
                 required
               />
             </div>
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">Parolă</label>
+              <label className="block text-gray-700 font-semibold mb-2">{template.passwordLabel}</label>
               <input
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
                 className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-purple-500 focus:outline-none transition duration-200"
-                placeholder="Creează o parolă"
+                placeholder={template.passwordPlaceholder}
                 required
               />
             </div>
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">Confirmă Parola</label>
+              <label className="block text-gray-700 font-semibold mb-2">{template.confirmPasswordLabel}</label>
               <input
                 type="password"
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-purple-500 focus:outline-none transition duration-200"
-                placeholder="Confirmă parola"
+                placeholder={template.confirmPasswordPlaceholder}
                 required
               />
             </div>
@@ -119,15 +123,15 @@ const Register: React.FC = () => {
               type="submit" 
               className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold p-4 rounded-lg hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition duration-300 shadow-lg"
             >
-              Înregistrează-te
+              {template.submit}
             </button>
           </form>
 
           <div className="text-center mt-6">
             <p className="text-gray-600">
-              Ai deja cont?{" "}
+              {template.haveAccountText}{" "}
               <a href="/login" className="text-purple-600 hover:text-purple-800 font-semibold hover:underline">
-                Login
+                {template.loginLinkText}
               </a>
             </p>
           </div>
