@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -87,6 +87,10 @@ const PaymentPage: React.FC = () => {
   
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loyaltyPoints, setLoyaltyPoints] = useState<number>(0);
+  const [pointsToRedeem, setPointsToRedeem] = useState<number>(0);
+  const [orderTotal, setOrderTotal] = useState<number>(0);
+  const [loadingLoyalty, setLoadingLoyalty] = useState(true);
 
   useEffect(() => {
     if (!orderId) {
@@ -95,29 +99,87 @@ const PaymentPage: React.FC = () => {
       return;
     }
 
-    const fetchClientSecret = async () => {
+    const fetchLoyaltyAndOrder = async () => {
       try {
-        const response = await apiClient('/api/payments/create-payment-intent/stripe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ orderId: orderId }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to initiate payment session');
+        // Fetch loyalty points
+        const loyaltyRes = await apiClient('/api/loyalty/account');
+        if (loyaltyRes.ok) {
+          const loyaltyData = await loyaltyRes.json();
+          setLoyaltyPoints(loyaltyData.pointsBalance || 0);
         }
-
-        const data = await response.json();
-        setClientSecret(data);
-        console.log(data);
       } catch (err) {
-        console.error(err);
-        setError('Could not load payment information. Please try again later.');
+        console.error('Error fetching loyalty:', err);
+      } finally {
+        setLoadingLoyalty(false);
+      }
+
+      try {
+        // Fetch order details to get total
+        const orderRes = await apiClient(`/api/orders/${orderId}`);
+        if (orderRes.ok) {
+          const orderData = await orderRes.json();
+          setOrderTotal(orderData.totalAmount || 0);
+        }
+      } catch (err) {
+        console.error('Error fetching order:', err);
       }
     };
 
-    fetchClientSecret();
+    fetchLoyaltyAndOrder();
   }, [orderId, navigate, showToast]);
+
+  const createPaymentIntent = useCallback(async () => {
+    try {
+      const response = await apiClient('/api/payments/create-payment-intent/stripe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          orderId: orderId,
+          loyaltyPointsToRedeem: pointsToRedeem > 0 ? pointsToRedeem : null
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to initiate payment session');
+      }
+
+      const data = await response.json();
+      setClientSecret(data);
+      console.log(data);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Could not load payment information. Please try again later.');
+    }
+  }, [orderId, pointsToRedeem]);
+
+  useEffect(() => {
+    if (!orderId) {
+      return;
+    }
+    
+    if (!loadingLoyalty) {
+      createPaymentIntent();
+    }
+  }, [orderId, loadingLoyalty, createPaymentIntent]);
+
+  const handleRedeemChange = (value: number) => {
+    const maxPoints = Math.min(loyaltyPoints, Math.floor(orderTotal * 100)); // Can't redeem more than order total
+    const newValue = Math.max(0, Math.min(value, maxPoints));
+    setPointsToRedeem(newValue);
+  };
+
+  const applyPoints = () => {
+    if (pointsToRedeem > 0) {
+      setClientSecret(null); // Reset to trigger new payment intent
+      setTimeout(() => {
+        createPaymentIntent();
+      }, 100);
+    }
+  };
+
+  const discount = pointsToRedeem / 100;
+  const finalAmount = Math.max(0, orderTotal - discount);
 
   const options = {
     clientSecret: clientSecret || "",
@@ -133,7 +195,53 @@ const PaymentPage: React.FC = () => {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
         <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">Secure Payment</h2>
-        <p className="text-center text-gray-500 mb-8">Order ID: #{orderId}</p>
+        <p className="text-center text-gray-500 mb-6">Order ID: #{orderId}</p>
+        
+        {/* Loyalty Points Section */}
+        {!loadingLoyalty && loyaltyPoints > 0 && (
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-semibold text-gray-700">Available Points:</span>
+              <span className="text-blue-600 font-bold">{loyaltyPoints}</span>
+            </div>
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Redeem Points (100 points = $1.00)
+              </label>
+              <input
+                type="number"
+                min="0"
+                max={Math.min(loyaltyPoints, Math.floor(orderTotal * 100))}
+                value={pointsToRedeem}
+                onChange={(e) => handleRedeemChange(parseInt(e.target.value) || 0)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="0"
+              />
+            </div>
+            {pointsToRedeem > 0 && (
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Original Total:</span>
+                  <span className="font-medium">${orderTotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-green-600">
+                  <span>Discount:</span>
+                  <span className="font-medium">-${discount.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between border-t pt-2 font-bold text-lg">
+                  <span>Final Total:</span>
+                  <span className="text-blue-600">${finalAmount.toFixed(2)}</span>
+                </div>
+                <button
+                  onClick={applyPoints}
+                  className="w-full mt-2 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Apply Points
+                </button>
+              </div>
+            )}
+          </div>
+        )}
         
         {error ? (
           <div className="text-red-600 text-center bg-red-50 p-4 rounded">

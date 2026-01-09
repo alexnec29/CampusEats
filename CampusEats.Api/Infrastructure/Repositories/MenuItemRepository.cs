@@ -30,10 +30,16 @@ public class MenuItemRepository : IMenuItemRepository
     }
 
     public async Task<IList<MenuItem>> GetAllAsync() =>
-        await _context.MenuItems.ToListAsync();
+        await _context.MenuItems
+            .Include(m => m.MenuItemAllergens)
+                .ThenInclude(ma => ma.Allergen)
+            .ToListAsync();
 
     public async Task<MenuItem?> GetByIdAsync(int id) =>
-        await _context.MenuItems.FindAsync(id);
+        await _context.MenuItems
+            .Include(m => m.MenuItemAllergens)
+                .ThenInclude(ma => ma.Allergen)
+            .FirstOrDefaultAsync(m => m.Id == id);
 
     public async Task UpdateAsync(MenuItem entity)
     {
@@ -42,7 +48,11 @@ public class MenuItemRepository : IMenuItemRepository
     }
 
     public async Task<IList<MenuItem>> GetAvailableMenuItemsAsync() =>
-        await _context.MenuItems.Where(m => m.IsAvailable).ToListAsync();
+        await _context.MenuItems
+            .Where(m => m.IsAvailable)
+            .Include(m => m.MenuItemAllergens)
+                .ThenInclude(ma => ma.Allergen)
+            .ToListAsync();
 
     public async Task<IList<MenuItem>> GetMenuItemsByCategoryAsync(MenuCategory category) =>
         await _context.MenuItems.Where(m => m.Category == category).ToListAsync();

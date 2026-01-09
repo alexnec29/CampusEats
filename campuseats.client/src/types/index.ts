@@ -1,3 +1,8 @@
+export interface Allergen {
+    id: number;
+    name: string;
+}
+
 export interface MenuItem {
     id: number;
     name: string;
@@ -7,6 +12,9 @@ export interface MenuItem {
     imageUrl?: string;
     isAvailable: boolean;
     createdAt: string;
+    menuItemAllergens?: Array<{
+        allergen: Allergen;
+    }>;
 }
 
 export interface Order {
