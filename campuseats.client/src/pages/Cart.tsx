@@ -279,9 +279,11 @@ const Cart: React.FC = () => {
                             max={loyaltyPoints}
                             value={pointsToRedeem}
                             onChange={(e) => {
-                                const value = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
-                                if (!isNaN(value)) {
+                                const value = Number(e.target.value);
+                                if (Number.isInteger(value) && value >= 0) {
                                     setPointsToRedeem(Math.max(0, Math.min(loyaltyPoints, value)));
+                                } else if (e.target.value === '') {
+                                    setPointsToRedeem(0);
                                 }
                             }}
                             placeholder="Puncte de folosit"

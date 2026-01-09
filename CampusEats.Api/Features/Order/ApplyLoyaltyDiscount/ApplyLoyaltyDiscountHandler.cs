@@ -1,3 +1,4 @@
+using CampusEats.Api.Infrastructure;
 using CampusEats.Api.Infrastructure.Repositories;
 using CampusEats.Api.Models;
 using CampusEats.Api.Models.Enums;
@@ -9,6 +10,7 @@ public class ApplyLoyaltyDiscountHandler(
     IOrderRepository orderRepository,
     ILoyaltyAccountRepository loyaltyAccountRepository,
     ILoyaltyTransactionRepository loyaltyTransactionRepository,
+    CampusEatsDbContext dbContext,
     ApplyLoyaltyDiscountValidator validator
 ) : IRequestHandler<ApplyLoyaltyDiscountRequest, IResult>
 {
@@ -68,7 +70,8 @@ public class ApplyLoyaltyDiscountHandler(
         {
             discountAmount = originalTotal;
             // Recalculate actual points used based on capped discount
-            actualPointsUsed = (int)Math.Ceiling(discountAmount / PointsToMoneyRate);
+            // Use Floor to ensure we never exceed available points
+            actualPointsUsed = (int)Math.Floor(discountAmount / PointsToMoneyRate);
         }
 
         // Calculate new total
@@ -92,9 +95,21 @@ public class ApplyLoyaltyDiscountHandler(
             Description = $"Redeemed for order #{order.Id} discount"
         };
 
-        await loyaltyTransactionRepository.AddAsync(transaction);
-        await loyaltyAccountRepository.UpdateAsync(loyaltyAccount);
-        await orderRepository.UpdateAsync(order);
+        // Wrap database operations in a transaction to ensure consistency
+        await using var dbTransaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            await loyaltyTransactionRepository.AddAsync(transaction);
+            await loyaltyAccountRepository.UpdateAsync(loyaltyAccount);
+            await orderRepository.UpdateAsync(order);
+            
+            await dbTransaction.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await dbTransaction.RollbackAsync(cancellationToken);
+            throw;
+        }
 
         return Results.Ok(new
         {
