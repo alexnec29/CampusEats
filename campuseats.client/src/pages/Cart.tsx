@@ -274,8 +274,17 @@ const Cart: React.FC = () => {
                                     type="number"
                                     min="0"
                                     max={loyaltyPoints}
+                                    step="1"
                                     value={pointsToRedeem}
-                                    onChange={(e) => setPointsToRedeem(Math.max(0, Math.min(loyaltyPoints, parseInt(e.target.value) || 0)))}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value === '') {
+                                            setPointsToRedeem(0);
+                                        } else {
+                                            const numValue = Math.floor(parseFloat(value));
+                                            setPointsToRedeem(Math.max(0, Math.min(loyaltyPoints, isNaN(numValue) ? 0 : numValue)));
+                                        }
+                                    }}
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                     placeholder="0"
                                 />

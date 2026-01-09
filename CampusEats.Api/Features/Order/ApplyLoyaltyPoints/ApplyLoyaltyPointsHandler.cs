@@ -61,7 +61,7 @@ public class ApplyLoyaltyPointsHandler(
         {
             loyaltyAccount.PointsBalance += order.RedeemedLoyaltyPoints;
             
-            // Remove previous transaction
+            // Create refund transaction (positive points)
             var previousTransaction = new LoyaltyTransaction
             {
                 LoyaltyAccountId = loyaltyAccount.Id,
@@ -73,7 +73,7 @@ public class ApplyLoyaltyPointsHandler(
         }
 
         // Apply new points
-        int actualPointsToRedeem = (int)Math.Floor(discountAmount / PointsToUsdConversionRate);
+        int actualPointsToRedeem = (int)Math.Floor(Math.Min(discountAmount, subtotal) / PointsToUsdConversionRate);
         discountAmount = actualPointsToRedeem * PointsToUsdConversionRate;
 
         order.RedeemedLoyaltyPoints = actualPointsToRedeem;
