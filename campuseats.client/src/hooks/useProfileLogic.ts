@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { userService } from '../services/userService';
 import { profileService } from '../services/profileService';
-import { UserInfo, BuyerProfile, KitchenProfile, PasswordChangeData } from '../types/profileTypes';
+import { UserInfo, BuyerProfile, KitchenProfile } from '../types/profileTypes';
 import { useToast } from '../context/ToastContext';
 import { useConfirm } from '../context/ConfirmContext';
 
@@ -30,11 +30,34 @@ export const useProfileLogic = () => {
     const [editKitchenProfile, setEditKitchenProfile] = useState<KitchenProfile | null>(null);
     const [loadingKitchenUpdate, setLoadingKitchenUpdate] = useState(false);
 
-    useEffect(() => {
-        loadUserData();
+    const loadBuyerProfile = useCallback(async () => {
+        try {
+            const profile = await profileService.getBuyerProfile();
+            setBuyerProfile(profile);
+        } catch (err) {
+            console.error('Failed to load buyer profile', err);
+        }
     }, []);
 
-    const loadUserData = async () => {
+    const loadKitchenProfile = useCallback(async () => {
+        try {
+            const profile = await profileService.getKitchenProfile();
+            setKitchenProfile(profile);
+        } catch (err) {
+            console.error('Failed to load kitchen profile', err);
+        }
+    }, []);
+
+    const loadLoyaltyPoints = useCallback(async () => {
+        try {
+            const points = await profileService.getLoyaltyPoints();
+            setLoyaltyPoints(points);
+        } catch (err) {
+            console.error('Failed to load loyalty account', err);
+        }
+    }, []);
+
+    const loadUserData = useCallback(async () => {
         try {
             setLoading(true);
             const userData = await userService.checkAuth();
@@ -55,34 +78,11 @@ export const useProfileLogic = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [loadBuyerProfile, loadKitchenProfile, loadLoyaltyPoints]);
 
-    const loadBuyerProfile = async () => {
-        try {
-            const profile = await profileService.getBuyerProfile();
-            setBuyerProfile(profile);
-        } catch (err) {
-            console.error('Failed to load buyer profile', err);
-        }
-    };
-
-    const loadKitchenProfile = async () => {
-        try {
-            const profile = await profileService.getKitchenProfile();
-            setKitchenProfile(profile);
-        } catch (err) {
-            console.error('Failed to load kitchen profile', err);
-        }
-    };
-
-    const loadLoyaltyPoints = async () => {
-        try {
-            const points = await profileService.getLoyaltyPoints();
-            setLoyaltyPoints(points);
-        } catch (err) {
-            console.error('Failed to load loyalty account', err);
-        }
-    };
+    useEffect(() => {
+        loadUserData();
+    }, [loadUserData]);
 
     const validatePasswordChange = (): string | null => {
         if (!currentPassword || !newPassword || !confirmPassword) {

@@ -1,131 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { apiClient } from '../utils/apiClient';
-import { Order, OrderStatus } from '../types';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
-import { useConfirm } from '../context/ConfirmContext';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../hooks/useCart';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 
 const Cart: React.FC = () => {
-  const [cart, setCart] = useState<Order | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { isAuthenticated } = useAuth();
-  const { showToast } = useToast();
-  const { confirm } = useConfirm();
+  const { cart, loading, hasItems, updateQuantity, removeItem, placeOrder } = useCart();
   const navigate = useNavigate();
 
-  const fetchCart = async () => {
-    try {
-      const response = await apiClient('/api/orders/my-orders');
-      if (response.ok) {
-        const orders: Order[] = await response.json();
-        const pendingOrder = orders.find(o => o.status === OrderStatus.Pending);
-        setCart(pendingOrder || null);
-      }
-    } catch (error) {
-      console.error('Error fetching cart:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex justify-center items-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-        navigate('/login');
-        return;
-    }
-    fetchCart();
-  }, [isAuthenticated, navigate]);
-
-  const updateQuantity = async (itemId: number, newQuantity: number) => {
-    if (!cart) return;
-    if (newQuantity < 1) return;
-
-    try {
-      const response = await apiClient(`/api/orders/${cart.id}/items/${itemId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity: newQuantity })
-      });
-
-      if (response.ok) {
-        fetchCart(); // Refresh cart
-      } else {
-        showToast('Failed to update quantity', 'error');
-      }
-    } catch (error) {
-      console.error('Error updating quantity:', error);
-      showToast('Error updating quantity', 'error');
-    }
-  };
-
-  const removeItem = async (itemId: number) => {
-    if (!cart) return;
-    
-    const confirmed = await confirm({
-        title: 'Șterge produs',
-        message: 'Ești sigur că vrei să ștergi acest produs din coș?',
-        confirmText: 'Șterge',
-        type: 'danger'
-    });
-
-    if (!confirmed) return;
-
-    try {
-      const response = await apiClient(`/api/orders/${cart.id}/items/${itemId}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        fetchCart(); // Refresh cart
-        showToast('Produs șters din coș', 'success');
-      } else {
-        showToast('Nu s-a putut șterge produsul', 'error');
-      }
-    } catch (error) {
-      console.error('Error removing item:', error);
-      showToast('Eroare la ștergerea produsului', 'error');
-    }
-  };
-
-  const placeOrder = async () => {
-    if (!cart) return;
-    
-    const confirmed = await confirm({
-        title: 'Plasează Comanda',
-        message: 'Ești sigur că vrei să plasezi comanda?',
-        confirmText: 'Plasează',
-        type: 'info'
-    });
-
-    if (!confirmed) return;
-
-    try {
-      const response = await apiClient(`/api/orders/${cart.id}/status`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: OrderStatus.Placed })
-      });
-
-      if (response.ok) {
-        showToast('Comanda a fost plasată cu succes!', 'success');
-        navigate('/payment', { state: { orderId: cart.id } });
-      } else {
-        showToast('Nu s-a putut plasa comanda', 'error');
-      }
-    } catch (error) {
-      console.error('Error placing order:', error);
-      showToast('Eroare la plasarea comenzii', 'error');
-    }
-  };
-
-  if (loading) return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex justify-center items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-    </div>
-  );
-
-  if (!cart || !cart.orderItems || cart.orderItems.length === 0) {
+  if (!hasItems || !cart) {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10 text-center max-w-md w-full transform transition-all duration-300 hover:shadow-3xl">
