@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { UtensilsCrossed, ShoppingBag, Clock, Award, Globe } from 'lucide-react';
+import { UtensilsCrossed, ShoppingBag, Clock, Award } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { landingTranslations } from '../i18n/Landing';
 
