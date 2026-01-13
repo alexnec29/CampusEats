@@ -41,7 +41,7 @@ export const landingTranslations: Record<Language, {
     cta: {
       title: 'Gata sa incepi',
       subtitle: 'Inregistreaza-te acum si bucura-te de mancare delicioasa',
-      button: 'Inregistre-te gratuit',
+      button: 'Inregistreaza-te gratuit',
     },
   },
   en: {
