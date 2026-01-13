@@ -36,8 +36,13 @@ export const useMenu = () => {
         if (!pendingOrder) {
             try {
                 pendingOrder = await orderService.createOrder('');
-            } catch (error) {
-                pendingOrder = await orderService.getPendingOrder();
+            } catch (createError) {
+                console.error('Error creating order:', createError);
+                try {
+                    pendingOrder = await orderService.getPendingOrder();
+                } catch (retryError) {
+                    console.error('Error retrying to get pending order:', retryError);
+                }
             }
         }
 

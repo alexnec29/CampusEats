@@ -5,32 +5,7 @@ import { orderService } from '../services/orderService';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useConfirm } from '../context/ConfirmContext';
-
-const STATUS_LABELS: Record<OrderStatus, string> = {
-    [OrderStatus.Inactive]: 'Inactive',
-    [OrderStatus.Pending]: 'Cart',
-    [OrderStatus.Placed]: 'Placed',
-    [OrderStatus.Paid]: 'Paid',
-    [OrderStatus.Preparing]: 'Preparing',
-    [OrderStatus.Ready]: 'Ready',
-    [OrderStatus.Completed]: 'Completed',
-    [OrderStatus.Cancelled]: 'Cancelled',
-    [OrderStatus.PendingPayment]: 'PendingPayment',
-    [OrderStatus.FailedPayment]: 'FailedPayment',
-};
-
-const STATUS_COLORS: Record<OrderStatus, string> = {
-    [OrderStatus.Inactive]: 'bg-gray-200 text-gray-600',
-    [OrderStatus.Pending]: 'bg-yellow-100 text-yellow-800',
-    [OrderStatus.Placed]: 'bg-blue-100 text-blue-800',
-    [OrderStatus.Paid]: 'bg-green-100 text-green-800',
-    [OrderStatus.Preparing]: 'bg-purple-100 text-purple-800',
-    [OrderStatus.Ready]: 'bg-green-100 text-green-800',
-    [OrderStatus.Completed]: 'bg-gray-100 text-gray-800',
-    [OrderStatus.Cancelled]: 'bg-red-100 text-red-800',
-    [OrderStatus.PendingPayment]: 'bg-yellow-100 text-yellow-800',
-    [OrderStatus.FailedPayment]: 'bg-red-100 text-red-800',
-};
+import { getOrderStatusLabel, getOrderStatusColor } from '../utils/orderUtils';
 
 export const useOrders = () => {
     const [orders, setOrders] = useState<Order[]>([]);
@@ -83,19 +58,11 @@ export const useOrders = () => {
         }
     };
 
-    const getStatusLabel = (status: OrderStatus): string => {
-        return STATUS_LABELS[status] || 'Unknown';
-    };
-
-    const getStatusColor = (status: OrderStatus): string => {
-        return STATUS_COLORS[status] || 'bg-gray-100 text-gray-800';
-    };
-
     return {
         orders,
         loading,
         removeItem,
-        getStatusLabel,
-        getStatusColor,
+        getStatusLabel: getOrderStatusLabel,
+        getStatusColor: getOrderStatusColor,
     };
 };

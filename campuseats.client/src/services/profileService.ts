@@ -53,11 +53,18 @@ export const profileService = {
     },
 
     async getLoyaltyPoints(): Promise<number | null> {
-        const res = await apiClient('/api/loyalty/account');
-        if (res.ok) {
-            const data = await res.json();
-            return data.pointsBalance;
+        try {
+            const res = await apiClient('/api/loyalty/account');
+            if (res.ok) {
+                const data = await res.json();
+                return data.pointsBalance;
+            } else if (res.status === 404) {
+                return null;
+            }
+            throw new Error('Failed to load loyalty points');
+        } catch (err) {
+            console.error('Error loading loyalty points:', err);
+            return null;
         }
-        return null;
     },
 };
