@@ -48,7 +48,6 @@ const AdminUsers: React.FC = () => {
         setSaving(true);
 
         try {
-            // Sends adjustment; backend should auto-create loyalty account if missing
             const res = await apiClient('/api/loyalty/adjust', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -95,7 +94,11 @@ const AdminUsers: React.FC = () => {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+                <div
+                    role="status"
+                    aria-label="loading"
+                    className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"
+                />
             </div>
         );
     }
@@ -149,7 +152,6 @@ const AdminUsers: React.FC = () => {
                 </tbody>
             </table>
 
-            {/* MODAL */}
             {selectedUser && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
                     <div className="bg-white rounded-lg p-6 w-96">

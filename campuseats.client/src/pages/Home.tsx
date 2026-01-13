@@ -19,7 +19,6 @@ const Home: React.FC = () => {
     const [user, setUser] = useState<UserInfo | null>(null);
     const [loadingUser, setLoadingUser] = useState(true);
 
-    // Fetch user info only if authenticated
     useEffect(() => {
         if (!isAuthenticated) {
             setLoadingUser(false);
@@ -48,7 +47,7 @@ const Home: React.FC = () => {
     if (isLoading || loadingUser) {
         return (
             <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                <div role="status" aria-label="loading" className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
             </div>
         );
     }
@@ -87,7 +86,7 @@ const Home: React.FC = () => {
 
                 {/* Quick Actions */}
                 <div className="grid md:grid-cols-3 gap-6 animate-fade-in-delay">
-                    <Link 
+                    <Link
                         to="/menu"
                         className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-blue-500"
                     >
@@ -95,8 +94,8 @@ const Home: React.FC = () => {
                         <h3 className="text-xl font-bold text-gray-900 mb-2">{template.quickActions.menu.title}</h3>
                         <p className="text-gray-600">{template.quickActions.menu.description}</p>
                     </Link>
-                    
-                    <Link 
+
+                    <Link
                         to="/orders"
                         className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-purple-500"
                     >
@@ -104,8 +103,8 @@ const Home: React.FC = () => {
                         <h3 className="text-xl font-bold text-gray-900 mb-2">{template.quickActions.orders.title}</h3>
                         <p className="text-gray-600">{template.quickActions.orders.description}</p>
                     </Link>
-                    
-                    <Link 
+
+                    <Link
                         to="/profile"
                         className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-green-500"
                     >

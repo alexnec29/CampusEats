@@ -13,7 +13,8 @@ const AuthRedirect: React.FC<AuthRedirectProps> = ({ children, redirectTo }) => 
 
     if (isLoading) return <div>Loading...</div>;
 
-    if (!isAuthenticated) return <Navigate to={redirectTo} replace />;
+    // FIX: Dacă ESTE autentificat, îl redirecționăm (ex: de la Login la Home)
+    if (isAuthenticated) return <Navigate to={redirectTo} replace />;
 
     return <>{children}</>;
 };

@@ -86,7 +86,6 @@ const KitchenOrders: React.FC = () => {
 
         order = removeOrderFromCurrentList(orderId)
 
-        // Add to new list
         if (order) {
             const updatedOrder = { ...order, status: newStatus };
             if (newStatus === OrderStatus.Preparing) {
@@ -112,7 +111,13 @@ const KitchenOrders: React.FC = () => {
         return order
     }
 
-    if (loading) return <div className="p-4">Loading kitchen dashboard...</div>;
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-64" role="status" aria-label="loading">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+            </div>
+        );
+    }
 
     const OrderCard = ({ order, actionLabel, nextStatus }: { order: Order, actionLabel: string, nextStatus: OrderStatus }) => (
         <div key={order.id} className="bg-white p-4 rounded shadow mb-4 border-l-4 border-blue-500">
@@ -152,7 +157,6 @@ const KitchenOrders: React.FC = () => {
             <h2 className="text-3xl font-bold mb-8 text-gray-800">Kitchen Dashboard</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Paid / Incoming Column */}
                 <div className="bg-gray-100 p-4 rounded-lg min-h-[500px]">
                     <h3 className="text-xl font-bold mb-4 text-gray-700 flex items-center">
                         <span className="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
@@ -172,7 +176,6 @@ const KitchenOrders: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Preparing Column */}
                 <div className="bg-gray-100 p-4 rounded-lg min-h-[500px]">
                     <h3 className="text-xl font-bold mb-4 text-gray-700 flex items-center">
                         <span className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
@@ -192,7 +195,6 @@ const KitchenOrders: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Ready Column */}
                 <div className="bg-gray-100 p-4 rounded-lg min-h-[500px]">
                     <h3 className="text-xl font-bold mb-4 text-gray-700 flex items-center">
                         <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
