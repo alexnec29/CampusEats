@@ -45,7 +45,7 @@ public class CreateAllergenHandlerTests
         CreateAllergenHandler handler = new CreateAllergenHandler(dbContext);
         
         //Act & Assert
-        var exception = await Assert.ThrowsAsync<Exception>(() => 
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => 
             handler.Handle(command, CancellationToken.None));
         
         exception.Message.Should().Contain("already exists");
@@ -65,7 +65,7 @@ public class CreateAllergenHandlerTests
         CreateAllergenHandler handler = new CreateAllergenHandler(dbContext);
         
         //Act & Assert
-        var exception = await Assert.ThrowsAsync<Exception>(() => 
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => 
             handler.Handle(command, CancellationToken.None));
         
         exception.Message.Should().Contain("already exists");
