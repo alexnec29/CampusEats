@@ -24,8 +24,6 @@ public class CreatePaymentIntentHandlerTests
         PaymentProviderFactory factory = new PaymentProviderFactory(new List<IPaymentService>());
         Mock<IMenuItemRepository> mockedMenuItemRepo = new Mock<IMenuItemRepository>();
         Mock<IOrderRepository> mockedOrderRepo = new Mock<IOrderRepository>();
-        Mock<ILoyaltyAccountRepository> mockedLoyaltyAccountRepo = new Mock<ILoyaltyAccountRepository>();
-        Mock<ILoyaltyTransactionRepository> mockedLoyaltyTransactionRepo = new Mock<ILoyaltyTransactionRepository>();
         var dbContext = DbContextHelper.CreateInMemoryDbContext();
         var config = new ConfigurationBuilder().Build();
         
@@ -33,8 +31,6 @@ public class CreatePaymentIntentHandlerTests
             factory,
             mockedMenuItemRepo.Object,
             mockedOrderRepo.Object,
-            mockedLoyaltyAccountRepo.Object,
-            mockedLoyaltyTransactionRepo.Object,
             dbContext,
             config
         );
@@ -64,8 +60,6 @@ public class CreatePaymentIntentHandlerTests
         );
         Mock<IMenuItemRepository> mockedMenuItemRepo = new Mock<IMenuItemRepository>();
         Mock<IOrderRepository> mockedOrderRepo = new Mock<IOrderRepository>();
-        Mock<ILoyaltyAccountRepository> mockedLoyaltyAccountRepo = new Mock<ILoyaltyAccountRepository>();
-        Mock<ILoyaltyTransactionRepository> mockedLoyaltyTransactionRepo = new Mock<ILoyaltyTransactionRepository>();
         var dbContext = DbContextHelper.CreateInMemoryDbContext();
         var config = new ConfigurationBuilder().Build();
         
@@ -76,8 +70,6 @@ public class CreatePaymentIntentHandlerTests
             factory,
             mockedMenuItemRepo.Object,
             mockedOrderRepo.Object,
-            mockedLoyaltyAccountRepo.Object,
-            mockedLoyaltyTransactionRepo.Object,
             dbContext,
             config
         );
@@ -119,8 +111,6 @@ public class CreatePaymentIntentHandlerTests
         );
         Mock<IMenuItemRepository> mockedMenuItemRepo = new Mock<IMenuItemRepository>();
         Mock<IOrderRepository> mockedOrderRepo = new Mock<IOrderRepository>();
-        Mock<ILoyaltyAccountRepository> mockedLoyaltyAccountRepo = new Mock<ILoyaltyAccountRepository>();
-        Mock<ILoyaltyTransactionRepository> mockedLoyaltyTransactionRepo = new Mock<ILoyaltyTransactionRepository>();
         var dbContext = DbContextHelper.CreateInMemoryDbContext();
         var config = new ConfigurationBuilder().Build();
         
@@ -134,8 +124,6 @@ public class CreatePaymentIntentHandlerTests
             factory,
             mockedMenuItemRepo.Object,
             mockedOrderRepo.Object,
-            mockedLoyaltyAccountRepo.Object,
-            mockedLoyaltyTransactionRepo.Object,
             dbContext,
             config
         );

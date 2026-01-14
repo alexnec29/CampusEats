@@ -9,8 +9,6 @@ namespace CampusEats.Api.Features.Loyalty.EarnPoints;
 
 public class EarnPointsHandler(
     IUserRepository userRepository,
-    ILoyaltyAccountRepository loyaltyAccountRepository,
-    ILoyaltyTransactionRepository loyaltyTransactionRepository,
     CampusEatsDbContext dbContext,
     IConfiguration configuration
 ) : IRequestHandler<EarnPointsRequest, IResult>

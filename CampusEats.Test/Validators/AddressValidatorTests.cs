@@ -19,17 +19,17 @@ public class AddressValidatorTests
         //Arrange
         Address address = new Address
         {
-            street = "", // Empty street
-            building = "10",
-            city = "Cluj",
-            county = "Cluj"
+            Street = "", // Empty street
+            Building = "10",
+            City = "Cluj",
+            County = "Cluj"
         };
         
         //Act
         var result = _validator.TestValidate(address);
         
         //Assert
-        result.ShouldHaveValidationErrorFor(x => x.street)
+        result.ShouldHaveValidationErrorFor(x => x.Street)
             .WithErrorMessage("Street is required");
     }
     
@@ -40,17 +40,17 @@ public class AddressValidatorTests
         string longBuilding = new string('A', 101); // 101 characters
         Address address = new Address
         {
-            street = "Main St",
-            building = longBuilding,
-            city = "Cluj",
-            county = "Cluj"
+            Street = "Main St",
+            Building = longBuilding,
+            City = "Cluj",
+            County = "Cluj"
         };
         
         //Act
         var result = _validator.TestValidate(address);
         
         //Assert
-        result.ShouldHaveValidationErrorFor(x => x.building)
+        result.ShouldHaveValidationErrorFor(x => x.Building)
             .WithErrorMessage("Building is too long");
     }
     
@@ -60,10 +60,10 @@ public class AddressValidatorTests
         //Arrange
         Address address = new Address
         {
-            street = "Main Street",
-            building = "10A",
-            city = "Cluj-Napoca",
-            county = "Cluj"
+            Street = "Main Street",
+            Building = "10A",
+            City = "Cluj-Napoca",
+            County = "Cluj"
         };
         
         //Act

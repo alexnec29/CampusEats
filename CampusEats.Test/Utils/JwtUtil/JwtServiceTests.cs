@@ -12,7 +12,7 @@ namespace CampusEats.Test.Utils.JwtUtil;
 public class JwtServiceTests
 {
     [Fact]
-    public async Task Given_User_WhenGenerateTokenIsCalled_ThenJwtIsReturned()
+    public void Given_User_WhenGenerateTokenIsCalled_ThenJwtIsReturned()
     {
         //Arrange
         Dictionary<string, string> inMemorySettings = new Dictionary<string, string> {
@@ -21,7 +21,7 @@ public class JwtServiceTests
             {"Jwt:Secret", "super-secret-testing-key-12345asdafjajfaf"}
         };
         IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(inMemorySettings)
+            .AddInMemoryCollection(inMemorySettings!)
             .Build();
         
         JwtSecurityTokenHandler jwtSecurityTokenHandler = new JwtSecurityTokenHandler();

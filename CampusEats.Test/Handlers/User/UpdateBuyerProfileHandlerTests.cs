@@ -22,7 +22,7 @@ public class UpdateBuyerProfileHandlerTests
             FirstName = "OldFirstName",
             LastName = "OldLastName",
             Age = 20,
-            DeliveryAddress = new Address { street = "Old St", building = "1", city = "Old City", county = "Old County" }
+            DeliveryAddress = new Address { Street = "Old St", Building = "1", City = "Old City", County = "Old County" }
         };
         
         UpdateBuyerProfileRequest request = new UpdateBuyerProfileRequest(
@@ -30,7 +30,7 @@ public class UpdateBuyerProfileHandlerTests
             "NewLastName",
             "NewFirstName",
             25,
-            new Address { street = "New St", building = "2", city = "New City", county = "New County" }
+            new Address { Street = "New St", Building = "2", City = "New City", County = "New County" }
         );
         
         Mock<IBuyerProfileRepository> mockedRepository = new Mock<IBuyerProfileRepository>();
@@ -50,7 +50,7 @@ public class UpdateBuyerProfileHandlerTests
             bp.FirstName == "NewFirstName" &&
             bp.LastName == "NewLastName" &&
             bp.Age == 25 &&
-            bp.DeliveryAddress.street == "New St"
+            bp.DeliveryAddress.Street == "New St"
         )), Times.Once);
     }
     
@@ -65,7 +65,7 @@ public class UpdateBuyerProfileHandlerTests
             "NewLastName",
             "NewFirstName",
             25,
-            new Address { street = "New St", building = "2", city = "New City", county = "New County" }
+            new Address { Street = "New St", Building = "2", City = "New City", County = "New County" }
         );
         
         Mock<IBuyerProfileRepository> mockedRepository = new Mock<IBuyerProfileRepository>();
@@ -86,7 +86,7 @@ public class UpdateBuyerProfileHandlerTests
             bp.FirstName == "NewFirstName" &&
             bp.LastName == "NewLastName" &&
             bp.Age == 25 &&
-            bp.DeliveryAddress.street == "New St"
+            bp.DeliveryAddress.Street == "New St"
         )), Times.Once);
     }
 }

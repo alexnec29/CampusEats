@@ -32,6 +32,69 @@ const Menu: React.FC = () => {
         fetchMenu();
     }, []);
 
+    const fetchMyOrders = async (): Promise<Order[]> => {
+        const response = await apiClient('/api/orders/my-orders');
+        if (!response.ok) {
+            return [];
+        }
+        const orders: Order[] = await response.json();
+        return orders;
+    };
+
+    const findPendingOrder = (orders: Order[]): Order | undefined =>
+        orders.find(o => o.status === OrderStatus.Pending || o.status === 0);
+
+    const getExistingPendingOrder = async (): Promise<Order | undefined> => {
+        const orders = await fetchMyOrders();
+        return findPendingOrder(orders);
+    };
+
+    const createOrderAndGetPending = async (): Promise<Order | undefined> => {
+        const createRes = await apiClient('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ notes: '' })
+        });
+
+        if (createRes.ok) {
+            return getExistingPendingOrder();
+        }
+
+        if (createRes.status === 409) {
+            try {
+                const errorData: { orderId?: number } = await createRes.json();
+                if (errorData.orderId) {
+                    return { id: errorData.orderId } as Order;
+                }
+            } catch (e) {
+                console.error('Error parsing conflict response', e);
+            }
+            return undefined;
+        }
+
+        showToast('Nu s-a putut crea comanda', 'error');
+        return undefined;
+    };
+
+    const getOrCreatePendingOrder = async (): Promise<Order | undefined> => {
+        const existingOrder = await getExistingPendingOrder();
+        if (existingOrder) {
+            return existingOrder;
+        }
+
+        return createOrderAndGetPending();
+    };
+
+    const addItemToOrderRequest = async (orderId: number, item: MenuItem): Promise<boolean> => {
+        const addRes = await apiClient(`/api/orders/${orderId}/items`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ menuItemId: item.id, quantity: 1 })
+        });
+
+        return addRes.ok;
+    };
+
     const addToOrder = async (item: MenuItem) => {
         if (!isAuthenticated) {
             navigate('/login');
@@ -39,61 +102,20 @@ const Menu: React.FC = () => {
         }
 
         try {
-            const ordersRes = await apiClient('/api/orders/my-orders');
-            let pendingOrder: Order | undefined;
-
-            if (ordersRes.ok) {
-                const orders: Order[] = await ordersRes.json();
-                pendingOrder = orders.find(o => o.status === OrderStatus.Pending || o.status === 0);
-            }
-
-            if (!pendingOrder) {
-                const createRes = await apiClient('/api/orders', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ notes: '' })
-                });
-
-                if (!createRes.ok) {
-                    if (createRes.status === 409) {
-                        try {
-                            const errorData = await createRes.json();
-                            if (errorData.orderId) {
-                                pendingOrder = { id: errorData.orderId } as Order;
-                            }
-                        } catch (e) {
-                            console.error('Error parsing conflict response', e);
-                        }
-                    } else {
-                        showToast('Nu s-a putut crea comanda', 'error');
-                        return;
-                    }
-                } else {
-                    const ordersRes2 = await apiClient('/api/orders/my-orders');
-                    if (ordersRes2.ok) {
-                        const orders: Order[] = await ordersRes2.json();
-                        pendingOrder = orders.find(o => o.status === OrderStatus.Pending || o.status === 0);
-                    }
-                }
-            }
+            const pendingOrder = await getOrCreatePendingOrder();
 
             if (!pendingOrder) {
                 showToast('Nu s-a putut crea sau găsi comanda.', 'error');
                 return;
             }
 
-            const addRes = await apiClient(`/api/orders/${pendingOrder.id}/items`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ menuItemId: item.id, quantity: 1 })
-            });
+            const addedSuccessfully = await addItemToOrderRequest(pendingOrder.id, item);
 
-            if (addRes.ok) {
+            if (addedSuccessfully) {
                 showToast(`${item.name} a fost adăugat în coș!`, 'success');
             } else {
                 showToast('Nu s-a putut adăuga produsul.', 'error');
             }
-
         } catch (error) {
             console.error('Error adding to order:', error);
             showToast('Eroare la adăugarea în coș', 'error');
@@ -117,13 +139,14 @@ const Menu: React.FC = () => {
                 showToast('Produs șters cu succes', 'success');
             }
         } catch (error) {
+            console.error('Error deleting product:', error);
             showToast('Eroare la ștergerea produsului', 'error');
         }
     };
 
     if (loading) return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex justify-center items-center">
-            <div role="status" aria-label="loading" className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            <output aria-label="loading" className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"/>
         </div>
     );
 
@@ -149,10 +172,10 @@ const Menu: React.FC = () => {
                     {menuItems.map(item => (
                         <div key={item.id} className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
                             <div className="relative h-48 bg-gray-200">
-                                {!item.imageUrl ? (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-400"><span className="text-4xl">🍽️</span></div>
-                                ) : (
+                                {item.imageUrl ? (
                                     <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-400"><span className="text-4xl">🍽️</span></div>
                                 )}
                                 {!item.isAvailable && (
                                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">

@@ -49,6 +49,7 @@ const Register: React.FC = () => {
         setError(data || 'Registration failed');
       }
     } catch (err) {
+      console.error('Registration failed:', err);
       setError('An error occurred. Please try again.');
     }
   };

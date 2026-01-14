@@ -6,7 +6,6 @@ namespace CampusEats.Api.Features.Order.AddOrderItem;
 
 public class AddOrderItemHandler(
     IOrderRepository orderRepository,
-    IOrderItemRepository orderItemRepository,
     IMenuItemRepository menuItemRepository,
     AddOrderItemValidator validator
 ) : IRequestHandler<AddOrderItemRequest, IResult>

@@ -19,13 +19,13 @@ public class UpdateKitchenProfileHandlerTests
             Id = Guid.NewGuid(),
             UserId = userId,
             CompanyName = "Old Kitchen",
-            KitchenAddress = new Address { street = "Old St", building = "1", city = "Old City", county = "Old County" }
+            KitchenAddress = new Address { Street = "Old St", Building = "1", City = "Old City", County = "Old County" }
         };
         
         UpdateKitchenProfileRequest request = new UpdateKitchenProfileRequest(
             userId,
             "New Kitchen",
-            new Address { street = "New St", building = "2", city = "New City", county = "New County" },
+            new Address { Street = "New St", Building = "2", City = "New City", County = "New County" },
             new WeeklyWorkingHours()
         );
         
@@ -44,7 +44,7 @@ public class UpdateKitchenProfileHandlerTests
         
         mockedRepository.Verify(repo => repo.UpdateAsync(It.Is<KitchenProfile>(kp =>
             kp.CompanyName == "New Kitchen" &&
-            kp.KitchenAddress.street == "New St"
+            kp.KitchenAddress.Street == "New St"
         )), Times.Once);
     }
     
@@ -57,7 +57,7 @@ public class UpdateKitchenProfileHandlerTests
         UpdateKitchenProfileRequest request = new UpdateKitchenProfileRequest(
             userId,
             "New Kitchen",
-            new Address { street = "New St", building = "2", city = "New City", county = "New County" },
+            new Address { Street = "New St", Building = "2", City = "New City", County = "New County" },
             new WeeklyWorkingHours()
         );
         
@@ -77,7 +77,7 @@ public class UpdateKitchenProfileHandlerTests
         mockedRepository.Verify(repo => repo.AddAsync(It.Is<KitchenProfile>(kp =>
             kp.UserId == userId &&
             kp.CompanyName == "New Kitchen" &&
-            kp.KitchenAddress.street == "New St"
+            kp.KitchenAddress.Street == "New St"
         )), Times.Once);
     }
 }

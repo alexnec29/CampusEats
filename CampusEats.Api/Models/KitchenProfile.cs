@@ -7,7 +7,7 @@ public class KitchenProfile
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
-    public string CompanyName { get; set; }
-    public Address KitchenAddress { get; set; }
-    public WeeklyWorkingHours WeeklyWorkingHours { get; set; }
+    public string CompanyName { get; set; } = string.Empty;
+    public Address KitchenAddress { get; set; } = new Address();
+    public WeeklyWorkingHours WeeklyWorkingHours { get; set; } = new WeeklyWorkingHours();
 }

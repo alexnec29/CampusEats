@@ -24,7 +24,7 @@ public class UpdateBuyerProfileValidatorTests
             "Doe",
             "", // Empty FirstName
             25,
-            new Address { street = "Main St", building = "10", city = "Cluj", county = "Cluj" }
+            new Address { Street = "Main St", Building = "10", City = "Cluj", County = "Cluj" }
         );
         
         //Act
@@ -44,7 +44,7 @@ public class UpdateBuyerProfileValidatorTests
             "Doe",
             "John",
             0, // Invalid age
-            new Address { street = "Main St", building = "10", city = "Cluj", county = "Cluj" }
+            new Address { Street = "Main St", Building = "10", City = "Cluj", County = "Cluj" }
         );
         
         //Act
@@ -64,14 +64,14 @@ public class UpdateBuyerProfileValidatorTests
             "Doe",
             "John",
             25,
-            new Address { street = "", building = "10", city = "Cluj", county = "Cluj" } // Empty street
+            new Address { Street = "", Building = "10", City = "Cluj", County = "Cluj" } // Empty street
         );
         
         //Act
         var result = _validator.TestValidate(request);
         
         //Assert
-        result.ShouldHaveValidationErrorFor(x => x.DeliveryAddress.street)
+        result.ShouldHaveValidationErrorFor(x => x.DeliveryAddress.Street)
             .WithErrorMessage("Street is required");
     }
 }

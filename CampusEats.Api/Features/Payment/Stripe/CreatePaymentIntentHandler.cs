@@ -12,8 +12,6 @@ public class CreatePaymentIntentHandler(
     PaymentProviderFactory paymentProviderFactory, 
     IMenuItemRepository menuItemRepository,
     IOrderRepository orderRepository,
-    ILoyaltyAccountRepository loyaltyAccountRepository,
-    ILoyaltyTransactionRepository loyaltyTransactionRepository,
     CampusEatsDbContext dbContext,
     IConfiguration configuration
     ) : IRequestHandler<CreatePaymentIntentRequest, IResult>

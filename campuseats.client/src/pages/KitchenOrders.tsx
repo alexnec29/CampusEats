@@ -5,6 +5,46 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
 
+type OrderCardProps = {
+    order: Order;
+    actionLabel: string;
+    onUpdateStatus: () => void;
+    onCancel: () => void;
+};
+
+const OrderCard: React.FC<OrderCardProps> = ({ order, actionLabel, onUpdateStatus, onCancel }) => (
+    <div className="bg-white p-4 rounded shadow mb-4 border-l-4 border-blue-500">
+        <div className="flex justify-between items-start mb-2">
+            <span className="font-bold text-lg">#{order.id}</span>
+            <span className="text-sm text-gray-500">{new Date(order.orderDate).toLocaleTimeString()}</span>
+        </div>
+        <div className="mb-4">
+            <ul className="text-sm">
+                {order.orderItems?.map(item => (
+                    <li key={item.id} className="flex justify-between">
+                        <span>{item.quantity}x {item.menuItem?.name || 'Unknown'}</span>
+                    </li>
+                ))}
+            </ul>
+            {order.notes && <p className="text-xs text-gray-500 mt-2 italic">Note: {order.notes}</p>}
+        </div>
+        <div className="flex flex-row gap-3">
+            <button
+                onClick={onUpdateStatus}
+                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition text-sm font-semibold"
+            >
+                {actionLabel}
+            </button>
+            <button
+                onClick={onCancel}
+                className="w-full bg-red-100 text-red-600 py-2 rounded hover:bg-red-200 transition text-sm font-semibold"
+            >
+                Cancel
+            </button>
+        </div>
+    </div>
+);
+
 const KitchenOrders: React.FC = () => {
     const [paidOrders, setPaidOrders] = useState<Order[]>([]);
     const [preparingOrders, setPreparingOrders] = useState<Order[]>([]);
@@ -113,44 +153,11 @@ const KitchenOrders: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-64" role="status" aria-label="loading">
+            <output className="flex justify-center items-center h-64" aria-label="loading">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
-            </div>
+            </output>
         );
     }
-
-    const OrderCard = ({ order, actionLabel, nextStatus }: { order: Order, actionLabel: string, nextStatus: OrderStatus }) => (
-        <div key={order.id} className="bg-white p-4 rounded shadow mb-4 border-l-4 border-blue-500">
-            <div className="flex justify-between items-start mb-2">
-                <span className="font-bold text-lg">#{order.id}</span>
-                <span className="text-sm text-gray-500">{new Date(order.orderDate).toLocaleTimeString()}</span>
-            </div>
-            <div className="mb-4">
-                <ul className="text-sm">
-                    {order.orderItems?.map(item => (
-                        <li key={item.id} className="flex justify-between">
-                            <span>{item.quantity}x {item.menuItem?.name || 'Unknown'}</span>
-                        </li>
-                    ))}
-                </ul>
-                {order.notes && <p className="text-xs text-gray-500 mt-2 italic">Note: {order.notes}</p>}
-            </div>
-            <div className="flex flex-row gap-3">
-                <button
-                    onClick={() => updateStatus(order.id, nextStatus)}
-                    className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition text-sm font-semibold"
-                >
-                    {actionLabel}
-                </button>
-                <button
-                    onClick={() => cancelOrder(order.id)}
-                    className="w-full bg-red-100 text-red-600 py-2 rounded hover:bg-red-200 transition text-sm font-semibold"
-                >
-                    Cancel
-                </button>
-            </div>
-        </div>
-    );
 
     return (
         <div className="p-6">
@@ -160,7 +167,7 @@ const KitchenOrders: React.FC = () => {
                 <div className="bg-gray-100 p-4 rounded-lg min-h-[500px]">
                     <h3 className="text-xl font-bold mb-4 text-gray-700 flex items-center">
                         <span className="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
-                        Incoming (Paid)
+                        {" "}Incoming (Paid)
                         <span className="ml-auto bg-gray-200 text-gray-600 text-sm px-2 py-1 rounded-full">{paidOrders.length}</span>
                     </h3>
                     <div className="space-y-4">
@@ -170,7 +177,8 @@ const KitchenOrders: React.FC = () => {
                                 key={order.id}
                                 order={order}
                                 actionLabel="Start Preparing"
-                                nextStatus={OrderStatus.Preparing}
+                                onUpdateStatus={() => updateStatus(order.id, OrderStatus.Preparing)}
+                                onCancel={() => cancelOrder(order.id)}
                             />
                         ))}
                     </div>
@@ -179,7 +187,7 @@ const KitchenOrders: React.FC = () => {
                 <div className="bg-gray-100 p-4 rounded-lg min-h-[500px]">
                     <h3 className="text-xl font-bold mb-4 text-gray-700 flex items-center">
                         <span className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
-                        Preparing
+                        {" "}Preparing
                         <span className="ml-auto bg-gray-200 text-gray-600 text-sm px-2 py-1 rounded-full">{preparingOrders.length}</span>
                     </h3>
                     <div className="space-y-4">
@@ -189,7 +197,8 @@ const KitchenOrders: React.FC = () => {
                                 key={order.id}
                                 order={order}
                                 actionLabel="Mark Ready"
-                                nextStatus={OrderStatus.Ready}
+                                onUpdateStatus={() => updateStatus(order.id, OrderStatus.Ready)}
+                                onCancel={() => cancelOrder(order.id)}
                             />
                         ))}
                     </div>
@@ -198,7 +207,7 @@ const KitchenOrders: React.FC = () => {
                 <div className="bg-gray-100 p-4 rounded-lg min-h-[500px]">
                     <h3 className="text-xl font-bold mb-4 text-gray-700 flex items-center">
                         <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
-                        Ready for Pickup
+                        {" "}Ready for Pickup
                         <span className="ml-auto bg-gray-200 text-gray-600 text-sm px-2 py-1 rounded-full">{readyOrders.length}</span>
                     </h3>
                     <div className="space-y-4">
@@ -208,7 +217,8 @@ const KitchenOrders: React.FC = () => {
                                 key={order.id}
                                 order={order}
                                 actionLabel="Complete Order"
-                                nextStatus={OrderStatus.Completed}
+                                onUpdateStatus={() => updateStatus(order.id, OrderStatus.Completed)}
+                                onCancel={() => cancelOrder(order.id)}
                             />
                         ))}
                     </div>

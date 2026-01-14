@@ -8,9 +8,6 @@ public static class DbInitializer
 {
     public static async Task InitializeAsync(CampusEatsDbContext context)
     {
-        // Aplică toate migrations
-        // await context.Database.MigrateAsync();
-
         // --- Seed Allergens (exemplu) ---
         if (!await context.Allergens.AnyAsync())
         {

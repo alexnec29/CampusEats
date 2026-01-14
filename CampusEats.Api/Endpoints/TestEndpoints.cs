@@ -125,8 +125,7 @@ public static class TestEndpoints
             }
             catch (Exception ex)
             {
-                var inner = ex.InnerException != null ? ex.InnerException.Message : "No inner exception";
-                return Results.Problem($"Exception: {ex.Message}, Inner: {inner}");
+                return Results.Problem($"Exception: {ex.Message}");
             }
         });
 
@@ -179,8 +178,7 @@ public static class TestEndpoints
             }
             catch (Exception ex)
             {
-                var inner = ex.InnerException != null ? ex.InnerException.Message : "No inner exception";
-                return Results.Problem($"Exception: {ex.Message}, Inner: {inner}");
+                return Results.Problem($"Exception: {ex.Message}");
             }
         });
 
@@ -261,8 +259,7 @@ public static class TestEndpoints
             }
             catch (Exception ex)
             {
-                var inner = ex.InnerException != null ? ex.InnerException.Message : "No inner exception";
-                return Results.Problem($"Exception: {ex.Message}, Inner: {inner}");
+                return Results.Problem($"Exception: {ex.Message}");
             }
         });
 
@@ -270,9 +267,9 @@ public static class TestEndpoints
             "pong"
             + httpContext.User.FindFirstValue(ClaimTypes.Role)
             + httpContext.User.FindFirstValue(ClaimTypes.Name)
-        ).RequireAuthorization("Buyer");
+        ).RequireAuthorization(nameof(AuthorizationPolicies.BuyerPolicy));
 
         api.MapGet("/ping-admin", () =>
-            "pong-admin").RequireAuthorization("Admin");
+            "pong-admin").RequireAuthorization(nameof(AuthorizationPolicies.AdminPolicy));
     }
 }

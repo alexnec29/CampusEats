@@ -5,11 +5,11 @@ namespace CampusEats.Api.Models;
 [Owned]
 public class WeeklyWorkingHours
 {
-    public WorkingHours Monday { get; set; }
-    public WorkingHours Tuesday { get; set; }
-    public WorkingHours Wednesday { get; set; }
-    public WorkingHours Thursday { get; set; }
-    public WorkingHours Friday { get; set; }
-    public WorkingHours Saturday { get; set; }
-    public WorkingHours Sunday { get; set; }
+    public WorkingHours Monday { get; set; } = new WorkingHours();
+    public WorkingHours Tuesday { get; set; } = new WorkingHours();
+    public WorkingHours Wednesday { get; set; } = new WorkingHours();
+    public WorkingHours Thursday { get; set; } = new WorkingHours();
+    public WorkingHours Friday { get; set; } = new WorkingHours();
+    public WorkingHours Saturday { get; set; } = new WorkingHours();
+    public WorkingHours Sunday { get; set; } = new WorkingHours();
 }

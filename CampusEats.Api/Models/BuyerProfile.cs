@@ -7,8 +7,8 @@ public class BuyerProfile
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
-    public string LastName { get; set; }
-    public string FirstName { get; set; }
+    public string LastName { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
     public int Age { get; set; }
-    public Address DeliveryAddress { get; set; }
+    public Address DeliveryAddress { get; set; } = new Address();
 }

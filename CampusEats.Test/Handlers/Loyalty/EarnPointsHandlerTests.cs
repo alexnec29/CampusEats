@@ -28,9 +28,8 @@ public class EarnPointsHandlerTests
 
         var userRepo = new UserRepository(dbContext);
         var loyaltyAccountRepo = new LoyaltyAccountRepository(dbContext);
-        var loyaltyTransactionRepo = new LoyaltyTransactionRepository(dbContext);
 
-        var handler = new EarnPointsHandler(userRepo, loyaltyAccountRepo, loyaltyTransactionRepo, dbContext, config);
+        var handler = new EarnPointsHandler(userRepo, dbContext, config);
         var request = new EarnPointsRequest(user.Id, 1, 50.00m);
 
         // Act
@@ -40,7 +39,7 @@ public class EarnPointsHandlerTests
         result.Should().NotBeNull();
         var account = await loyaltyAccountRepo.GetByUserIdAsync(user.Id);
         account.Should().NotBeNull();
-        account!.PointsBalance.Should().Be(50);
+        account.PointsBalance.Should().Be(50);
     }
 
     [Fact]
@@ -65,9 +64,8 @@ public class EarnPointsHandlerTests
 
         var userRepo = new UserRepository(dbContext);
         var loyaltyAccountRepo = new LoyaltyAccountRepository(dbContext);
-        var loyaltyTransactionRepo = new LoyaltyTransactionRepository(dbContext);
 
-        var handler = new EarnPointsHandler(userRepo, loyaltyAccountRepo, loyaltyTransactionRepo, dbContext, config);
+        var handler = new EarnPointsHandler(userRepo, dbContext, config);
         var request = new EarnPointsRequest(user.Id, 1, 25.50m);
 
         // Act
@@ -77,6 +75,6 @@ public class EarnPointsHandlerTests
         result.Should().NotBeNull();
         var updatedAccount = await loyaltyAccountRepo.GetByUserIdAsync(user.Id);
         updatedAccount.Should().NotBeNull();
-        updatedAccount!.PointsBalance.Should().Be(125); // 100 + 25 points
+        updatedAccount.PointsBalance.Should().Be(125); // 100 + 25 points
     }
 }

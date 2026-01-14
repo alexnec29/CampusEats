@@ -94,8 +94,7 @@ const AdminUsers: React.FC = () => {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
-                <div
-                    role="status"
+                <output
                     aria-label="loading"
                     className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"
                 />
@@ -168,7 +167,7 @@ const AdminUsers: React.FC = () => {
                             type="number"
                             placeholder="+ / -"
                             value={delta}
-                            onChange={(e) => setDelta(parseInt(e.target.value) || 0)}
+                            onChange={(e) => setDelta(Number.parseInt(e.target.value) || 0)}
                             className="border px-3 py-1 w-full mb-4"
                         />
 
