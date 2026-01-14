@@ -24,10 +24,10 @@ public class CreateAllergenHandler : IRequestHandler<CreateAllergen.CreateAllerg
     public async Task<AllergenResponse> Handle(CreateAllergen.CreateAllergenCommand request, CancellationToken cancellationToken)
     {
         
-        if (await _context.Allergens.AnyAsync(a => a.Name.ToLower() == request.Name.ToLower(), cancellationToken))
+        if (await _context.Allergens.AnyAsync(a => string.Equals(a.Name.ToLower(), request.Name.ToLower()), cancellationToken))
         {
             
-            throw new Exception("Allergen with this name already exists.");
+            throw new InvalidOperationException("Allergen with this name already exists.");
         }
 
         

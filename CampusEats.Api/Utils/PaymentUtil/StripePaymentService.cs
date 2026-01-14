@@ -81,9 +81,9 @@ public class StripePaymentService(
                 _ => OrderStatus.Cancelled
             };
 
-            logger.LogInformation($"Payment intent: {stripeEvent.Type}, success: true");
+            logger.LogInformation("Payment intent: {EventType}, success: true", stripeEvent.Type);
             await ordersRepository.UpdateAsync(order);
-            logger.LogInformation($"Order status: {order.Status}");
+            logger.LogInformation("Order status: {OrderStatus}", order.Status);
         }
         catch (Exception ex)
         {
@@ -112,7 +112,7 @@ public class StripePaymentService(
         }
         catch (StripeException e)
         {
-            logger.LogError("Error: {Error}", e);
+            logger.LogError(e, "Error: {ErrorMessage}", e.Message);
             return (false, e.StripeError.Message);
         }
     }

@@ -13,6 +13,24 @@ import {
   LogOut 
 } from 'lucide-react';
 
+const LinkItem = ({ to, icon: Icon, label, active }: { to: string; icon: React.ElementType; label: string; active: boolean }) => {
+  return (
+    <li>
+      <Link 
+        to={to} 
+        className={`flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-all duration-200 group ${
+          active 
+            ? 'bg-blue-50 text-blue-600 font-medium shadow-sm' 
+            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+        }`}
+      >
+        <Icon className={`w-5 h-5 ${active ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}`} />
+        <span>{label}</span>
+      </Link>
+    </li>
+  );
+};
+
 const Sidebar: React.FC = () => {
   const { isAuthenticated, userRole, checkAuthStatus } = useAuth();
   const navigate = useNavigate();
@@ -32,25 +50,6 @@ const Sidebar: React.FC = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const LinkItem = ({ to, icon: Icon, label }: { to: string; icon: React.ElementType; label: string }) => {
-    const active = isActive(to);
-    return (
-      <li>
-        <Link 
-          to={to} 
-          className={`flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-all duration-200 group ${
-            active 
-              ? 'bg-blue-50 text-blue-600 font-medium shadow-sm' 
-              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-          }`}
-        >
-          <Icon className={`w-5 h-5 ${active ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}`} />
-          <span>{label}</span>
-        </Link>
-      </li>
-    );
-  };
-
   return (
       <aside className="w-64 bg-white border-r border-gray-200 min-h-screen p-6 flex flex-col shadow-sm">
         <div className="flex flex-col space-y-8">
@@ -59,10 +58,10 @@ const Sidebar: React.FC = () => {
               Navigare
             </h3>
             <ul className="flex flex-col space-y-1">
-              <LinkItem to="/home" icon={Home} label="Home" />
-              <LinkItem to="/menu" icon={UtensilsCrossed} label="Meniu" />
+              <LinkItem to="/home" icon={Home} label="Home" active={isActive('/home')} />
+              <LinkItem to="/menu" icon={UtensilsCrossed} label="Meniu" active={isActive('/menu')} />
               {(userRole === 'Buyer' || userRole === 'Admin') && (
-                <LinkItem to="/orders" icon={ShoppingBag} label="Comenzi" />
+                <LinkItem to="/orders" icon={ShoppingBag} label="Comenzi" active={isActive('/orders')} />
               )}
             </ul>
           </div>
@@ -75,11 +74,11 @@ const Sidebar: React.FC = () => {
                     Administrare
                   </h3>
                   <ul className="flex flex-col space-y-1">
-                    <LinkItem to="/kitchen-orders" icon={ChefHat} label="Kitchen Dashboard" />
-                    <LinkItem to="/add-menu-item" icon={PlusCircle} label="Adaugă produs" />
+                    <LinkItem to="/kitchen-orders" icon={ChefHat} label="Kitchen Dashboard" active={isActive('/kitchen-orders')} />
+                    <LinkItem to="/add-menu-item" icon={PlusCircle} label="Adaugă produs" active={isActive('/add-menu-item')} />
 
                     {userRole === 'Admin' && (
-                      <LinkItem to="/admin" icon={LayoutDashboard} label="Admin Dashboard" />
+                      <LinkItem to="/admin" icon={LayoutDashboard} label="Admin Dashboard" active={isActive('/admin')} />
                     )}
                   </ul>
                 </div>
@@ -93,7 +92,7 @@ const Sidebar: React.FC = () => {
               Contul meu
             </h3>
             <ul className="flex flex-col space-y-1">
-              <LinkItem to="/profile" icon={User} label="Profil" />
+              <LinkItem to="/profile" icon={User} label="Profil" active={isActive('/profile')} />
               <li>
                 <button
                     onClick={handleLogout}

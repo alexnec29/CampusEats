@@ -29,7 +29,7 @@ public class UpdateOrderItemQuantityHandler(
         return Results.Ok();
     }
 
-    private void RecalculateOrderTotal(Models.Order order)
+    private static void RecalculateOrderTotal(Models.Order order)
     {
         order.TotalAmount = order.OrderItems.Sum(i => i.Quantity * i.Price);
     }

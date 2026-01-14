@@ -19,7 +19,7 @@ public class UpdateOrderStatusValidator : AbstractValidator<UpdateOrderStatusReq
             .IsInEnum().WithMessage("Invalid status value.");
     }
 
-    public bool IsTransitionAllowed(OrderStatus current, OrderStatus next)
+    public static bool IsTransitionAllowed(OrderStatus current, OrderStatus next)
     {
         return AllowedTransitions.TryGetValue(current, out var allowed) && allowed.Contains(next);
     }

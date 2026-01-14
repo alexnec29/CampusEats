@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using CampusEats.Api.Features.Allergen;
 using CampusEats.Api.Features.Allergen.DTOs;
+using CampusEats.Api.Models.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,14 +20,14 @@ public static class AllergenEndpoints
             var result = await mediator.Send(new GetAllergenById.GetAllergenByIdQuery(id));
             return result != null ? Results.Ok(result) : Results.NotFound();
         }).WithName("GetByIdAllergen")
-          .RequireAuthorization("AllRoles");
+          .RequireAuthorization(nameof(AuthorizationPolicies.AllRolesPolicy));
 
         group.MapGet("/", async (IMediator mediator) =>
         {
             var result = await mediator.Send(new GetAllAllergens.GetAllAllergensQuery());
             return Results.Ok(result); 
         }).WithName("GetAllAllergens")
-          .RequireAuthorization("AllRoles");
+          .RequireAuthorization(nameof(AuthorizationPolicies.AllRolesPolicy));
 
         group.MapPost("/", async ([FromBody] CreateAllergenRequest request, IMediator mediator) =>
         {
@@ -45,7 +46,8 @@ public static class AllergenEndpoints
         })
         .Accepts<CreateAllergenRequest>(MediaTypeNames.Application.Json)
         .WithName("CreateAllergen")
-        .RequireAuthorization("Kitchen");
+        .RequireAuthorization(nameof(AuthorizationPolicies.KitchenPolicy));
+        
         group.MapDelete("/{id:int}", async (int id, IMediator mediator) =>
         {
             try
@@ -58,6 +60,6 @@ public static class AllergenEndpoints
                 return Results.NotFound(); 
             }
         }).WithName("DeleteAllergen")
-          .RequireAuthorization("Kitchen");
+          .RequireAuthorization(nameof(AuthorizationPolicies.KitchenPolicy));
     }
 }

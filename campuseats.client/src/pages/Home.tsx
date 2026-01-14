@@ -47,7 +47,7 @@ const Home: React.FC = () => {
     if (isLoading || loadingUser) {
         return (
             <div className="flex justify-center items-center h-64">
-                <div role="status" aria-label="loading" className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                <output aria-label="loading" className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"/>
             </div>
         );
     }

@@ -27,7 +27,7 @@ const Orders: React.FC = () => {
                     const data: Order[] = await response.json();
                     const placedOrders = data.filter(o => o.status !== OrderStatus.Pending);
 
-                    const sorted = placedOrders.sort((a: Order, b: Order) =>
+                    const sorted = placedOrders.toSorted((a: Order, b: Order) =>
                         new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
                     );
                     setOrders(sorted);
@@ -91,7 +91,7 @@ const Orders: React.FC = () => {
                 const ordersRes = await apiClient('/api/orders/my-orders');
                 if (ordersRes.ok) {
                     const data = await ordersRes.json();
-                    const sorted = data.sort((a: Order, b: Order) =>
+                    const sorted = data.toSorted((a: Order, b: Order) =>
                         new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
                     );
                     setOrders(sorted);
@@ -108,9 +108,9 @@ const Orders: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="p-4" role="status" aria-label="loading">
+            <output className="p-4" aria-label="loading">
                 Loading orders...
-            </div>
+            </output>
         );
     }
 

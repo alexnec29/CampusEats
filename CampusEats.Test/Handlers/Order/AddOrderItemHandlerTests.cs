@@ -16,7 +16,6 @@ public class AddOrderItemHandlerTests
         AddOrderItemRequest request = new AddOrderItemRequest(nonExistentOrderId, 1, 2);
         
         Mock<IOrderRepository> mockedOrderRepo = new Mock<IOrderRepository>();
-        Mock<IOrderItemRepository> mockedOrderItemRepo = new Mock<IOrderItemRepository>();
         Mock<IMenuItemRepository> mockedMenuItemRepo = new Mock<IMenuItemRepository>();
         AddOrderItemValidator validator = new AddOrderItemValidator(mockedMenuItemRepo.Object);
         
@@ -25,7 +24,6 @@ public class AddOrderItemHandlerTests
         
         AddOrderItemHandler handler = new AddOrderItemHandler(
             mockedOrderRepo.Object,
-            mockedOrderItemRepo.Object,
             mockedMenuItemRepo.Object,
             validator
         );
@@ -54,7 +52,6 @@ public class AddOrderItemHandlerTests
         };
         
         Mock<IOrderRepository> mockedOrderRepo = new Mock<IOrderRepository>();
-        Mock<IOrderItemRepository> mockedOrderItemRepo = new Mock<IOrderItemRepository>();
         Mock<IMenuItemRepository> mockedMenuItemRepo = new Mock<IMenuItemRepository>();
         AddOrderItemValidator validator = new AddOrderItemValidator(mockedMenuItemRepo.Object);
         
@@ -63,7 +60,6 @@ public class AddOrderItemHandlerTests
         
         AddOrderItemHandler handler = new AddOrderItemHandler(
             mockedOrderRepo.Object,
-            mockedOrderItemRepo.Object,
             mockedMenuItemRepo.Object,
             validator
         );

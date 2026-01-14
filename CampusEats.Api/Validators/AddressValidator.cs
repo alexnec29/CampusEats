@@ -7,19 +7,19 @@ public class AddressValidator : AbstractValidator<Address>
 {
     public AddressValidator()
     {
-        RuleFor(a => a.street)
+        RuleFor(a => a.Street)
             .NotEmpty().WithMessage("Street is required")
             .MaximumLength(200).WithMessage("Street is too long");
 
-        RuleFor(a => a.building)
+        RuleFor(a => a.Building)
             .NotEmpty().WithMessage("Building is required")
             .MaximumLength(100).WithMessage("Building is too long");
 
-        RuleFor(a => a.city)
+        RuleFor(a => a.City)
             .NotEmpty().WithMessage("City is required")
             .MaximumLength(100).WithMessage("City is too long");
 
-        RuleFor(a => a.county)
+        RuleFor(a => a.County)
             .NotEmpty().WithMessage("County is required")
             .MaximumLength(100).WithMessage("County is too long");
     }

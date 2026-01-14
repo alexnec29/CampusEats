@@ -35,10 +35,10 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =
 });
 
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("AllRoles", policy => policy.RequireRole(nameof(Role.Kitchen), nameof(Role.Buyer), nameof(Role.Admin)))
-    .AddPolicy("Admin", policy => policy.RequireRole(nameof(Role.Admin)))
-    .AddPolicy("Buyer", policy => policy.RequireRole(nameof(Role.Buyer), nameof(Role.Admin)))
-    .AddPolicy("Kitchen", policy => policy.RequireRole(nameof(Role.Kitchen), nameof(Role.Admin)));
+    .AddPolicy(nameof(AuthorizationPolicies.AllRolesPolicy), policy => policy.RequireRole(nameof(Role.Kitchen), nameof(Role.Buyer), nameof(Role.Admin)))
+    .AddPolicy(nameof(AuthorizationPolicies.AdminPolicy), policy => policy.RequireRole(nameof(Role.Admin)))
+    .AddPolicy(nameof(AuthorizationPolicies.BuyerPolicy), policy => policy.RequireRole(nameof(Role.Buyer), nameof(Role.Admin)))
+    .AddPolicy(nameof(AuthorizationPolicies.KitchenPolicy), policy => policy.RequireRole(nameof(Role.Kitchen), nameof(Role.Admin)));
 
 
 builder.Services.AddOpenApi();

@@ -38,6 +38,6 @@ public class ValidationBehavior<TRequest, TResponse>
             }
         }
 
-        return await next();
+        return await next(cancellationToken);
     }
 }

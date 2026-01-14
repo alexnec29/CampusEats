@@ -30,7 +30,7 @@ const PaymentFormInner: React.FC = () => {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `${window.location.origin}/orders`,
+        return_url: `${globalThis.location.origin}/orders`,
       },
     });
 
@@ -129,26 +129,36 @@ const PaymentPage: React.FC = () => {
     },
   };
 
+  let content: React.ReactNode;
+
+  if (error) {
+    content = (
+      <div className="text-red-600 text-center bg-red-50 p-4 rounded">
+        {error}
+      </div>
+    );
+  } else if (clientSecret) {
+    content = (
+      <Elements stripe={stripePromise} options={options}>
+        <PaymentFormInner />
+      </Elements>
+    );
+  } else {
+    content = (
+      <div className="flex justify-center items-center py-10">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+        <span className="ml-3 text-gray-600">Loading secure checkout...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
         <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">Secure Payment</h2>
         <p className="text-center text-gray-500 mb-8">Order ID: #{orderId}</p>
         
-        {error ? (
-          <div className="text-red-600 text-center bg-red-50 p-4 rounded">
-            {error}
-          </div>
-        ) : clientSecret ? (
-          <Elements stripe={stripePromise} options={options}>
-            <PaymentFormInner />
-          </Elements>
-        ) : (
-          <div className="flex justify-center items-center py-10">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-            <span className="ml-3 text-gray-600">Loading secure checkout...</span>
-          </div>
-        )}
+        {content}
       </div>
     </div>
   );

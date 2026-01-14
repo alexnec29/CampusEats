@@ -47,7 +47,7 @@ public class GetBuyerProfileByUserIdHandlerTests
             FirstName = "John",
             LastName = "Doe",
             Age = 25,
-            DeliveryAddress = new Address { street = "Main St", building = "10", city = "Cluj", county = "Cluj" }
+            DeliveryAddress = new Address { Street = "Main St", Building = "10", City = "Cluj", County = "Cluj" }
         };
         
         mockedRepository.Setup(repo => repo.GetByUserIdAsync(userId))
@@ -65,6 +65,6 @@ public class GetBuyerProfileByUserIdHandlerTests
         okResult.Value.FirstName.Should().Be("John");
         okResult.Value.LastName.Should().Be("Doe");
         okResult.Value.Age.Should().Be(25);
-        okResult.Value.DeliveryAddress.street.Should().Be("Main St");
+        okResult.Value.DeliveryAddress.Street.Should().Be("Main St");
     }
 }

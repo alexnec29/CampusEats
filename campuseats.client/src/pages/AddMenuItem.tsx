@@ -33,7 +33,7 @@ const AddMenuItem: React.FC = () => {
     try {
       const payload = {
         ...formData,
-        price: parseFloat(formData.price),
+        price: Number.parseFloat(formData.price),
         category: Number(formData.category)
       };
 
@@ -109,7 +109,7 @@ const AddMenuItem: React.FC = () => {
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
             >
               {Object.keys(MenuCategory)
-                  .filter(key => isNaN(Number(key)))
+                  .filter(key => Number.isNaN(Number(key)))
                   .map(key => (
                       <option key={key} value={MenuCategory[key as keyof typeof MenuCategory]}>
                         {key}

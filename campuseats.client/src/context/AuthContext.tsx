@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useContext, ReactNode, useMemo, useCallback } from 'react';
 import { apiClient } from '../utils/apiClient';
 
 interface AuthContextType {
@@ -15,7 +15,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const checkAuthStatus = async () => {
+  const checkAuthStatus = useCallback(async () => {
     try {
       const response = await apiClient('/api/user/check-auth');
       if (response.ok) {
@@ -27,19 +27,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUserRole(null);
       }
     } catch (error) {
+      console.error("Authentication check failed:", error);
       setIsAuthenticated(false);
       setUserRole(null);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  const authContextValue = useMemo(
+    () => ({
+      isAuthenticated,
+      userRole,
+      isLoading,
+      checkAuthStatus,
+    }),
+    [isAuthenticated, userRole, isLoading, checkAuthStatus]
+  );
 
   useEffect(() => {
     checkAuthStatus();
-  }, []);
+  }, [checkAuthStatus]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userRole, isLoading, checkAuthStatus }}>
+    <AuthContext.Provider value={authContextValue}>
       {children}
     </AuthContext.Provider>
   );

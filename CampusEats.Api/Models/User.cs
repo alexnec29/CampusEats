@@ -7,9 +7,9 @@ namespace CampusEats.Api.Models;
 public class User
 {
     public Guid Id { get; set; }
-    public string Username { get; set; }
-    public string HashedPassword { get; set; }
-    public string Email { get; set; }
+    public string Username { get; set; } = string.Empty;
+    public string HashedPassword { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
     public Role Role { get; set; }
     public IList<Order> Orders { get; set; } = new List<Order>();
 }

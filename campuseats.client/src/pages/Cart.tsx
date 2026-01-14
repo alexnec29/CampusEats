@@ -122,11 +122,11 @@ const Cart: React.FC = () => {
 
     if (loading) return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex justify-center items-center">
-            <div role="status" aria-label="loading" className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            <output aria-label="loading" className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
         </div>
     );
 
-    if (!cart || !cart.orderItems || cart.orderItems.length === 0) {
+    if (!cart?.orderItems?.length) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
                 <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10 text-center max-w-md w-full transform transition-all duration-300 hover:shadow-3xl">
@@ -156,8 +156,8 @@ const Cart: React.FC = () => {
                         <div className="flex justify-between items-center">
                             <span className="font-bold text-lg text-gray-700">Comanda #{cart.id}</span>
                             <span className="px-4 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                        Status: Pending
-                    </span>
+                                Status: Pending
+                            </span>
                         </div>
                     </div>
 
@@ -176,8 +176,8 @@ const Cart: React.FC = () => {
                                             -
                                         </button>
                                         <span className="mx-4 font-semibold text-gray-700 w-8 text-center">
-                                    {item.quantity}
-                                </span>
+                                            {item.quantity}
+                                        </span>
                                         <button
                                             aria-label="Increase quantity"
                                             onClick={() => updateQuantity(item.id, item.quantity + 1)}

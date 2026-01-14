@@ -24,7 +24,7 @@ public class UpdateKitchenProfileValidatorTests
         UpdateKitchenProfileRequest request = new UpdateKitchenProfileRequest(
             Guid.NewGuid(),
             "", // Empty company name
-            new Address { street = "Main St", building = "10", city = "Cluj", county = "Cluj" },
+            new Address { Street = "Main St", Building = "10", City = "Cluj", County = "Cluj" },
             CreateValidWeeklyWorkingHours()
         );
         
@@ -42,7 +42,7 @@ public class UpdateKitchenProfileValidatorTests
         UpdateKitchenProfileRequest request = new UpdateKitchenProfileRequest(
             Guid.NewGuid(),
             "Test Kitchen",
-            new Address { street = "", building = "10", city = "Cluj", county = "Cluj" }, // Empty street
+            new Address { Street = "", Building = "10", City = "Cluj", County = "Cluj" }, // Empty street
             CreateValidWeeklyWorkingHours()
         );
         
@@ -50,11 +50,11 @@ public class UpdateKitchenProfileValidatorTests
         var result = _validator.TestValidate(request);
         
         //Assert
-        result.ShouldHaveValidationErrorFor(x => x.KitchenAddress.street)
+        result.ShouldHaveValidationErrorFor(x => x.KitchenAddress.Street)
             .WithErrorMessage("Street is required");
     }
 
-    private WeeklyWorkingHours CreateValidWeeklyWorkingHours()
+    private static WeeklyWorkingHours CreateValidWeeklyWorkingHours()
     {
         var workingHours = new WorkingHours 
         { 

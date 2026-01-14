@@ -45,7 +45,7 @@ public class GetKitchenProfileByUserIdHandlerTests
             Id = Guid.NewGuid(),
             UserId = userId,
             CompanyName = "Test Kitchen",
-            KitchenAddress = new Address { street = "Main St", building = "10", city = "Cluj", county = "Cluj" },
+            KitchenAddress = new Address { Street = "Main St", Building = "10", City = "Cluj", County = "Cluj" },
             WeeklyWorkingHours = new WeeklyWorkingHours()
         };
         
@@ -62,6 +62,6 @@ public class GetKitchenProfileByUserIdHandlerTests
         Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
         Assert.NotNull(okResult.Value);
         okResult.Value.CompanyName.Should().Be("Test Kitchen");
-        okResult.Value.KitchenAddress.street.Should().Be("Main St");
+        okResult.Value.KitchenAddress.Street.Should().Be("Main St");
     }
 }

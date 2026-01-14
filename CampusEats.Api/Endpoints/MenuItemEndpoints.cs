@@ -1,3 +1,4 @@
+using CampusEats.Api.Models.Enums;
 using MediatR;
 
 namespace CampusEats.Api.Features.MenuItem;
@@ -13,17 +14,17 @@ public static class MenuItemEndpoints
         group.MapGet("/", async (IMediator mediator) =>
         {
             return await mediator.Send(new GetAllMenuItemsRequest());
-        }).RequireAuthorization("AllRoles");
+        }).RequireAuthorization(nameof(AuthorizationPolicies.AllRolesPolicy));
 
         group.MapPost("/", async (CreateMenuItemRequest request, IMediator mediator) =>
         {
             return await mediator.Send(request);
-        }).RequireAuthorization("Kitchen");
+        }).RequireAuthorization(nameof(AuthorizationPolicies.KitchenPolicy));
 
         group.MapDelete("/{id}", async (int id, IMediator mediator) =>
         {
             await mediator.Send(new DeleteMenuItemRequest(id));
             return Results.NoContent();
-        }).RequireAuthorization("Kitchen");
+        }).RequireAuthorization(nameof(AuthorizationPolicies.KitchenPolicy));
     }
 }
