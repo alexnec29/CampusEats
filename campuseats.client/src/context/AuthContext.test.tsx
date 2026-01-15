@@ -131,9 +131,8 @@ describe('AuthContext', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('auth-status')).toHaveTextContent('authenticated');
+      expect(screen.getByTestId('user-role')).toHaveTextContent('Admin');
     });
-    
-    expect(screen.getByTestId('user-role')).toHaveTextContent('Admin');
   });
 
   it('should handle response with no role', async () => {

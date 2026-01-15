@@ -12,6 +12,9 @@ describe('Types Definitions', () => {
         expect(OrderStatus.Paid).toBe(7);
         expect(OrderStatus.PendingPayment).toBe(8);
         expect(OrderStatus.FailedPayment).toBe(9);
+
+        // Reverse mapping coverage
+        expect(OrderStatus[0]).toBe('Inactive');
     });
 
     it('should have correct values for MenuCategory enum', () => {
@@ -21,5 +24,8 @@ describe('Types Definitions', () => {
         expect(MenuCategory.Snacks).toBe(3);
         expect(MenuCategory.Drinks).toBe(4);
         expect(MenuCategory.Desserts).toBe(5);
+
+        // Reverse mapping coverage
+        expect(MenuCategory[0]).toBe('Breakfast');
     });
 });
