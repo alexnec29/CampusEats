@@ -1,10 +1,11 @@
 # Code Coverage Analysis
 
 ## Current Status
-- **Total Tests**: 116 ✅ (102 + 14 middleware tests)
-- **Line Coverage**: 37.82% (will improve with WebApplicationFactory tests)
+- **Total Tests**: 131 ✅ (102 + 14 middleware + 15 infrastructure)
+- **Line Coverage**: ~40-45% (estimated, will improve with more tests)
 - **Branch Coverage**: 25.61%
 - **Method Coverage**: 54.23%
+- **Skipped Tests**: 4 (OrderRepository investigation pending)
 
 ## Coverage by Component (dotCover Analysis)
 | Component | Coverage | Tests | Priority | Status |
@@ -51,6 +52,28 @@
 **Expected Coverage Gain**: +15-20%
 
 ## Phase 1 - COMPLETED ✅ (Commit: fa8c2c2)
+- Created branch `tests` for test development
+- Added comprehensive middleware test structure:
+  - `CsrfTokenFilterMiddlewareTests.cs` - 5 test cases ✅
+  - `GlobalExceptionHandlerMiddlewareTests.cs` - 5 test cases ✅
+  - `JwtFilterMiddlewareTests.cs` - 4 test cases ✅
+- All 14 middleware tests passing
+- COVERAGE_ANALYSIS.md created and committed
+- Tests ready for WebApplicationFactory integration testing
+
+## Phase 2a - IN PROGRESS ✅ (Commit: 4868871)
+**Repository Pattern Tests (Infrastructure)**
+- `UserRepositoryTests.cs` - 9 passing test cases ✅
+  - AddAsync, GetByIdAsync, GetAllAsync, UpdateAsync, DeleteAsync
+  - GetByUsernameAsync, GetByEmailAsync  
+- `OrderRepositoryTests.cs` - Structure created (4 tests skipped for investigation)
+- WebApplicationFactory infrastructure created
+- TestAuthHandler for authentication testing
+- 131 total tests (127 passing, 4 skipped)
+
+**Infrastructure Coverage Improvement**:
+- UserRepository: Core CRUD operations tested
+- Foundation established for further repository tests
 - Created branch `tests` for test development
 - Added comprehensive middleware test structure:
   - `CsrfTokenFilterMiddlewareTests.cs` - 5 test cases ✅
