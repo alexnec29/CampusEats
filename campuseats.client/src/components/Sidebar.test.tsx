@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Sidebar from './Sidebar';
 import { AuthProvider } from '../context/AuthContext';
@@ -102,7 +101,6 @@ describe('Sidebar Component', () => {
     });
 
     it('should handle logout correctly', async () => {
-        const user = userEvent.setup();
         mockApiClient.mockResolvedValue({
             ok: true,
             json: async () => ({ isAuthenticated: true, role: 'Buyer' }),
@@ -118,13 +116,13 @@ describe('Sidebar Component', () => {
 
         // Mock pentru apelul de logout
         mockApiClient.mockResolvedValueOnce({ ok: true } as Response);
+        
+        fireEvent.click(logoutButton);
         // Mock pentru checkAuthStatus de după logout (care va returna false acum)
         mockApiClient.mockResolvedValueOnce({
             ok: true,
             json: async () => ({ isAuthenticated: false }),
         } as Response);
-
-        await user.click(logoutButton);
 
         await waitFor(() => {
             expect(mockApiClient).toHaveBeenCalledWith('/api/user/logout', { method: 'POST' });

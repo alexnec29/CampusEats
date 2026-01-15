@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import KitchenOrders from './KitchenOrders';
 import { AuthProvider } from '../context/AuthContext';
@@ -77,7 +76,6 @@ describe('KitchenOrders Page', () => {
     });
 
     it('should handle status update and move order between columns', async () => {
-        const user = userEvent.setup();
         renderKitchen();
 
         const startPreparingBtn = await screen.findByRole('button', { name: /start preparing/i });
@@ -85,7 +83,7 @@ describe('KitchenOrders Page', () => {
         // Mock pentru succesul update-ului de status
         mockApiClient.mockResolvedValueOnce({ ok: true } as Response);
 
-        await user.click(startPreparingBtn);
+        fireEvent.click(startPreparingBtn);
 
         await waitFor(() => {
             expect(mockApiClient).toHaveBeenCalledWith(
@@ -97,13 +95,12 @@ describe('KitchenOrders Page', () => {
     });
 
     it('should handle order cancellation', async () => {
-        const user = userEvent.setup();
         renderKitchen();
 
         const cancelBtn = await screen.findByRole('button', { name: /cancel/i });
         mockApiClient.mockResolvedValueOnce({ ok: true } as Response);
 
-        await user.click(cancelBtn);
+        fireEvent.click(cancelBtn);
 
         await waitFor(() => {
             expect(mockApiClient).toHaveBeenCalledWith(

@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AddMenuItem from './AddMenuItem';
 import { ToastProvider } from '../context/ToastContext';
@@ -34,7 +33,6 @@ describe('AddMenuItem Page', () => {
     });
 
     it('should submit the form with correct data types', async () => {
-        const user = userEvent.setup();
         mockApiClient.mockResolvedValueOnce({ ok: true } as Response);
 
         render(
@@ -43,12 +41,12 @@ describe('AddMenuItem Page', () => {
             </ToastProvider>
         );
 
-        await user.type(screen.getByLabelText(/Name/i), 'Pizza Margherita');
-        await user.type(screen.getByLabelText(/Description/i), 'Classic pizza');
-        await user.type(screen.getByLabelText(/Price/i), '25.50');
-        await user.selectOptions(screen.getByLabelText(/Category/i), 'Lunch');
+        fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: 'Pizza Margherita' } });
+        fireEvent.change(screen.getByLabelText(/Description/i), { target: { value: 'Classic pizza' } });
+        fireEvent.change(screen.getByLabelText(/Price/i), { target: { value: '25.50' } });
+        fireEvent.change(screen.getByLabelText(/Category/i), { target: { value: '1' } }); // Lunch = 1
 
-        await user.click(screen.getByRole('button', { name: /Add Item/i }));
+        fireEvent.click(screen.getByRole('button', { name: /Add Item/i }));
 
         await waitFor(() => {
             expect(mockApiClient).toHaveBeenCalledWith('/api/menu-items', expect.objectContaining({
@@ -67,7 +65,6 @@ describe('AddMenuItem Page', () => {
     });
 
     it('should display error message when server returns error', async () => {
-        const user = userEvent.setup();
         mockApiClient.mockResolvedValueOnce({ ok: false } as Response);
 
         render(
@@ -76,8 +73,8 @@ describe('AddMenuItem Page', () => {
             </ToastProvider>
         );
 
-        await user.type(screen.getByLabelText(/Name/i), 'Test');
-        await user.click(screen.getByRole('button', { name: /Add Item/i }));
+        fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: 'Test' } });
+        fireEvent.click(screen.getByRole('button', { name: /Add Item/i }));
 
         await waitFor(() => {
             expect(screen.getByText(/Nu s-a putut adăuga produsul/i)).toBeInTheDocument();
