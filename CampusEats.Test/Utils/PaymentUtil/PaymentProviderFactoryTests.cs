@@ -129,7 +129,7 @@ public class PaymentProviderFactoryTests
         var services = new List<IPaymentService> { stripeService.Object };
         var factory = new PaymentProviderFactory(services);
 
-        var result = factory.GetProvider(providerName!);
+        var result = factory.GetProvider(providerName);
 
         result.Should().BeNull();
     }
