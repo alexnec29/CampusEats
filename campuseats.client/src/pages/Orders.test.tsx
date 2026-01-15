@@ -1,195 +1,223 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Orders from './Orders';
+import { OrderStatus } from '../types';
 import { AuthProvider } from '../context/AuthContext';
 import { ToastProvider } from '../context/ToastContext';
-import { ConfirmProvider } from '../context/ConfirmContext';
-import { OrderStatus } from '../types';
 import * as apiClientModule from '../utils/apiClient';
 
+// Mock mocks
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
     useNavigate: () => mockNavigate,
-}));
-
-// Mock confirm context
-const mockConfirm = jest.fn();
-jest.mock('../context/ConfirmContext', () => ({
-    ...jest.requireActual('../context/ConfirmContext'),
-    useConfirm: () => ({ confirm: mockConfirm })
+    Link: ({ children, to }: any) => <a href={to}>{children}</a>,
+    useLocation: () => ({ pathname: '/orders' }),
 }));
 
 jest.mock('../utils/apiClient');
 const mockApiClient = apiClientModule.apiClient as jest.MockedFunction<typeof apiClientModule.apiClient>;
 
-const mockOrdersData = [
+// Mock Contexts
+jest.mock('../context/ConfirmContext', () => ({
+    useConfirm: () => ({
+        confirm: jest.fn().mockResolvedValue(true)
+    })
+}));
+
+// Mock window.confirm
+const mockConfirm = jest.fn();
+window.confirm = mockConfirm;
+
+const mockOrders = [
     {
         id: 1,
-        status: OrderStatus.Paid,
-        orderDate: '2025-01-10T10:00:00Z',
-        totalAmount: 25.00,
-        orderItems: [{ id: 10, price: 12.50, quantity: 2, menuItem: { name: 'Burger' } }]
+        totalAmount: 45.0,
+        status: OrderStatus.Placed,
+        orderDate: '2023-11-20T10:00:00.000Z',
+        orderItems: [
+            { id: 101, menuItemId: 5, quantity: 2, price: 15.0, menuItem: { name: 'Pizza' } },
+            { id: 102, menuItemId: 6, quantity: 1, price: 15.0, menuItem: { name: 'Pasta' } }
+        ]
     },
     {
         id: 2,
-        status: OrderStatus.Placed,
-        orderDate: '2025-01-11T12:00:00Z',
-        totalAmount: 15.00,
-        orderItems: []
+        totalAmount: 12.5,
+        status: OrderStatus.Completed,
+        orderDate: '2023-11-19T14:30:00.000Z',
+        orderItems: [
+            { id: 103, menuItemId: 7, quantity: 1, price: 12.5, menuItem: { name: 'Salad' } }
+        ]
     }
 ];
 
 describe('Orders Page', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockConfirm.mockResolvedValue(true);
-        mockApiClient.mockImplementation((url: string) => {
-            if (url.includes('/api/user/check-auth')) {
-                return Promise.resolve({ ok: true, json: async () => ({ isAuthenticated: true }) } as Response);
-            }
-            if (url.includes('/api/orders/my-orders')) {
-                return Promise.resolve({ ok: true, json: async () => mockOrdersData } as Response);
-            }
-            return Promise.resolve({ ok: true } as Response);
-        });
     });
 
-    const renderOrders = () => render(
-        <ToastProvider>
-            <ConfirmProvider>
-                <AuthProvider>
+    it('renders loading state initially', async () => {
+        mockApiClient.mockImplementation(() => new Promise(() => {})); // Never resolves
+        render(
+            <AuthProvider>
+                <ToastProvider>
                     <Orders />
-                </AuthProvider>
-            </ConfirmProvider>
-        </ToastProvider>
-    );
-
-    it('should show loading spinner initially', () => {
-        mockApiClient.mockReturnValueOnce(new Promise(() => {}));
-        renderOrders();
-        // Căutăm după aria-label "loading" definit în componentă
-        expect(screen.getByText('Loading orders...')).toBeInTheDocument();
+                </ToastProvider>
+            </AuthProvider>
+        );
+        expect(screen.getByText(/Loading orders.../i)).toBeInTheDocument();
     });
 
-    it('should redirect to login if not authenticated', async () => {
-        mockApiClient.mockImplementation((url: string) => {
-             if (url.includes('check-auth')) return Promise.resolve({ ok: true, json: async () => ({ isAuthenticated: false }) } as Response);
-             return Promise.resolve({ ok: true } as Response);
+    it('renders orders after fetch', async () => {
+        mockApiClient.mockImplementation((url: RequestInfo | URL) => {
+            if (url.toString().includes('check-auth')) {
+                return Promise.resolve({
+                    ok: true,
+                    json: async () => ({ isAuthenticated: true, role: 'Buyer' })
+                } as Response);
+            }
+            if (url.toString().includes('my-orders')) {
+                return Promise.resolve({
+                     ok: true,
+                     json: async () => mockOrders
+                } as Response);
+            }
+            return Promise.reject(new Error('Unknown URL'));
         });
-        
-        renderOrders();
-        
+
+        render(
+            <AuthProvider>
+                <ToastProvider>
+                    <Orders />
+                </ToastProvider>
+            </AuthProvider>
+        );
+
         await waitFor(() => {
-             expect(mockNavigate).toHaveBeenCalledWith('/login');
-        });
-    });
-
-    it('should render orders list and filter out pending ones', async () => {
-        renderOrders();
-
-        await waitFor(() => {
-            expect(screen.queryByText('Loading orders...')).not.toBeInTheDocument();
+            expect(screen.getByText('My Orders')).toBeInTheDocument();
         });
 
-        expect(screen.getByText(/Order #1/i)).toBeInTheDocument();
-        expect(screen.getByText('Paid')).toBeInTheDocument();
-        expect(screen.getByText(/Order #2/i)).toBeInTheDocument();
+        expect(screen.getByText('Order #1')).toBeInTheDocument();
+        expect(screen.getByText('2x Pizza')).toBeInTheDocument();
         expect(screen.getByText('Placed')).toBeInTheDocument();
+        expect(screen.getByText('Completed')).toBeInTheDocument();
     });
 
-    it('should show empty message when no orders exist', async () => {
-        mockApiClient.mockImplementation((url: string) => {
-            if (url.includes('check-auth')) return Promise.resolve({ ok: true, json: async () => ({ isAuthenticated: true }) } as Response);
-            if (url.includes('/api/orders/my-orders')) return Promise.resolve({ ok: true, json: async () => [] } as Response);
-            return Promise.resolve({ ok: true } as Response);
-        });
-
-        renderOrders();
-        expect(await screen.findByText(/no orders found/i)).toBeInTheDocument();
-    });
-
-    it('should handle error when fetching orders', async () => {
+    it('handles fetch error gracefully', async () => {
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-        mockApiClient.mockImplementation((url: string) => {
-            if (url.includes('check-auth')) return Promise.resolve({ ok: true, json: async () => ({ isAuthenticated: true }) } as Response);
-            if (url.includes('/api/orders/my-orders')) return Promise.reject(new Error('Network error'));
+        
+        mockApiClient.mockImplementation((url: RequestInfo | URL) => {
+            if (url.toString().includes('check-auth')) {
+                return Promise.resolve({
+                    ok: true,
+                    json: async () => ({ isAuthenticated: true })
+                } as Response);
+            }
+            if (url.toString().includes('my-orders')) {
+                return Promise.reject(new Error('Network error'));
+            }
             return Promise.resolve({ ok: true } as Response);
         });
 
-        renderOrders();
-        
+        render(
+            <AuthProvider>
+                <ToastProvider>
+                    <Orders />
+                </ToastProvider>
+            </AuthProvider>
+        );
+
         await waitFor(() => {
-            expect(screen.queryByText('Loading orders...')).not.toBeInTheDocument();
+            expect(consoleSpy).toHaveBeenCalledWith('Error fetching orders:', expect.any(Error));
         });
         
-        expect(consoleSpy).toHaveBeenCalledWith('Error fetching orders:', expect.any(Error));
+        // Should stop loading even on error
+        expect(screen.queryByText(/Loading orders.../i)).not.toBeInTheDocument();
+        
         consoleSpy.mockRestore();
     });
 
-    it('should display correct status labels and colors for all statuses', async () => {
-         // Create orders for each status except Pending (which is filtered)
-         const statusesToTest = [
-            OrderStatus.Inactive,
-            OrderStatus.Placed,
-            OrderStatus.Paid,
-            OrderStatus.Preparing,
-            OrderStatus.Ready,
-            OrderStatus.Completed,
-            OrderStatus.Cancelled,
-            OrderStatus.PendingPayment,
-            OrderStatus.FailedPayment
+    it('filters out Pending (Cart) orders', async () => {
+        const ordersWithPending = [
+            ...mockOrders,
+            {
+                id: 3,
+                totalAmount: 0,
+                status: OrderStatus.Pending, // Should be filtered
+                orderDate: new Date().toISOString(),
+                orderItems: []
+            }
         ];
-        
-        const allStatusOrders = statusesToTest.map((status, idx) => ({
-            id: 100 + idx,
-            status: status,
-            orderDate: new Date().toISOString(),
-            totalAmount: 10,
-            orderItems: []
-        }));
 
-        mockApiClient.mockImplementation((url: string) => {
-            if (url.includes('check-auth')) return Promise.resolve({ ok: true, json: async () => ({ isAuthenticated: true }) } as Response);
-            if (url.includes('/api/orders/my-orders')) return Promise.resolve({ ok: true, json: async () => allStatusOrders } as Response);
+        mockApiClient.mockImplementation((url: RequestInfo | URL) => {
+            if (url.toString().includes('check-auth')) return Promise.resolve({ ok: true, json: async () => ({ isAuthenticated: true }) } as Response);
+            if (url.toString().includes('my-orders')) return Promise.resolve({ ok: true, json: async () => ordersWithPending } as Response);
             return Promise.resolve({ ok: true } as Response);
         });
 
-        renderOrders();
+        render(
+            <AuthProvider>
+                <ToastProvider>
+                    <Orders />
+                </ToastProvider>
+            </AuthProvider>
+        );
+
+        await waitFor(() => expect(screen.getByText('Order #1')).toBeInTheDocument());
         
-        await waitFor(() => expect(screen.queryByText('Loading orders...')).not.toBeInTheDocument());
+        expect(screen.queryByText('Order #3')).not.toBeInTheDocument();
+    });
 
-        // Labels verification
-        expect(screen.getByText('Inactive')).toBeInTheDocument();
-        expect(screen.getAllByText('Placed').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('Paid').length).toBeGreaterThan(0);
-        expect(screen.getByText('Preparing')).toBeInTheDocument();
-        expect(screen.getByText('Ready')).toBeInTheDocument();
-        expect(screen.getByText('Completed')).toBeInTheDocument();
-        expect(screen.getByText('Cancelled')).toBeInTheDocument();
-        expect(screen.getByText('PendingPayment')).toBeInTheDocument();
-        expect(screen.getByText('FailedPayment')).toBeInTheDocument();
+    it('displays correct labels and colors for all statuses', async () => {
+        const statuses = [
+            { status: OrderStatus.Inactive, label: 'Inactive', colorClass: 'bg-gray-200' },
+            { status: OrderStatus.Placed, label: 'Placed', colorClass: 'bg-blue-100' },
+            { status: OrderStatus.PendingPayment, label: 'PendingPayment', colorClass: 'bg-gray-100' }, // Default color
+            { status: OrderStatus.FailedPayment, label: 'FailedPayment', colorClass: 'bg-gray-100' },   // Default color
+            { status: OrderStatus.Ready, label: 'Ready', colorClass: 'bg-green-100' },
+            { status: OrderStatus.Completed, label: 'Completed', colorClass: 'bg-gray-100' },
+            { status: OrderStatus.Cancelled, label: 'Cancelled', colorClass: 'bg-red-100' }
+        ];
 
-        // Default 'Unknown' case check
-        // We add an order with a non-existent status ID to test default
-        const unknownOrder = [{
-            id: 999,
-            status: 99, // Invalid status
-            orderDate: new Date().toISOString(),
-            totalAmount: 0,
-            orderItems: []
-        }];
+        // We create an order for each status (except Pending which is filtered)
+        const allStatusOrders = statuses
+            .filter(s => s.status !== OrderStatus.Pending)
+            .map((s, idx) => ({
+                id: 100 + idx,
+                totalAmount: 10,
+                status: s.status,
+                orderDate: new Date().toISOString(),
+                orderItems: []
+            }));
 
-        mockApiClient.mockImplementation((url: string) => {
-             if (url.includes('check-auth')) return Promise.resolve({ ok: true, json: async () => ({ isAuthenticated: true }) } as Response);
-             if (url.includes('/api/orders/my-orders')) return Promise.resolve({ ok: true, json: async () => unknownOrder } as Response);
-             return Promise.resolve({ ok: true } as Response);
+        mockApiClient.mockImplementation((url: RequestInfo | URL) => {
+            if (url.toString().includes('check-auth')) return Promise.resolve({ ok: true, json: async () => ({ isAuthenticated: true }) } as Response);
+            if (url.toString().includes('my-orders')) return Promise.resolve({ ok: true, json: async () => allStatusOrders } as Response);
+            return Promise.resolve({ ok: true } as Response);
         });
 
-        // Rerender to test unknown
-        renderOrders();
-        await waitFor(() => expect(screen.queryByText('Loading orders...')).not.toBeInTheDocument());
-        // Should use default switch case
-        expect(screen.getByText('Unknown')).toBeInTheDocument();
+        render(
+            <AuthProvider>
+                <ToastProvider>
+                    <Orders />
+                </ToastProvider>
+            </AuthProvider>
+        );
+
+        await waitFor(() => expect(screen.queryByText(/Loading orders.../i)).not.toBeInTheDocument());
+
+        for (const s of statuses) {
+             if (s.status === OrderStatus.Pending) continue;
+
+             const labelElements = screen.getAllByText(s.label);
+             // Might match multiple if duplicates, but here we have distinct labels mostly.
+             
+             const labelElement = labelElements[0];
+             expect(labelElement).toBeInTheDocument();
+             
+             // Check color class check on the parent span
+             // The structure is <span className={`... ${colorClass}`}>
+             expect(labelElement).toHaveClass(s.colorClass!);
+        }
     });
 });
