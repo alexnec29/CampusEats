@@ -61,4 +61,116 @@ public class CreateMenuItemHandlerTests
             m.Category == request.Category
         )), Times.Once);
     }
+    
+    [Fact]
+    public async Task Given_ValidMenuItemWithNullImageUrl_When_HandleIsCalled_Then_MenuItemCreated()
+    {
+        //Arrange
+        CreateMenuItemRequest request = new CreateMenuItemRequest(
+            "Burger Deluxe",
+            "Juicy beef burger",
+            15.99m,
+            MenuCategory.Lunch,
+            null,  // No image URL
+            true
+        );
+        
+        Mock<IMenuItemRepository> mockedRepository = new Mock<IMenuItemRepository>();
+        CreateMenuItemValidator validator = new CreateMenuItemValidator();
+        
+        mockedRepository.Setup(r => r.AddAsync(It.IsAny<Api.Models.MenuItem>()))
+            .Returns(Task.CompletedTask);
+        
+        CreateMenuItemHandler handler = new CreateMenuItemHandler(
+            mockedRepository.Object,
+            validator
+        );
+        
+        //Act
+        IResult result = await handler.Handle(request, CancellationToken.None);
+        
+        //Assert
+        var httpResult = result as IStatusCodeHttpResult;
+        Assert.NotNull(httpResult);
+        Assert.Equal(StatusCodes.Status201Created, httpResult.StatusCode);
+        
+        mockedRepository.Verify(r => r.AddAsync(It.Is<Api.Models.MenuItem>(m =>
+            m.ImageUrl == null
+        )), Times.Once);
+    }
+    
+    [Fact]
+    public async Task Given_ValidMenuItemUnavailable_When_HandleIsCalled_Then_MenuItemCreated()
+    {
+        //Arrange
+        CreateMenuItemRequest request = new CreateMenuItemRequest(
+            "Seasonal Special",
+            "Limited time offer",
+            19.99m,
+            MenuCategory.Dinner,
+            "https://example.com/special.jpg",
+            false  // Not available
+        );
+        
+        Mock<IMenuItemRepository> mockedRepository = new Mock<IMenuItemRepository>();
+        CreateMenuItemValidator validator = new CreateMenuItemValidator();
+        
+        mockedRepository.Setup(r => r.AddAsync(It.IsAny<Api.Models.MenuItem>()))
+            .Returns(Task.CompletedTask);
+        
+        CreateMenuItemHandler handler = new CreateMenuItemHandler(
+            mockedRepository.Object,
+            validator
+        );
+        
+        //Act
+        IResult result = await handler.Handle(request, CancellationToken.None);
+        
+        //Assert
+        var httpResult = result as IStatusCodeHttpResult;
+        Assert.NotNull(httpResult);
+        Assert.Equal(StatusCodes.Status201Created, httpResult.StatusCode);
+        
+        mockedRepository.Verify(r => r.AddAsync(It.Is<Api.Models.MenuItem>(m =>
+            m.IsAvailable == false
+        )), Times.Once);
+    }
+    
+    [Fact]
+    public async Task Given_MenuItemForBreakfast_When_HandleIsCalled_Then_MenuItemCreated()
+    {
+        //Arrange
+        CreateMenuItemRequest request = new CreateMenuItemRequest(
+            "Pancake Stack",
+            "Fluffy pancakes with syrup",
+            8.99m,
+            MenuCategory.Breakfast,
+            "https://example.com/pancakes.jpg",
+            true
+        );
+        
+        Mock<IMenuItemRepository> mockedRepository = new Mock<IMenuItemRepository>();
+        CreateMenuItemValidator validator = new CreateMenuItemValidator();
+        
+        mockedRepository.Setup(r => r.AddAsync(It.IsAny<Api.Models.MenuItem>()))
+            .Returns(Task.CompletedTask);
+        
+        CreateMenuItemHandler handler = new CreateMenuItemHandler(
+            mockedRepository.Object,
+            validator
+        );
+        
+        //Act
+        IResult result = await handler.Handle(request, CancellationToken.None);
+        
+        //Assert
+        var httpResult = result as IStatusCodeHttpResult;
+        Assert.NotNull(httpResult);
+        Assert.Equal(StatusCodes.Status201Created, httpResult.StatusCode);
+        
+        mockedRepository.Verify(r => r.AddAsync(It.Is<Api.Models.MenuItem>(m =>
+            m.Category == MenuCategory.Breakfast &&
+            m.CreatedAt != default(DateTime)
+        )), Times.Once);
+    }
 }

@@ -15,4 +15,7 @@ public class MenuItem
 
     public ICollection<MenuItemAllergen> MenuItemAllergens { get; set; } = new List<MenuItemAllergen>();
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+    
+    // Navigation property for direct access to allergens (configured via many-to-many through MenuItemAllergen)
+    public ICollection<Allergen> Allergens { get; set; } = new List<Allergen>();
 }
