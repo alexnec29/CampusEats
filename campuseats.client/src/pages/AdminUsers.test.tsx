@@ -134,4 +134,86 @@ describe('AdminUsers Page', () => {
             expect(screen.queryByText(/Loyalty – john_doe/i)).not.toBeInTheDocument();
         });
     });
+
+    it('should handle network error during loyalty adjustment', async () => {
+        mockApiClient.mockResolvedValueOnce({ ok: true, json: async () => mockUsers } as Response);
+        
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        mockApiClient.mockResolvedValueOnce({
+           // fetch response? No, we want reject for catch block
+        } as any);
+
+        // Actually better to reject for catch block
+        mockApiClient.mockRejectedValueOnce(new Error('Network error')); // This might reject the fetchUsers too if not sequenced right
+
+        // Let's sequence properly.
+        // 1. fetchUsers -> success
+        // 2. applyAdjustment -> reject
+    });
+
+    it('should handle network error during loyalty adjustment (catch block)', async () => {
+        // 1. fetchUsers ok
+        mockApiClient.mockResolvedValueOnce({ ok: true, json: async () => mockUsers } as Response);
+        // 2. applyAdjustment rejected
+        mockApiClient.mockRejectedValueOnce(new Error('Network fail'));
+
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+        render(
+            <ToastProvider>
+                <AdminUsers />
+            </ToastProvider>
+        );
+
+        const loyaltyBtn = await screen.findByRole('button', { name: /loyalty/i });
+        fireEvent.click(loyaltyBtn);
+
+        fireEvent.change(screen.getByPlaceholderText('+ / -'), { target: { value: '50' } });
+        fireEvent.click(screen.getByRole('button', { name: /apply/i }));
+
+        await waitFor(() => {
+            expect(screen.getByText('Eroare la actualizarea punctelor')).toBeInTheDocument();
+            expect(consoleSpy).toHaveBeenCalledWith('Error adjusting points', expect.any(Error));
+        });
+        consoleSpy.mockRestore();
+    });
+
+    it('should not apply adjustment if delta is 0', async () => {
+        mockApiClient.mockResolvedValueOnce({ ok: true, json: async () => mockUsers } as Response); // fetchUsers
+
+        render(
+            <ToastProvider>
+                <AdminUsers />
+            </ToastProvider>
+        );
+        
+        await screen.findByText('john_doe'); // Wait for load
+
+        const loyaltyBtn = screen.getByRole('button', { name: /loyalty/i });
+        fireEvent.click(loyaltyBtn);
+
+        // Delta is 0 by default. Click apply.
+        fireEvent.click(screen.getByRole('button', { name: /apply/i }));
+
+        // No new API calls (only the initial fetch)
+        expect(mockApiClient).toHaveBeenCalledTimes(1); 
+    });
+
+    it('should handle error during users fetch', async () => {
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        mockApiClient.mockRejectedValue(new Error('Fetch failed'));
+
+        render(
+            <ToastProvider>
+                <AdminUsers />
+            </ToastProvider>
+        );
+
+        await waitFor(() => {
+            expect(consoleSpy).toHaveBeenCalledWith('Error loading users', expect.any(Error));
+        });
+        
+        expect(screen.queryByRole('status')).not.toBeInTheDocument(); // Loading stops
+        consoleSpy.mockRestore();
+    });
 });

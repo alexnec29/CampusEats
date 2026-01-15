@@ -95,4 +95,27 @@ describe('Login Page', () => {
             expect(mockNavigate).toHaveBeenCalledWith('/home');
         });
     });
+
+    it('should handle network error during login', async () => {
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        mockApiClient.mockRejectedValue(new Error('Network error'));
+
+        render(
+            <LanguageProvider>
+                <AuthProvider>
+                    <Login />
+                </AuthProvider>
+            </LanguageProvider>
+        );
+
+        fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'user' } });
+        fireEvent.change(screen.getByPlaceholderText(/parola/i), { target: { value: 'pass' } });
+        fireEvent.click(screen.getByRole('button', { name: /intra in cont/i }));
+
+        const errorMsg = await screen.findByText('An error occurred. Please try again.');
+        expect(errorMsg).toBeInTheDocument();
+
+        expect(consoleSpy).toHaveBeenCalledWith('Error during login:', expect.any(Error));
+        consoleSpy.mockRestore();
+    });
 });
