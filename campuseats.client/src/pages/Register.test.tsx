@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Register from './Register';
 import { AuthProvider } from '../context/AuthContext';
@@ -67,7 +66,6 @@ describe('Register Page', () => {
     });
 
     it('should handle successful registration and navigate to login', async () => {
-        const user = userEvent.setup();
         renderRegister();
 
         const usernameInput = await screen.findByPlaceholderText(/alege un nume de utilizator/i);
@@ -76,14 +74,14 @@ describe('Register Page', () => {
         const confirmInput = screen.getByPlaceholderText(/confirma parola/i);
         const submitBtn = screen.getByRole('button', { name: /inregistreaza-te/i });
 
-        await user.type(usernameInput, 'newuser');
-        await user.type(emailInput, 'test@example.com');
-        await user.type(passwordInput, 'password123');
-        await user.type(confirmInput, 'password123');
+        fireEvent.change(usernameInput, { target: { value: 'newuser' } });
+        fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+        fireEvent.change(passwordInput, { target: { value: 'password123' } });
+        fireEvent.change(confirmInput, { target: { value: 'password123' } });
 
         mockApiClient.mockResolvedValueOnce({ ok: true } as Response);
 
-        await user.click(submitBtn);
+        fireEvent.click(submitBtn);
 
         await waitFor(() => {
             expect(mockApiClient).toHaveBeenCalledWith('/api/user/register', expect.objectContaining({
@@ -95,7 +93,6 @@ describe('Register Page', () => {
     });
 
     it('should display error message when registration fails', async () => {
-        const user = userEvent.setup();
         renderRegister();
 
         const submitBtn = await screen.findByRole('button', { name: /inregistreaza-te/i });
@@ -105,20 +102,19 @@ describe('Register Page', () => {
             text: async () => 'Email already exists'
         } as Response);
 
-        await user.click(submitBtn);
+        fireEvent.click(submitBtn);
 
         expect(await screen.findByText(/Email already exists/i)).toBeInTheDocument();
     });
 
     it('should display generic error message on network failure', async () => {
-        const user = userEvent.setup();
         renderRegister();
 
         const submitBtn = await screen.findByRole('button', { name: /inregistreaza-te/i });
 
         mockApiClient.mockRejectedValueOnce(new Error('Network Error'));
 
-        await user.click(submitBtn);
+        fireEvent.click(submitBtn);
 
         expect(await screen.findByText(/error occurred|eroare/i)).toBeInTheDocument();
     });
