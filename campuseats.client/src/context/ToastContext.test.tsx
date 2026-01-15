@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen, act } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, act, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ToastProvider, useToast } from './ToastContext';
 
@@ -26,14 +25,13 @@ describe('ToastContext', () => {
   });
 
   it('should display success toast and apply correct styles', async () => {
-    const user = userEvent.setup({ delay: null });
     render(
         <ToastProvider>
           <TestComponent />
         </ToastProvider>
     );
 
-    await user.click(screen.getByText('Show Success'));
+    fireEvent.click(screen.getByText('Show Success'));
 
     // Găsim textul mesajului
     const messageElement = screen.getByText('Success message');
@@ -47,14 +45,13 @@ describe('ToastContext', () => {
   });
 
   it('should display error toast and apply correct styles', async () => {
-    const user = userEvent.setup({ delay: null });
     render(
         <ToastProvider>
           <TestComponent />
         </ToastProvider>
     );
 
-    await user.click(screen.getByText('Show Error'));
+    fireEvent.click(screen.getByText('Show Error'));
 
     const messageElement = screen.getByText('Error message');
     const toastContainer = messageElement.closest('.shadow-lg');
@@ -63,14 +60,13 @@ describe('ToastContext', () => {
   });
 
   it('should automatically remove toast after 3 seconds', async () => {
-    const user = userEvent.setup({ delay: null });
     render(
         <ToastProvider>
           <TestComponent />
         </ToastProvider>
     );
 
-    await user.click(screen.getByText('Show Success'));
+    fireEvent.click(screen.getByText('Show Success'));
     expect(screen.getByText('Success message')).toBeInTheDocument();
 
     // Avansăm timpul cu 3 secunde
@@ -82,17 +78,16 @@ describe('ToastContext', () => {
   });
 
   it('should allow manual removal', async () => {
-    const user = userEvent.setup({ delay: null });
     render(
         <ToastProvider>
           <TestComponent />
         </ToastProvider>
     );
 
-    await user.click(screen.getByText('Show Success'));
+    fireEvent.click(screen.getByText('Show Success'));
     const closeButton = screen.getByText('✕'); // sau getByRole('button', { name: /✕/i })
 
-    await user.click(closeButton);
+    fireEvent.click(closeButton);
     expect(screen.queryByText('Success message')).not.toBeInTheDocument();
   });
 });

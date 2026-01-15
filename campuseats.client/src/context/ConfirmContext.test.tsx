@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ConfirmProvider, useConfirm } from './ConfirmContext';
 
@@ -23,7 +22,6 @@ const TestComponent = () => {
 
 describe('ConfirmContext', () => {
   it('should show dialog and resolve true on confirm', async () => {
-    const user = userEvent.setup();
     render(
         <ConfirmProvider>
           <TestComponent />
@@ -31,11 +29,11 @@ describe('ConfirmContext', () => {
     );
 
     // Deschide modala
-    await user.click(screen.getByText('Ask'));
+    fireEvent.click(screen.getByText('Ask'));
     expect(screen.getByText('Sigur?')).toBeInTheDocument();
 
     // Click Confirm
-    await user.click(screen.getByText('Confirmă')); // Textul default din componenta ta
+    fireEvent.click(screen.getByText('Confirmă')); // Textul default din componenta ta
 
     // Verificăm dispariția modalei și rezultatul
     await waitFor(() => {
@@ -45,15 +43,14 @@ describe('ConfirmContext', () => {
   });
 
   it('should resolve false on cancel', async () => {
-    const user = userEvent.setup();
     render(
         <ConfirmProvider>
           <TestComponent />
         </ConfirmProvider>
     );
 
-    await user.click(screen.getByText('Ask'));
-    await user.click(screen.getByText('Anulează')); // Textul default
+    fireEvent.click(screen.getByText('Ask'));
+    fireEvent.click(screen.getByText('Anulează')); // Textul default
 
     await waitFor(() => {
       expect(screen.queryByText('Sigur?')).not.toBeInTheDocument();

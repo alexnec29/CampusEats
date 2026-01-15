@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Menu from './Menu';
 import { AuthProvider } from '../context/AuthContext';
@@ -53,7 +52,6 @@ describe('Menu Page', () => {
     });
 
     it('should redirect to login if unauthenticated user tries to add to cart', async () => {
-        const user = userEvent.setup();
         // Simulăm un guest (fără rol)
         mockApiClient.mockImplementation((url: string) => {
             if (url.includes('check-auth')) return Promise.resolve({ ok: true, json: async () => ({ isAuthenticated: false, role: null }) } as Response);
@@ -62,12 +60,11 @@ describe('Menu Page', () => {
 
         renderMenu();
         const addBtn = await screen.findByText('Adaugă în Coș');
-        await user.click(addBtn);
+        fireEvent.click(addBtn);
         expect(mockNavigate).toHaveBeenCalledWith('/login');
     });
 
     it('should handle item deletion for Admin', async () => {
-        const user = userEvent.setup();
         mockApiClient.mockImplementation((url: string) => {
             if (url.includes('check-auth')) return Promise.resolve({ ok: true, json: async () => ({ isAuthenticated: true, role: 'Admin' }) } as Response);
             return Promise.resolve({ ok: true, json: async () => mockMenuItems } as Response);
@@ -75,9 +72,13 @@ describe('Menu Page', () => {
 
         renderMenu();
         const deleteBtns = await screen.findAllByTitle('Delete Item');
-        await user.click(deleteBtns[0]);
+        fireEvent.click(deleteBtns[0]);
 
-        await user.click(screen.getByText('Șterge'));
+        // Cautăm butonul de confirmare din modala de ștergere
+        // Presupunând că folosim ConfirmDialog care are "Confirmă"
+        // Sau în codul Menu.tsx: "Șterge" ? (văd "await user.click(screen.getByText('Șterge'))")
+        
+        fireEvent.click(screen.getByText('Șterge'));
         await waitFor(() => expect(screen.getByText(/Produs șters cu succes/i)).toBeInTheDocument());
     });
 });

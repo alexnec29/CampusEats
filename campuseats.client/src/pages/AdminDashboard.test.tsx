@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AdminDashboard from './AdminDashboard';
 import { AuthProvider } from '../context/AuthContext';
@@ -55,7 +54,6 @@ describe('AdminDashboard Page', () => {
     });
 
     it('should navigate to correct routes when management buttons are clicked', async () => {
-        const user = userEvent.setup();
         mockApiClient.mockResolvedValue({
             ok: true,
             json: async () => ({ isAuthenticated: true, role: 'Admin' }),
@@ -68,15 +66,15 @@ describe('AdminDashboard Page', () => {
         );
 
         const manageUsersBtn = await screen.findByRole('button', { name: /Manage Users/i });
-        await user.click(manageUsersBtn);
+        fireEvent.click(manageUsersBtn);
         expect(mockNavigate).toHaveBeenCalledWith('/admin/users');
 
         const manageMenuBtn = screen.getByRole('button', { name: /Manage Menu/i });
-        await user.click(manageMenuBtn);
+        fireEvent.click(manageMenuBtn);
         expect(mockNavigate).toHaveBeenCalledWith('/menu');
 
         const viewOrdersBtn = screen.getByRole('button', { name: /View Orders/i });
-        await user.click(viewOrdersBtn);
+        fireEvent.click(viewOrdersBtn);
         expect(mockNavigate).toHaveBeenCalledWith('/orders');
     });
 });

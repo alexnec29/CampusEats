@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AdminUsers from './AdminUsers';
 import { ToastProvider } from '../context/ToastContext';
@@ -42,7 +41,6 @@ describe('AdminUsers Page', () => {
     });
 
     it('should handle role update', async () => {
-        const user = userEvent.setup();
         mockApiClient.mockResolvedValueOnce({ ok: true, json: async () => mockUsers } as Response);
         mockApiClient.mockResolvedValueOnce({ ok: true } as Response);
 
@@ -53,7 +51,7 @@ describe('AdminUsers Page', () => {
         );
 
         const select = await screen.findByDisplayValue('Kitchen');
-        await user.selectOptions(select, 'Admin');
+        fireEvent.change(select, { target: { value: 'Admin' } });
 
         expect(mockApiClient).toHaveBeenCalledWith(
             expect.stringContaining('/api/admin/users/2/role'),
@@ -62,7 +60,6 @@ describe('AdminUsers Page', () => {
     });
 
     it('should open loyalty modal and apply points adjustment', async () => {
-        const user = userEvent.setup();
         mockApiClient.mockResolvedValueOnce({ ok: true, json: async () => mockUsers } as Response);
 
         mockApiClient.mockResolvedValueOnce({
@@ -77,15 +74,15 @@ describe('AdminUsers Page', () => {
         );
 
         const loyaltyBtn = await screen.findByRole('button', { name: /loyalty/i });
-        await user.click(loyaltyBtn);
+        fireEvent.click(loyaltyBtn);
 
         expect(screen.getByText(/Loyalty – john_doe/i)).toBeInTheDocument();
         expect(screen.getByText('100')).toBeInTheDocument();
 
         const input = screen.getByPlaceholderText('+ / -');
-        await user.type(input, '50');
+        fireEvent.change(input, { target: { value: '50' } });
 
-        await user.click(screen.getByRole('button', { name: /apply/i }));
+        fireEvent.click(screen.getByRole('button', { name: /apply/i }));
 
         await waitFor(() => {
             expect(mockApiClient).toHaveBeenCalledWith('/api/loyalty/adjust', expect.any(Object));
@@ -94,7 +91,6 @@ describe('AdminUsers Page', () => {
     });
 
     it('should show error toast when loyalty adjustment fails', async () => {
-        const user = userEvent.setup();
         mockApiClient.mockResolvedValueOnce({ ok: true, json: async () => mockUsers } as Response);
         mockApiClient.mockResolvedValueOnce({
             ok: false,
@@ -108,10 +104,10 @@ describe('AdminUsers Page', () => {
         );
 
         const loyaltyBtn = await screen.findByRole('button', { name: /loyalty/i });
-        await user.click(loyaltyBtn);
+        fireEvent.click(loyaltyBtn);
 
-        await user.type(screen.getByPlaceholderText('+ / -'), '10');
-        await user.click(screen.getByRole('button', { name: /apply/i }));
+        fireEvent.change(screen.getByPlaceholderText('+ / -'), { target: { value: '10' } });
+        fireEvent.click(screen.getByRole('button', { name: /apply/i }));
 
         await waitFor(() => {
             expect(screen.getByText('Error message from server')).toBeInTheDocument();
@@ -119,7 +115,6 @@ describe('AdminUsers Page', () => {
     });
 
     it('should close modal when cancel is clicked', async () => {
-        const user = userEvent.setup();
         mockApiClient.mockResolvedValueOnce({ ok: true, json: async () => mockUsers } as Response);
 
         render(
@@ -129,11 +124,11 @@ describe('AdminUsers Page', () => {
         );
 
         const loyaltyBtn = await screen.findByRole('button', { name: /loyalty/i });
-        await user.click(loyaltyBtn);
+        fireEvent.click(loyaltyBtn);
 
         expect(screen.getByText(/Loyalty – john_doe/i)).toBeInTheDocument();
 
-        await user.click(screen.getByRole('button', { name: /cancel/i }));
+        fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
 
         await waitFor(() => {
             expect(screen.queryByText(/Loyalty – john_doe/i)).not.toBeInTheDocument();

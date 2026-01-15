@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { LanguageProvider, useLanguage } from './LanguageContext';
 
@@ -26,7 +25,6 @@ describe('LanguageContext', () => {
   });
 
   it('should switch languages correctly', async () => {
-    const user = userEvent.setup();
     render(
         <LanguageProvider>
           <TestComponent />
@@ -34,11 +32,11 @@ describe('LanguageContext', () => {
     );
 
     // Switch to EN
-    await user.click(screen.getByText('Set EN'));
+    fireEvent.click(screen.getByText('Set EN'));
     expect(screen.getByTestId('lang-display')).toHaveTextContent('en');
 
     // Switch back to RO
-    await user.click(screen.getByText('Set RO'));
+    fireEvent.click(screen.getByText('Set RO'));
     expect(screen.getByTestId('lang-display')).toHaveTextContent('ro');
   });
 });
