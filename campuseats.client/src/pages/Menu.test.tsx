@@ -64,19 +64,117 @@ describe('Menu Page', () => {
         expect(mockNavigate).toHaveBeenCalledWith('/login');
     });
 
+    it('should successfully add item to existing pending order', async () => {
+        mockApiClient.mockImplementation(async (url: string, options?: any) => {
+            if (url.includes('check-auth')) return { ok: true, json: async () => ({ isAuthenticated: true, role: 'Buyer' }) } as Response;
+            if (url.includes('menu-items') && (!options || options.method === 'GET')) return { ok: true, json: async () => mockMenuItems } as Response;
+            
+            // fetchMyOrders
+            if (url.includes('my-orders')) return { ok: true, json: async () => [{ id: 101, status: 1 }] } as Response;
+            
+            // addItemToOrderRequest
+            if (url.includes('/api/orders/101/items') && options?.method === 'POST') {
+                return { ok: true } as Response;
+            }
+            return { ok: true, json: async () => [] } as Response;
+        });
+
+        renderMenu();
+        const addBtns = await screen.findAllByText('Adaugă în Coș');
+        fireEvent.click(addBtns[0]); // Add Pizza
+
+        await waitFor(() => {
+            expect(screen.getByText(/Pizza a fost adăugat în coș!/i)).toBeInTheDocument();
+        });
+    });
+
+    it('should create new order if no pending order exists and add item', async () => {
+        let myOrdersResponse: any[] = [];
+        mockApiClient.mockImplementation(async (url: string, options?: any) => {
+            if (url.includes('check-auth')) return { ok: true, json: async () => ({ isAuthenticated: true, role: 'Buyer' }) } as Response;
+            if (url.includes('menu-items')) return { ok: true, json: async () => mockMenuItems } as Response;
+            if (url.includes('my-orders')) return { ok: true, json: async () => myOrdersResponse } as Response;
+            
+            // Create Order
+            if (url === '/api/orders' && options?.method === 'POST') {
+                myOrdersResponse = [{ id: 202, status: 1 }];
+                return { ok: true, json: async () => ({ id: 202, status: 1 }) } as Response;
+            }
+            // Add Item
+            if (url.includes('/api/orders/202/items') && options?.method === 'POST') {
+                return { ok: true } as Response;
+            }
+            return { ok: true, json: async () => [] } as Response;
+        });
+
+        renderMenu();
+        const addBtns = await screen.findAllByText('Adaugă în Coș');
+        fireEvent.click(addBtns[0]); 
+
+        await waitFor(() => {
+             expect(mockApiClient).toHaveBeenCalledWith('/api/orders', expect.objectContaining({ method: 'POST' }));
+             expect(screen.getByText(/Pizza a fost adăugat în coș!/i)).toBeInTheDocument();
+        });
+    });
+
+    it('should handle conflict (409) when creating order by using existing orderId', async () => {
+         mockApiClient.mockReset();
+         mockApiClient.mockImplementation(async (url: string, options?: any) => {
+             if (url.includes('check-auth')) return { ok: true, json: async () => ({ isAuthenticated: true, role: 'Buyer' }) } as Response;
+             if (url.includes('menu-items')) return { ok: true, json: async () => mockMenuItems } as Response;
+             if (url.includes('my-orders')) return { ok: true, json: async () => [] } as Response;
+
+             if (url === '/api/orders' && options?.method === 'POST') {
+                 return { ok: false, status: 409, json: async () => ({ orderId: 303 }) } as Response;
+             }
+             if (url.includes('/api/orders/303/items')) return { ok: true } as Response;
+             
+             return { ok: true } as Response;
+         });
+
+         renderMenu();
+         const addBtns = await screen.findAllByText('Adaugă în Coș');
+         fireEvent.click(addBtns[0]); 
+
+         await waitFor(() => {
+             expect(mockApiClient).toHaveBeenCalledWith('/api/orders/303/items', expect.any(Object));
+             expect(screen.getByText(/Pizza a fost adăugat în coș!/i)).toBeInTheDocument();
+         });
+    });
+
+    it('should show error if adding item fails', async () => {
+        mockApiClient.mockReset();
+         mockApiClient.mockImplementation(async (url: string) => {
+             if (url.includes('check-auth')) return { ok: true, json: async () => ({ isAuthenticated: true, role: 'Buyer' }) } as Response;
+             if (url.includes('menu-items')) return { ok: true, json: async () => mockMenuItems } as Response;
+             if (url.includes('my-orders')) return { ok: true, json: async () => [{ id: 404, status: 1 }] } as Response;
+             
+             if (url.includes('/api/orders/404/items')) return { ok: false } as Response;
+             return { ok: true } as Response;
+         });
+
+         renderMenu();
+         const addBtns = await screen.findAllByText('Adaugă în Coș');
+         fireEvent.click(addBtns[0]);
+
+         await waitFor(() => {
+             expect(screen.getByText(/Nu s-a putut adăuga produsul/i)).toBeInTheDocument();
+         });
+    });
+
     it('should handle item deletion for Admin', async () => {
-        mockApiClient.mockImplementation((url: string) => {
-            if (url.includes('check-auth')) return Promise.resolve({ ok: true, json: async () => ({ isAuthenticated: true, role: 'Admin' }) } as Response);
-            return Promise.resolve({ ok: true, json: async () => mockMenuItems } as Response);
+        mockApiClient.mockImplementation(async (url: string) => {
+            if (url.includes('check-auth')) return { ok: true, json: async () => ({ isAuthenticated: true, role: 'Admin' }) } as Response;
+            if (url.includes('menu-items')) {
+                 if (url.endsWith('/1')) return { ok: true } as Response; // DELETE success
+                 return { ok: true, json: async () => mockMenuItems } as Response;
+            }
+            return { ok: true } as Response;
         });
 
         renderMenu();
         const deleteBtns = await screen.findAllByTitle('Delete Item');
         fireEvent.click(deleteBtns[0]);
-
-        // Cautăm butonul de confirmare din modala de ștergere
-        // Presupunând că folosim ConfirmDialog care are "Confirmă"
-        // Sau în codul Menu.tsx: "Șterge" ? (văd "await user.click(screen.getByText('Șterge'))")
         
         fireEvent.click(screen.getByText('Șterge'));
         await waitFor(() => expect(screen.getByText(/Produs șters cu succes/i)).toBeInTheDocument());

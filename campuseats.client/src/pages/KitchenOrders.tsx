@@ -50,11 +50,12 @@ const KitchenOrders: React.FC = () => {
     const [preparingOrders, setPreparingOrders] = useState<Order[]>([]);
     const [readyOrders, setReadyOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
-    const { userRole } = useAuth();
+    const { userRole, isLoading } = useAuth();
     const { showToast } = useToast();
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (isLoading) return;
         if (userRole !== 'Kitchen' && userRole !== 'Admin') {
             navigate('/');
             return;
