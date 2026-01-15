@@ -49,7 +49,8 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBeh
 
 builder.Services.AddDbContext<CampusEatsDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    // Use SQLite for local development without PostgreSQL
+    options.UseSqlite("Data Source=campuseats.db");
 });
 
 // Payment Service
