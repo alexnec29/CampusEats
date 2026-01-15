@@ -271,4 +271,3 @@ public class AddOrderItemHandlerTests
         order.TotalAmount.Should().Be(85.00m);
     }
 }
-
