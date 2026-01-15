@@ -48,6 +48,13 @@ namespace CampusEats.Api.Infrastructure.EntityConfigurations
                 .WithOne(oi => oi.MenuItem)
                 .HasForeignKey(oi => oi.MenuItemId)
                 .OnDelete(DeleteBehavior.Restrict);
+            
+            // Many-to-many relationship with Allergens through MenuItemAllergen
+            builder.HasMany(m => m.Allergens)
+                .WithMany()
+                .UsingEntity<MenuItemAllergen>(
+                    j => j.HasOne(ma => ma.Allergen).WithMany(a => a.MenuItemAllergens).HasForeignKey(ma => ma.AllergenId),
+                    j => j.HasOne(ma => ma.MenuItem).WithMany(m => m.MenuItemAllergens).HasForeignKey(ma => ma.MenuItemId));
         }
     }
 }
