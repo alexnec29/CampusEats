@@ -1,98 +1,162 @@
 using CampusEats.Api.Middleware;
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Moq;
+using System.Net;
 
 namespace CampusEats.Test.Middleware;
 
 public class CsrfTokenFilterMiddlewareTests
 {
     [Fact]
-    public async Task InvokeAsync_WithSwaggerPath_ShouldSkipCsrfValidation()
+    public async Task Given_SwaggerPath_When_InvokeAsync_Then_BypassesValidation()
     {
-        // Arrange
+        var mockNext = new Mock<RequestDelegate>();
+        var middleware = new CsrfTokenFilterMiddleware(mockNext.Object);
+        
         var context = new DefaultHttpContext();
         context.Request.Path = "/swagger/index.html";
-        
-        var nextCalled = false;
-        RequestDelegate next = async (ctx) => { nextCalled = true; await Task.CompletedTask; };
-        
-        var middleware = new CsrfTokenFilterMiddleware(next);
 
-        // Act
         await middleware.InvokeAsync(context);
 
-        // Assert
-        Assert.True(nextCalled, "Next middleware should be called for swagger paths");
-        Assert.NotEqual((int)System.Net.HttpStatusCode.Forbidden, context.Response.StatusCode);
+        mockNext.Verify(n => n(context), Times.Once);
+        context.Response.StatusCode.Should().Be(200);
     }
 
     [Fact]
-    public async Task InvokeAsync_WithoutJwtCookie_ShouldSkipCsrfValidation()
+    public async Task Given_NoJwtCookie_When_InvokeAsync_Then_CallsNext()
     {
-        // Arrange
+        var mockNext = new Mock<RequestDelegate>();
+        var middleware = new CsrfTokenFilterMiddleware(mockNext.Object);
+        
         var context = new DefaultHttpContext();
-        context.Request.Path = "/api/orders";
-        
-        var nextCalled = false;
-        RequestDelegate next = async (ctx) => { nextCalled = true; await Task.CompletedTask; };
-        
-        var middleware = new CsrfTokenFilterMiddleware(next);
+        context.Request.Path = "/api/test";
 
-        // Act
         await middleware.InvokeAsync(context);
 
-        // Assert
-        Assert.True(nextCalled, "Next middleware should be called when no JWT cookie");
-        Assert.NotEqual((int)System.Net.HttpStatusCode.Forbidden, context.Response.StatusCode);
+        mockNext.Verify(n => n(context), Times.Once);
     }
 
     [Fact]
-    public async Task InvokeAsync_WithJwtCookie_ShouldValidateCsrfToken()
+    public async Task Given_JwtCookieWithoutCsrf_When_InvokeAsync_Then_ReturnsForbidden()
     {
-        // Arrange
+        var mockNext = new Mock<RequestDelegate>();
+        var middleware = new CsrfTokenFilterMiddleware(mockNext.Object);
+        
         var context = new DefaultHttpContext();
-        context.Request.Path = "/api/orders";
-        
-        var nextCalled = false;
-        RequestDelegate next = async (ctx) => { nextCalled = true; await Task.CompletedTask; };
-        
-        var middleware = new CsrfTokenFilterMiddleware(next);
+        context.Request.Path = "/api/test";
+        context.Request.Headers.Cookie = "JWT=test-jwt-token";
+        context.Response.Body = new MemoryStream();
 
-        // Act
         await middleware.InvokeAsync(context);
 
-        // Assert - Without JWT, should skip CSRF check
-        Assert.True(nextCalled);
+        context.Response.StatusCode.Should().Be(403);
     }
 
     [Fact]
-    public async Task InvokeAsync_WithMultiplePaths_ShouldHandleCorrectly()
+    public async Task Given_MatchingCsrfTokens_When_InvokeAsync_Then_CallsNext()
     {
-        // Arrange
+        var mockNext = new Mock<RequestDelegate>();
+        var middleware = new CsrfTokenFilterMiddleware(mockNext.Object);
+        
         var context = new DefaultHttpContext();
-        context.Request.Path = "/api/users/profile";
-        
-        var nextCalled = false;
-        RequestDelegate next = async (ctx) => { nextCalled = true; await Task.CompletedTask; };
-        
-        var middleware = new CsrfTokenFilterMiddleware(next);
+        context.Request.Path = "/api/test";
+        context.Request.Headers.Cookie = "JWT=test-jwt; CSRF-TOKEN=matching-token";
+        context.Request.Headers["X-CSRF-TOKEN"] = "matching-token";
 
-        // Act
         await middleware.InvokeAsync(context);
 
-        // Assert
-        Assert.True(nextCalled);
+        mockNext.Verify(n => n(context), Times.Once);
+    }
+
+    [Theory]
+    [InlineData("token1", "token2")]
+    [InlineData("abc", "xyz")]
+    public async Task Given_MismatchedCsrfTokens_When_InvokeAsync_Then_ReturnsForbidden(string cookieToken, string headerToken)
+    {
+        var mockNext = new Mock<RequestDelegate>();
+        var middleware = new CsrfTokenFilterMiddleware(mockNext.Object);
+        
+        var context = new DefaultHttpContext();
+        context.Request.Path = "/api/test";
+        context.Request.Headers.Cookie = $"JWT=test-jwt; CSRF-TOKEN={cookieToken}";
+        context.Request.Headers["X-CSRF-TOKEN"] = headerToken;
+        context.Response.Body = new MemoryStream();
+
+        await middleware.InvokeAsync(context);
+
+        context.Response.StatusCode.Should().Be(403);
+        
+        context.Response.Body.Position = 0;
+        var reader = new StreamReader(context.Response.Body);
+        var responseText = await reader.ReadToEndAsync();
+        responseText.Should().Contain("CSRF validation failed");
     }
 
     [Fact]
-    public async Task InvokeAsync_ConstructorInitialization_ShouldStoreRequestDelegate()
+    public async Task Given_JwtWithNullCsrfCookie_When_InvokeAsync_Then_ReturnsForbidden()
     {
-        // Arrange
-        RequestDelegate next = async (ctx) => { await Task.CompletedTask; };
+        var mockNext = new Mock<RequestDelegate>();
+        var middleware = new CsrfTokenFilterMiddleware(mockNext.Object);
         
-        // Act
-        var middleware = new CsrfTokenFilterMiddleware(next);
+        var context = new DefaultHttpContext();
+        context.Request.Path = "/api/test";
+        context.Request.Headers.Cookie = "JWT=test-jwt";
+        context.Request.Headers["X-CSRF-TOKEN"] = "some-token";
+        context.Response.Body = new MemoryStream();
 
-        // Assert
-        Assert.NotNull(middleware);
+        await middleware.InvokeAsync(context);
+
+        context.Response.StatusCode.Should().Be(403);
+    }
+
+    [Fact]
+    public async Task Given_JwtWithEmptyCsrfHeader_When_InvokeAsync_Then_ReturnsForbidden()
+    {
+        var mockNext = new Mock<RequestDelegate>();
+        var middleware = new CsrfTokenFilterMiddleware(mockNext.Object);
+        
+        var context = new DefaultHttpContext();
+        context.Request.Path = "/api/test";
+        context.Request.Headers.Cookie = "JWT=test-jwt; CSRF-TOKEN=token";
+        context.Response.Body = new MemoryStream();
+
+        await middleware.InvokeAsync(context);
+
+        context.Response.StatusCode.Should().Be(403);
+    }
+
+    [Theory]
+    [InlineData("/swagger")]
+    [InlineData("/swagger/v1/swagger.json")]
+    [InlineData("/swagger/ui")]
+    public async Task Given_SwaggerVariousPaths_When_InvokeAsync_Then_BypassesValidation(string path)
+    {
+        var mockNext = new Mock<RequestDelegate>();
+        var middleware = new CsrfTokenFilterMiddleware(mockNext.Object);
+        
+        var context = new DefaultHttpContext();
+        context.Request.Path = path;
+
+        await middleware.InvokeAsync(context);
+
+        mockNext.Verify(n => n(context), Times.Once);
+    }
+
+    [Fact]
+    public async Task Given_CaseSensitiveCsrfTokens_When_InvokeAsync_Then_ReturnsForbidden()
+    {
+        var mockNext = new Mock<RequestDelegate>();
+        var middleware = new CsrfTokenFilterMiddleware(mockNext.Object);
+        
+        var context = new DefaultHttpContext();
+        context.Request.Path = "/api/test";
+        context.Request.Headers.Cookie = "JWT=test-jwt; CSRF-TOKEN=Token";
+        context.Request.Headers["X-CSRF-TOKEN"] = "token";
+        context.Response.Body = new MemoryStream();
+
+        await middleware.InvokeAsync(context);
+
+        context.Response.StatusCode.Should().Be(403);
     }
 }

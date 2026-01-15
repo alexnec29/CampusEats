@@ -25,6 +25,11 @@ obj/
 # Logs
 *.log
 
+# Test results
+TestResults/
+*.trx
+coverage.cobertura.xml
+
 # Temp / Editor
 *.tmp
 *.swp
