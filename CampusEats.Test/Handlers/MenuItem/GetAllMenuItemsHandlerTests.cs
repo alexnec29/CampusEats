@@ -75,4 +75,64 @@ public class GetAllMenuItemsHandlerTests
         Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
         okResult.Value.Should().BeEmpty();
     }
+    
+    [Fact]
+    public async Task Given_MultipleCategories_When_HandleIsCalled_Then_AllCategoriesReturned()
+    {
+        // Arrange
+        var menuItems = new List<Api.Models.MenuItem>
+        {
+            new() { Id = 1, Name = "Pancakes", Price = 8.99m, Category = MenuCategory.Breakfast },
+            new() { Id = 2, Name = "Sandwich", Price = 9.99m, Category = MenuCategory.Lunch },
+            new() { Id = 3, Name = "Steak", Price = 24.99m, Category = MenuCategory.Dinner },
+            new() { Id = 4, Name = "Coffee", Price = 3.99m, Category = MenuCategory.Drinks },
+            new() { Id = 5, Name = "Cake", Price = 6.99m, Category = MenuCategory.Desserts },
+            new() { Id = 6, Name = "Chips", Price = 2.99m, Category = MenuCategory.Snacks }
+        };
+
+        Mock<IMenuItemRepository> mockRepository = new Mock<IMenuItemRepository>();
+        mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(menuItems);
+
+        GetAllMenuItemsHandler handler = new GetAllMenuItemsHandler(mockRepository.Object);
+        GetAllMenuItemsRequest request = new GetAllMenuItemsRequest();
+
+        // Act
+        IResult result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        var okResult = Assert.IsType<Ok<IList<Api.Models.MenuItem>>>(result);
+        okResult.Value.Should().HaveCount(6);
+        okResult.Value.Should().Contain(m => m.Category == MenuCategory.Breakfast);
+        okResult.Value.Should().Contain(m => m.Category == MenuCategory.Lunch);
+        okResult.Value.Should().Contain(m => m.Category == MenuCategory.Dinner);
+        okResult.Value.Should().Contain(m => m.Category == MenuCategory.Drinks);
+        okResult.Value.Should().Contain(m => m.Category == MenuCategory.Desserts);
+        okResult.Value.Should().Contain(m => m.Category == MenuCategory.Snacks);
+    }
+    
+    [Fact]
+    public async Task Given_MixedAvailability_When_HandleIsCalled_Then_AllItemsReturned()
+    {
+        // Arrange
+        var menuItems = new List<Api.Models.MenuItem>
+        {
+            new() { Id = 1, Name = "Available Item", IsAvailable = true },
+            new() { Id = 2, Name = "Unavailable Item", IsAvailable = false }
+        };
+
+        Mock<IMenuItemRepository> mockRepository = new Mock<IMenuItemRepository>();
+        mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(menuItems);
+
+        GetAllMenuItemsHandler handler = new GetAllMenuItemsHandler(mockRepository.Object);
+        GetAllMenuItemsRequest request = new GetAllMenuItemsRequest();
+
+        // Act
+        IResult result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        var okResult = Assert.IsType<Ok<IList<Api.Models.MenuItem>>>(result);
+        okResult.Value.Should().HaveCount(2);
+        okResult.Value.Should().Contain(m => m.IsAvailable == true);
+        okResult.Value.Should().Contain(m => m.IsAvailable == false);
+    }
 }

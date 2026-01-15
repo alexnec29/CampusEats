@@ -1,130 +1,143 @@
 using CampusEats.Api.Middleware;
+using FluentAssertions;
+using FluentValidation;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Text.Json;
+using System.Net;
 
 namespace CampusEats.Test.Middleware;
 
 public class GlobalExceptionHandlerMiddlewareTests
 {
-    private readonly Mock<ILogger<GlobalExceptionHandlerMiddleware>> _mockLogger;
-
-    public GlobalExceptionHandlerMiddlewareTests()
-    {
-        _mockLogger = new Mock<ILogger<GlobalExceptionHandlerMiddleware>>();
-    }
-
     [Fact]
-    public async Task InvokeAsync_WithoutException_ShouldCallNextMiddleware()
+    public async Task Given_NoException_When_InvokeAsync_Then_CallsNextDelegate()
     {
-        // Arrange
-        var context = new DefaultHttpContext();
-        var env = new Mock<Microsoft.AspNetCore.Hosting.IWebHostEnvironment>();
-        env.Setup(e => e.EnvironmentName).Returns("Development");
-        
-        var nextCalled = false;
-        RequestDelegate next = async (ctx) => { nextCalled = true; await Task.CompletedTask; };
-        
-        var middleware = new GlobalExceptionHandlerMiddleware(next, _mockLogger.Object, env.Object);
+        var mockNext = new Mock<RequestDelegate>();
+        var mockLogger = new Mock<ILogger<GlobalExceptionHandlerMiddleware>>();
+        var mockEnv = new Mock<IWebHostEnvironment>();
+        mockEnv.Setup(e => e.EnvironmentName).Returns(Environments.Production);
 
-        // Act
+        var middleware = new GlobalExceptionHandlerMiddleware(mockNext.Object, mockLogger.Object, mockEnv.Object);
+        var context = new DefaultHttpContext();
+
         await middleware.InvokeAsync(context);
 
-        // Assert
-        Assert.True(nextCalled, "Next middleware should be called when no exception occurs");
+        mockNext.Verify(n => n(context), Times.Once);
     }
 
     [Fact]
-    public async Task InvokeAsync_WithException_ShouldHandleGracefully()
+    public async Task Given_ValidationException_When_InvokeAsync_Then_ReturnsBadRequest()
     {
-        // Arrange
+        var mockLogger = new Mock<ILogger<GlobalExceptionHandlerMiddleware>>();
+        var mockEnv = new Mock<IWebHostEnvironment>();
+        mockEnv.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        var mockNext = new Mock<RequestDelegate>();
+        mockNext.Setup(n => n(It.IsAny<HttpContext>())).ThrowsAsync(new ValidationException("Validation failed"));
+
+        var middleware = new GlobalExceptionHandlerMiddleware(mockNext.Object, mockLogger.Object, mockEnv.Object);
         var context = new DefaultHttpContext();
         context.Response.Body = new MemoryStream();
-        
-        var env = new Mock<Microsoft.AspNetCore.Hosting.IWebHostEnvironment>();
-        env.Setup(e => e.EnvironmentName).Returns("Production");
-        
-        var exception = new InvalidOperationException("Test error");
-        RequestDelegate next = async (ctx) => { await Task.CompletedTask; throw exception; };
-        
-        var middleware = new GlobalExceptionHandlerMiddleware(next, _mockLogger.Object, env.Object);
 
-        // Act
         await middleware.InvokeAsync(context);
 
-        // Assert
-        Assert.Equal((int)System.Net.HttpStatusCode.InternalServerError, context.Response.StatusCode);
-        Assert.Equal("application/json", context.Response.ContentType);
+        context.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+        context.Response.ContentType.Should().Be("application/json");
     }
 
     [Fact]
-    public async Task InvokeAsync_ShouldSetJsonContentType()
+    public async Task Given_GenericException_When_InvokeAsync_Then_ReturnsInternalServerError()
     {
-        // Arrange
+        var mockLogger = new Mock<ILogger<GlobalExceptionHandlerMiddleware>>();
+        var mockEnv = new Mock<IWebHostEnvironment>();
+        mockEnv.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        var mockNext = new Mock<RequestDelegate>();
+        mockNext.Setup(n => n(It.IsAny<HttpContext>())).ThrowsAsync(new Exception("Generic error"));
+
+        var middleware = new GlobalExceptionHandlerMiddleware(mockNext.Object, mockLogger.Object, mockEnv.Object);
         var context = new DefaultHttpContext();
         context.Response.Body = new MemoryStream();
-        
-        var env = new Mock<Microsoft.AspNetCore.Hosting.IWebHostEnvironment>();
-        env.Setup(e => e.EnvironmentName).Returns("Production");
-        
-        RequestDelegate next = async (ctx) => { await Task.CompletedTask; throw new Exception("Test"); };
-        
-        var middleware = new GlobalExceptionHandlerMiddleware(next, _mockLogger.Object, env.Object);
 
-        // Act
         await middleware.InvokeAsync(context);
 
-        // Assert
-        Assert.Equal("application/json", context.Response.ContentType);
+        context.Response.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
+        context.Response.ContentType.Should().Be("application/json");
     }
 
     [Fact]
-    public async Task InvokeAsync_ShouldWriteResponseBody()
+    public async Task Given_ExceptionInDevelopment_When_InvokeAsync_Then_ReturnsDetailedError()
     {
-        // Arrange
+        var mockLogger = new Mock<ILogger<GlobalExceptionHandlerMiddleware>>();
+        var mockEnv = new Mock<IWebHostEnvironment>();
+        mockEnv.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        var mockNext = new Mock<RequestDelegate>();
+        var exception = new Exception("Development error");
+        mockNext.Setup(n => n(It.IsAny<HttpContext>())).ThrowsAsync(exception);
+
+        var middleware = new GlobalExceptionHandlerMiddleware(mockNext.Object, mockLogger.Object, mockEnv.Object);
         var context = new DefaultHttpContext();
         context.Response.Body = new MemoryStream();
-        
-        var env = new Mock<Microsoft.AspNetCore.Hosting.IWebHostEnvironment>();
-        env.Setup(e => e.EnvironmentName).Returns("Production");
-        
-        RequestDelegate next = async (ctx) => { await Task.CompletedTask; throw new Exception("Test"); };
-        
-        var middleware = new GlobalExceptionHandlerMiddleware(next, _mockLogger.Object, env.Object);
 
-        // Act
         await middleware.InvokeAsync(context);
 
-        // Assert
+        context.Response.StatusCode.Should().Be(500);
         context.Response.Body.Position = 0;
-        var responseText = new StreamReader(context.Response.Body).ReadToEnd();
-        Assert.NotEmpty(responseText);
+        var reader = new StreamReader(context.Response.Body);
+        var responseText = await reader.ReadToEndAsync();
+        responseText.Should().Contain("Development error");
     }
 
     [Fact]
-    public async Task InvokeAsync_ShouldLogException()
+    public async Task Given_Exception_When_InvokeAsync_Then_LogsError()
     {
-        // Arrange
+        var mockLogger = new Mock<ILogger<GlobalExceptionHandlerMiddleware>>();
+        var mockEnv = new Mock<IWebHostEnvironment>();
+        mockEnv.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        var mockNext = new Mock<RequestDelegate>();
+        mockNext.Setup(n => n(It.IsAny<HttpContext>())).ThrowsAsync(new Exception("Test exception"));
+
+        var middleware = new GlobalExceptionHandlerMiddleware(mockNext.Object, mockLogger.Object, mockEnv.Object);
         var context = new DefaultHttpContext();
         context.Response.Body = new MemoryStream();
-        
-        var env = new Mock<Microsoft.AspNetCore.Hosting.IWebHostEnvironment>();
-        env.Setup(e => e.EnvironmentName).Returns("Production");
-        
-        RequestDelegate next = async (ctx) => { await Task.CompletedTask; throw new Exception("Test"); };
-        
-        var middleware = new GlobalExceptionHandlerMiddleware(next, _mockLogger.Object, env.Object);
 
-        // Act
         await middleware.InvokeAsync(context);
 
-        // Assert - Logger should be called
-        _mockLogger.Verify(x => x.Log(
-            It.IsAny<LogLevel>(),
-            It.IsAny<EventId>(),
-            It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
+        mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => true),
+                It.IsAny<Exception>(),
+                It.Is<Func<It.IsAnyType, Exception?, string>>((v, t) => true)),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Given_ExceptionInProduction_When_InvokeAsync_Then_HidesDetailedError()
+    {
+        var mockLogger = new Mock<ILogger<GlobalExceptionHandlerMiddleware>>();
+        var mockEnv = new Mock<IWebHostEnvironment>();
+        mockEnv.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        var mockNext = new Mock<RequestDelegate>();
+        mockNext.Setup(n => n(It.IsAny<HttpContext>())).ThrowsAsync(new Exception("Sensitive information"));
+
+        var middleware = new GlobalExceptionHandlerMiddleware(mockNext.Object, mockLogger.Object, mockEnv.Object);
+        var context = new DefaultHttpContext();
+        context.Response.Body = new MemoryStream();
+
+        await middleware.InvokeAsync(context);
+
+        context.Response.Body.Position = 0;
+        var reader = new StreamReader(context.Response.Body);
+        var responseText = await reader.ReadToEndAsync();
+        responseText.Should().Contain("An unexpected error occurred");
+        responseText.Should().NotContain("Sensitive information");
     }
 }
