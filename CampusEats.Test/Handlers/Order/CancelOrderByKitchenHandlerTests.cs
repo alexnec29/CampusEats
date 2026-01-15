@@ -17,7 +17,6 @@ public class CancelOrderByKitchenHandlerTests
         var request = new CancelOrderByKitchenRequest(orderId);
         var mockOrderRepository = new Mock<IOrderRepository>();
         var mockPaymentService = new Mock<IPaymentService>();
-        var mockFactory = new Mock<PaymentProviderFactory>(new List<IPaymentService>());
 
         var order = new Api.Models.Order
         {
@@ -36,13 +35,12 @@ public class CancelOrderByKitchenHandlerTests
         mockPaymentService.Setup(ps => ps.CreateRefundAsync(order.PaymentIntentId))
             .ReturnsAsync((true, "Refund successful"));
 
-        mockFactory.Setup(f => f.GetProvider(order.PaymentProvider))
-            .Returns(mockPaymentService.Object);
+        var factory = new PaymentProviderFactory(new List<IPaymentService> { mockPaymentService.Object });
 
         mockOrderRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Api.Models.Order>()))
             .Returns(Task.CompletedTask);
 
-        var handler = new CancelOrderByKitchenHandler(mockOrderRepository.Object, mockFactory.Object);
+        var handler = new CancelOrderByKitchenHandler(mockOrderRepository.Object, factory);
 
         var result = await handler.Handle(request, CancellationToken.None);
 
@@ -57,12 +55,12 @@ public class CancelOrderByKitchenHandlerTests
         var orderId = 999;
         var request = new CancelOrderByKitchenRequest(orderId);
         var mockOrderRepository = new Mock<IOrderRepository>();
-        var mockFactory = new Mock<PaymentProviderFactory>(new List<IPaymentService>());
+        var factory = new PaymentProviderFactory(new List<IPaymentService>());
 
         mockOrderRepository.Setup(repo => repo.GetByIdAsync(orderId))
             .ReturnsAsync((Api.Models.Order?)null);
 
-        var handler = new CancelOrderByKitchenHandler(mockOrderRepository.Object, mockFactory.Object);
+        var handler = new CancelOrderByKitchenHandler(mockOrderRepository.Object, factory);
 
         var result = await handler.Handle(request, CancellationToken.None);
 
@@ -78,7 +76,6 @@ public class CancelOrderByKitchenHandlerTests
         var request = new CancelOrderByKitchenRequest(orderId);
         var mockOrderRepository = new Mock<IOrderRepository>();
         var mockPaymentService = new Mock<IPaymentService>();
-        var mockFactory = new Mock<PaymentProviderFactory>(new List<IPaymentService>());
 
         var order = new Api.Models.Order
         {
@@ -97,10 +94,9 @@ public class CancelOrderByKitchenHandlerTests
         mockPaymentService.Setup(ps => ps.CreateRefundAsync(order.PaymentIntentId))
             .ReturnsAsync((false, "Refund failed"));
 
-        mockFactory.Setup(f => f.GetProvider(order.PaymentProvider))
-            .Returns(mockPaymentService.Object);
+        var factory = new PaymentProviderFactory(new List<IPaymentService> { mockPaymentService.Object });
 
-        var handler = new CancelOrderByKitchenHandler(mockOrderRepository.Object, mockFactory.Object);
+        var handler = new CancelOrderByKitchenHandler(mockOrderRepository.Object, factory);
 
         var result = await handler.Handle(request, CancellationToken.None);
 
@@ -114,7 +110,7 @@ public class CancelOrderByKitchenHandlerTests
         var orderId = 1;
         var request = new CancelOrderByKitchenRequest(orderId);
         var mockOrderRepository = new Mock<IOrderRepository>();
-        var mockFactory = new Mock<PaymentProviderFactory>(new List<IPaymentService>());
+        var factory = new PaymentProviderFactory(new List<IPaymentService>());
 
         var order = new Api.Models.Order
         {
@@ -129,10 +125,7 @@ public class CancelOrderByKitchenHandlerTests
         mockOrderRepository.Setup(repo => repo.GetByIdAsync(orderId))
             .ReturnsAsync(order);
 
-        mockFactory.Setup(f => f.GetProvider(order.PaymentProvider))
-            .Returns((IPaymentService?)null);
-
-        var handler = new CancelOrderByKitchenHandler(mockOrderRepository.Object, mockFactory.Object);
+        var handler = new CancelOrderByKitchenHandler(mockOrderRepository.Object, factory);
 
         await Assert.ThrowsAsync<InvalidOperationException>(
             async () => await handler.Handle(request, CancellationToken.None)
