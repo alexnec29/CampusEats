@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Login from './Login';
 import { AuthProvider } from '../context/AuthContext';
@@ -43,8 +42,6 @@ describe('Login Page', () => {
     });
 
     it('should show error message on failed login', async () => {
-        const user = userEvent.setup();
-
         // 1. Primul apel (check-auth la render) -> returnează ok (neautentificat)
         mockApiClient.mockResolvedValueOnce({
             ok: true,
@@ -66,11 +63,11 @@ describe('Login Page', () => {
         );
 
         // Completăm câmpurile
-        await user.type(screen.getByPlaceholderText(/username/i), 'testuser');
-        await user.type(screen.getByPlaceholderText(/parola/i), 'wrongpass');
+        fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'testuser' } });
+        fireEvent.change(screen.getByPlaceholderText(/parola/i), { target: { value: 'wrongpass' } });
 
         // Trimitem formularul
-        await user.click(screen.getByRole('button', { name: /intra in cont/i }));
+        fireEvent.click(screen.getByRole('button', { name: /intra in cont/i }));
 
         // FIX: Folosim findByText cu regex case-insensitive pentru flexibilitate maximă
         // findByText așteaptă automat să apară elementul (ca un waitFor)
@@ -79,7 +76,6 @@ describe('Login Page', () => {
     });
 
     it('should navigate to home on successful login', async () => {
-        const user = userEvent.setup();
         mockApiClient.mockResolvedValueOnce({ ok: true, json: async () => ({}) } as Response);
         mockApiClient.mockResolvedValueOnce({ ok: true, json: async () => ({ isAuthenticated: true, role: 'Buyer' }) } as Response);
 
@@ -91,9 +87,9 @@ describe('Login Page', () => {
             </LanguageProvider>
         );
 
-        await user.type(screen.getByPlaceholderText(/username/i), 'admin');
-        await user.type(screen.getByPlaceholderText(/parola/i), 'password123');
-        await user.click(screen.getByRole('button', { name: /intra in cont/i }));
+        fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'admin' } });
+        fireEvent.change(screen.getByPlaceholderText(/parola/i), { target: { value: 'password123' } });
+        fireEvent.click(screen.getByRole('button', { name: /intra in cont/i }));
 
         await waitFor(() => {
             expect(mockNavigate).toHaveBeenCalledWith('/home');

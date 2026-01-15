@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Cart from './Cart';
 import { AuthProvider } from '../context/AuthContext';
@@ -76,7 +75,6 @@ describe('Cart Page', () => {
     });
 
     it('should handle quantity increase', async () => {
-        const user = userEvent.setup();
         renderCart();
 
         // Căutăm butonul de plus după aria-label (mai robust decât textul "+")
@@ -85,7 +83,7 @@ describe('Cart Page', () => {
         // Mock pentru succesul update-ului
         mockApiClient.mockResolvedValueOnce({ ok: true } as Response);
 
-        await user.click(increaseBtn);
+        fireEvent.click(increaseBtn);
 
         expect(mockApiClient).toHaveBeenCalledWith(
             expect.stringContaining('/api/orders/500/items/10'),
@@ -94,7 +92,6 @@ describe('Cart Page', () => {
     });
 
     it('should remove item after confirmation', async () => {
-        const user = userEvent.setup();
         renderCart();
 
         const removeBtn = await screen.findByTitle('Remove item');
@@ -102,11 +99,11 @@ describe('Cart Page', () => {
         // Resetăm mock-ul pentru DELETE
         mockApiClient.mockResolvedValueOnce({ ok: true } as Response);
 
-        await user.click(removeBtn);
+        fireEvent.click(removeBtn);
 
         // Confirmăm în modala Context-ului
         const confirmBtn = screen.getByText('Șterge');
-        await user.click(confirmBtn);
+        fireEvent.click(confirmBtn);
 
         await waitFor(() => {
             expect(mockApiClient).toHaveBeenCalledWith(
@@ -117,16 +114,15 @@ describe('Cart Page', () => {
     });
 
     it('should navigate to payment when order is placed', async () => {
-        const user = userEvent.setup();
         renderCart();
 
         const placeBtn = await screen.findByText('Plasează Comanda');
         mockApiClient.mockResolvedValueOnce({ ok: true } as Response);
 
-        await user.click(placeBtn);
+        fireEvent.click(placeBtn);
 
         const finalConfirm = screen.getByText('Plasează');
-        await user.click(finalConfirm);
+        fireEvent.click(finalConfirm);
 
         await waitFor(() => {
             expect(mockNavigate).toHaveBeenCalledWith('/payment', expect.any(Object));
