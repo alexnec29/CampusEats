@@ -117,3 +117,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 await app.RunAsync();
+
+// Make Program class accessible to test projects
+public partial class Program { }
