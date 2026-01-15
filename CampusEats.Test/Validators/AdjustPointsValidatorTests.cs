@@ -22,7 +22,7 @@ public class AdjustPointsValidatorTests
         AdjustPointsRequest request = new AdjustPointsRequest(
             UserId: Guid.NewGuid(),
             Points: 0,
-            Reason: "Test"
+            Reason: "System adjustment"
         );
         
         //Act
@@ -51,7 +51,7 @@ public class AdjustPointsValidatorTests
         AdjustPointsRequest request = new AdjustPointsRequest(
             UserId: Guid.NewGuid(),
             Points: 100,
-            Reason: "Test"
+            Reason: "Promotional bonus"
         );
         
         //Act
@@ -85,7 +85,7 @@ public class AdjustPointsValidatorTests
         AdjustPointsRequest request = new AdjustPointsRequest(
             UserId: userId,
             Points: 100,
-            Reason: "Test"
+            Reason: "Admin points award"
         );
         
         //Act
@@ -122,7 +122,7 @@ public class AdjustPointsValidatorTests
         AdjustPointsRequest request = new AdjustPointsRequest(
             UserId: userId,
             Points: 100,
-            Reason: "Test"
+            Reason: "First time bonus"
         );
         
         //Act

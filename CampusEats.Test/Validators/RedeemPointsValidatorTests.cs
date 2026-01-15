@@ -22,7 +22,7 @@ public class RedeemPointsValidatorTests
         RedeemPointsRequest request = new RedeemPointsRequest(
             UserId: Guid.NewGuid(),
             Points: 0,
-            Description: "Test"
+            Description: "Redeem for discount"
         );
         
         //Act
@@ -47,7 +47,7 @@ public class RedeemPointsValidatorTests
         RedeemPointsRequest request = new RedeemPointsRequest(
             UserId: Guid.NewGuid(),
             Points: -100,
-            Description: "Test"
+            Description: "Redeem for order"
         );
         
         //Act
@@ -76,7 +76,7 @@ public class RedeemPointsValidatorTests
         RedeemPointsRequest request = new RedeemPointsRequest(
             UserId: Guid.NewGuid(),
             Points: 100,
-            Description: "Test"
+            Description: "Redeem rewards"
         );
         
         //Act
@@ -147,7 +147,7 @@ public class RedeemPointsValidatorTests
         RedeemPointsRequest request = new RedeemPointsRequest(
             UserId: userId,
             Points: 100,
-            Description: "Test"
+            Description: "Apply loyalty discount"
         );
         
         //Act
