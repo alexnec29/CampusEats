@@ -18,7 +18,39 @@
 | **Infrastructure** | 29% 🔴 | Limited | HIGH | ❌ Need tests |
 | **Endpoints** | 0% ❌ | None | CRÍTICO | ❌ URGENT |
 | **Program** | 0% ❌ | None | CRÍTICO | ❌ URGENT |
-✅ **Completed & Committed (Commit: f97cf67)**:
+## Phase 2 - Focus on Handlers & Repositories (CRÍTICO)
+**Target**: Move Infrastructure from 29% to 60%+, and add comprehensive handler tests
+
+### Phase 2a: Repository Pattern Tests (Infrastructure)
+**Files to test**:
+- `CampusEatsDbContext.cs` - EF Core context
+- Entity Repositories (`UserRepository.cs`, `OrderRepository.cs`, etc.)
+- `DbInitializer.cs` - Database seeding
+
+**Approach**: Unit tests with in-memory EF Core database
+**Expected Coverage Gain**: +15-20%
+
+### Phase 2b: Feature Handler Tests (Features - 83% → 90%+)
+**Files to test**:
+- `CreateUserHandler.cs` - User creation
+- `LoginUserHandler.cs` - Authentication
+- `CreateOrderHandler.cs` - Order creation
+- `UpdateOrderStatusHandler.cs` - Order workflow
+- `CreatePaymentIntentHandler.cs` - Payment processing
+
+**Current Status**: Many handlers already tested but need edge cases
+**Expected Coverage Gain**: +5-10%
+
+### Phase 2c: Utility Tests (Utils - 42% → 75%+)
+**Files to test**:
+- `JwtUtil/JwtService.cs` - Token generation/validation
+- `PaymentUtil/` - Payment processing utilities
+- `CookieUtil/` - Cookie operations
+
+**Approach**: Unit tests with mocked dependencies
+**Expected Coverage Gain**: +15-20%
+
+## Phase 1 - COMPLETED ✅ (Commit: fa8c2c2)
 - Created branch `tests` for test development
 - Added comprehensive middleware test structure:
   - `CsrfTokenFilterMiddlewareTests.cs` - 5 test cases ✅
