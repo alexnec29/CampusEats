@@ -24,7 +24,7 @@ public class PaymentProviderFactoryTests
         var result = factory.GetProvider(providerName);
 
         result.Should().NotBeNull();
-        result!.Name.Should().Be("Stripe");
+        result.Name.Should().Be("Stripe");
     }
 
     [Theory]
@@ -45,7 +45,7 @@ public class PaymentProviderFactoryTests
         var result = factory.GetProvider(providerName);
 
         result.Should().NotBeNull();
-        result!.Name.Should().Be("Paypal");
+        result.Name.Should().Be("Paypal");
     }
 
     [Theory]
@@ -97,7 +97,7 @@ public class PaymentProviderFactoryTests
         var result = factory.GetProvider("Service2");
 
         result.Should().NotBeNull();
-        result!.Name.Should().Be("Service2");
+        result.Name.Should().Be("Service2");
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public class PaymentProviderFactoryTests
         var services = new List<IPaymentService> { stripeService.Object };
         var factory = new PaymentProviderFactory(services);
 
-        var result = factory.GetProvider(providerName);
+        var result = factory.GetProvider(providerName!);
 
         result.Should().BeNull();
     }

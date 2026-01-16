@@ -139,8 +139,8 @@ public class CancelOrderHandlerTests
         
         //Assert
         var okResult = result.Should().BeOfType<Ok<Api.Models.Order>>().Subject;
-        okResult.Value.Status.Should().Be(OrderStatus.Cancelled);
-        okResult.Value.KitchenTask.Status.Should().Be(OrderStatus.Cancelled);
+        okResult!.Value!.Status.Should().Be(OrderStatus.Cancelled);
+        okResult.Value!.KitchenTask!.Status.Should().Be(OrderStatus.Cancelled);
         okResult.Value.KitchenTask.CompletedAt.Should().NotBeNull();
         okResult.Value.KitchenTask.CompletedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
     }
@@ -176,7 +176,7 @@ public class CancelOrderHandlerTests
         
         //Assert
         var okResult = result.Should().BeOfType<Ok<Api.Models.Order>>().Subject;
-        okResult.Value.Status.Should().Be(OrderStatus.Cancelled);
+        okResult!.Value!.Status.Should().Be(OrderStatus.Cancelled);
         okResult.Value.KitchenTask.Should().BeNull();
     }
 

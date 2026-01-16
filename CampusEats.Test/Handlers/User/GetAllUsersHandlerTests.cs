@@ -32,7 +32,7 @@ public class GetAllUsersHandlerTests
 
         var okResult = Assert.IsType<Ok<List<GetAllUsersResponse>>>(result);
         Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
-        Assert.Equal(3, okResult.Value.Count);
+        Assert.Equal(3, okResult.Value!.Count);
         Assert.Equal("user1", okResult.Value[0].Username);
         Assert.Equal("Buyer", okResult.Value[0].Role);
     }
@@ -52,7 +52,7 @@ public class GetAllUsersHandlerTests
 
         var okResult = Assert.IsType<Ok<List<GetAllUsersResponse>>>(result);
         Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
-        Assert.Empty(okResult.Value);
+        Assert.Empty(okResult.Value!);
     }
 
     [Fact]
@@ -119,7 +119,12 @@ public class GetAllUsersHandlerTests
                 Id = Guid.NewGuid(),
                 Username = $"user{i}",
                 Email = $"user{i}@test.com",
-                Role = i % 3 == 0 ? Role.Admin : (i % 2 == 0 ? Role.Kitchen : Role.Buyer)
+                Role = i switch
+                {
+                    _ when i % 3 == 0 => Role.Admin,
+                    _ when i % 2 == 0 => Role.Kitchen,
+                    _ => Role.Buyer
+                }
             })
             .ToList();
 
@@ -161,7 +166,7 @@ public class GetAllUsersHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         var okResult = Assert.IsType<Ok<List<GetAllUsersResponse>>>(result);
-        var user = okResult.Value.First();
+        var user = okResult.Value![0];
         user.Id.Should().Be(userId);
         user.Username.Should().Be("testuser");
         user.Email.Should().Be("testuser@example.com");
