@@ -7,7 +7,10 @@
       "launchBrowser": false,
       "applicationUrl": "http://localhost:5078",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Jwt:Secret": "super-secret-key-change-in-prodasdasfag",
+        "Stripe:SecretKey": "sk_test_51ScmzvGeihajtF8vifOyyXslBkvSNTu1KTbcYLiXcO82w86JbXDmJapfVGv4TX5vknvgsTmKcw6dQWtninjFS3bX00z6DBpaG4",
+        "Stripe:WebHookSecretKey" : "whsec_3d0999ae3494098a825b725f39de6cbb8177911d7087ac506a1fa99d588f86d2"
       }
     },
     "https": {
