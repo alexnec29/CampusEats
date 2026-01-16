@@ -3,12 +3,15 @@ using CampusEats.Api.Models.Enums;
 using CampusEats.Test.Helpers;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Xunit;
-
 namespace CampusEats.Test.Infrastructure;
 
 public class DbInitializerTests
 {
+    private static readonly string[] ExpectedAllergens = 
+    { 
+        "Peanuts", "Gluten", "Dairy" 
+    };
+    
     [Fact]
     public async Task Given_EmptyDatabase_When_InitializeAsyncIsCalled_Then_SeedsExpectedData()
     {
@@ -22,7 +25,7 @@ public class DbInitializerTests
         // 1. Verify Allergens
         var allergens = await context.Allergens.ToListAsync();
         allergens.Should().HaveCount(3);
-        allergens.Select(a => a.Name).Should().Contain(new[] { "Peanuts", "Gluten", "Dairy" });
+        allergens.Select(a => a.Name).Should().Contain(ExpectedAllergens);
 
         // 2. Verify MenuItems
         var menuItems = await context.MenuItems.ToListAsync();

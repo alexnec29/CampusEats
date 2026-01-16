@@ -87,7 +87,7 @@ public class StripePaymentService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, ex.Message);
+            logger.LogError(ex, "Unknown error: {Error}", ex.Message);
         }
     }
 

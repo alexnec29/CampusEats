@@ -86,7 +86,7 @@ public class StripePaymentServiceTests
     }
     // --- Helpers ---
 
-    private string CreateStripeEventJson(string eventType, int orderId)
+    private static string CreateStripeEventJson(string eventType, int orderId)
     {
         // Minimal JSON to satisfy the Stripe ConstructEvent parser and your logic
         return $@"{{
@@ -105,7 +105,7 @@ public class StripePaymentServiceTests
         }}";
     }
 
-    private DefaultHttpContext CreateMockHttpContext(string jsonBody, string? overrideSecret = null)
+    private static DefaultHttpContext CreateMockHttpContext(string jsonBody, string? overrideSecret = null)
     {
         var context = new DefaultHttpContext();
         var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonBody));
@@ -120,7 +120,7 @@ public class StripePaymentServiceTests
         return context;
     }
 
-    private string GenerateStripeSignature(string payload, string secret)
+    private static string GenerateStripeSignature(string payload, string secret)
     {
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         var payloadToSign = $"{timestamp}.{payload}";
@@ -129,7 +129,7 @@ public class StripePaymentServiceTests
 
         using var hmac = new HMACSHA256(secretBytes);
         var hash = hmac.ComputeHash(payloadBytes);
-        var signature = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+        var signature = Convert.ToHexStringLower(hash);
 
         return $"t={timestamp},v1={signature}";
     }

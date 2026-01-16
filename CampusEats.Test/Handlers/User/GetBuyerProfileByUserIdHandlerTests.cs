@@ -102,7 +102,7 @@ public class GetBuyerProfileByUserIdHandlerTests
         
         //Assert
         var okResult = Assert.IsType<Ok<GetBuyerProfileByUserIdResponse>>(result);
-        okResult.Value.DeliveryAddress.Street.Should().Be("King Street");
+        okResult.Value!.DeliveryAddress.Street.Should().Be("King Street");
         okResult.Value.DeliveryAddress.Building.Should().Be("Building A");
         okResult.Value.DeliveryAddress.City.Should().Be("Bucharest");
         okResult.Value.DeliveryAddress.County.Should().Be("Ilfov");
@@ -140,7 +140,7 @@ public class GetBuyerProfileByUserIdHandlerTests
         
         //Assert
         var okResult = Assert.IsType<Ok<GetBuyerProfileByUserIdResponse>>(result);
-        okResult.Value.Age.Should().Be(age);
+        okResult.Value!.Age.Should().Be(age);
     }
 
     [Fact]
@@ -174,7 +174,7 @@ public class GetBuyerProfileByUserIdHandlerTests
         
         //Assert
         var okResult = Assert.IsType<Ok<GetBuyerProfileByUserIdResponse>>(result);
-        okResult.Value.FirstName.Should().Be(longFirstName);
+        okResult.Value!.FirstName.Should().Be(longFirstName);
         okResult.Value.LastName.Should().Be(longLastName);
     }
 }

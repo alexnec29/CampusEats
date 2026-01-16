@@ -20,8 +20,8 @@ public class SearchMenuItemsHandler(
 
         var searchTerm = request.SearchTerm.ToLower();
         var menuItems = await dbContext.MenuItems
-            .Where(m => m.Name.ToLower().Contains(searchTerm) || 
-                       (m.Description != null && m.Description.ToLower().Contains(searchTerm)))
+            .Where(m => m.Name.ToLower().Contains(searchTerm, StringComparison.OrdinalIgnoreCase) || 
+                       (m.Description != null && m.Description.ToLower().Contains(searchTerm, StringComparison.OrdinalIgnoreCase)))
             .ToListAsync(cancellationToken);
         
         return Results.Ok(menuItems);

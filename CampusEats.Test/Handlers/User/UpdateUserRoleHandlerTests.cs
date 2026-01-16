@@ -37,7 +37,7 @@ public class UpdateUserRoleHandlerTests
 
         var okResult = Assert.IsType<Ok<UpdateUserRoleResponse>>(result);
         Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
-        Assert.Contains("success", okResult.Value.Message);
+        Assert.Contains("success", okResult.Value!.Message);
         mockUserRepository.Verify(repo => repo.UpdateAsync(It.Is<Api.Models.User>(u => u.Role == Role.Kitchen)), Times.Once);
     }
 
